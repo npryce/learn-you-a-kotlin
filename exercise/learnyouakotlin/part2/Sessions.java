@@ -11,18 +11,18 @@ class Sessions {
         if (session == null)
             return null;
         else
-            return session.subtitle;
+            return session.getSubtitle();
     }
 
     public static String subtitleOrPrompt(Session session) {
-        if (session.subtitle == null)
+        if (session.getSubtitle() == null)
             return "click to enter subtitle";
         else
-            return session.subtitle;
+            return session.getSubtitle();
     }
 
     public static @Nullable Session findWithTitle(List<Session> sessions, String title) {
-        return sessions.stream().filter(session -> session.title.equalsIgnoreCase(title)).findFirst().orElse(null);
+        return sessions.stream().filter(session -> session.getTitle().equalsIgnoreCase(title)).findFirst().orElse(null);
     }
 
 }

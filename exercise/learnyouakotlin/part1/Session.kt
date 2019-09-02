@@ -1,67 +1,19 @@
-package learnyouakotlin.part1;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import static java.util.Arrays.asList;
+package learnyouakotlin.part1
 
 
-public class Session {
-    public final String title;
-    @Nullable
-    public final String subtitle;
-    public final Slots slots;
-    public final List<Presenter> presenters;
+data class Session(
+    val title: String,
+    val subtitle: String?,
+    val slots: Slots,
+    val presenters: List<Presenter>
+) {
 
-    public Session(String title, @Nullable String subtitle, Slots slots, List<Presenter> presenters) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.slots = slots;
-        this.presenters = Collections.unmodifiableList(new ArrayList<>(presenters));
-    }
+    constructor(title: String, subtitle: String?, slots: Slots, vararg presenters: Presenter) :
+        this(title, subtitle, slots, presenters.toList())
 
-    public Session(String title, @Nullable String subtitle, Slots slots, Presenter... presenters) {
-        this(title, subtitle, slots, asList(presenters));
-    }
+    fun withPresenters(newLineUp: List<Presenter>) = copy(presenters = newLineUp)
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Session session = (Session) o;
-        return Objects.equals(title, session.title) &&
-                Objects.equals(subtitle, session.subtitle) &&
-                Objects.equals(slots, session.slots) &&
-                Objects.equals(presenters, session.presenters);
-    }
+    fun withTitle(newTitle: String) = copy(title = newTitle)
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(title, subtitle, slots, presenters);
-    }
-
-    @Override
-    public String toString() {
-        return "Session{" +
-                "title='" + title + '\'' +
-                ", subtitle='" + subtitle + '\'' +
-                ", slots=" + slots +
-                ", presenters=" + presenters +
-                '}';
-    }
-
-    public Session withPresenters(List<Presenter> newLineUp) {
-        return new Session(title, subtitle, slots, newLineUp);
-    }
-
-    public Session withTitle(String newTitle) {
-        return new Session(newTitle, subtitle, slots, presenters);
-    }
-
-    public Session withSubtitle(@Nullable String newSubtitle) {
-        return new Session(title, newSubtitle, slots, presenters);
-    }
+    fun withSubtitle(newSubtitle: String?) = copy(subtitle = newSubtitle)
 }

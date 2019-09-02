@@ -19,13 +19,13 @@ import static learnyouakotlin.part3.Json.*;
 public class JsonFormat {
     public static JsonNode sessionToJson(Session session) {
         return obj(
-            prop("title", session.title),
-            session.subtitle == null ? null : prop("subtitle", session.subtitle),
+            prop("title", session.getTitle()),
+            session.getSubtitle() == null ? null : prop("subtitle", session.getSubtitle()),
             prop("slots", obj(
-                prop("first", session.slots.start),
-                prop("last", session.slots.endInclusive)
+                prop("first", session.getSlots().start),
+                prop("last", session.getSlots().endInclusive)
             )),
-            prop("presenters", array(session.presenters, JsonFormat::presenterToJson)));
+            prop("presenters", array(session.getPresenters(), JsonFormat::presenterToJson)));
     }
 
     public static Session sessionFromJson(JsonNode json) throws JsonMappingException {
