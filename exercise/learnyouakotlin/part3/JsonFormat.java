@@ -46,7 +46,7 @@ public class JsonFormat {
     }
 
     private static ObjectNode presenterToJson(Presenter p) {
-        return obj(prop("name", p.name));
+        return obj(prop("name", p.getName()));
     }
 
     private static Presenter presenterFromJson(JsonNode authorNode) {
