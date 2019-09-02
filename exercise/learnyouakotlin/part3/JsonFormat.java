@@ -22,8 +22,8 @@ public class JsonFormat {
             prop("title", session.getTitle()),
             session.getSubtitle() == null ? null : prop("subtitle", session.getSubtitle()),
             prop("slots", obj(
-                prop("first", session.getSlots().start),
-                prop("last", session.getSlots().endInclusive)
+                prop("first", session.getSlots().getStart()),
+                prop("last", session.getSlots().getEndInclusive())
             )),
             prop("presenters", array(session.getPresenters(), JsonFormat::presenterToJson)));
     }
