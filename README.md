@@ -75,6 +75,8 @@ Suggested progress
   * Make into extension functions
   * Note use of extension functions on nullable types
   * Remove boilerplate
+  * Convert subtitleOrPrompt to property (Alt-Enter)
+  * Talk about properties v functions
   * Convert findWithTitle to Kotlin - note lambda syntax and destructuring
   * Run tests
   * Talk about API design by adding extension methods to existing types instead of defining new types 
