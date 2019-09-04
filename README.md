@@ -77,7 +77,10 @@ Suggested progress
   * Remove boilerplate
   * Convert subtitleOrPrompt to property (Alt-Enter)
   * Talk about properties v functions
-  * Convert findWithTitle to Kotlin - note lambda syntax and destructuring
+  * Convert findWithTitle to Kotlin (remove .stream()) - note lambda syntax and destructuring
+  * Remove the destructuring as unhelpful
+  * Talk about the difference between iterables and sequences
+  * Use predicate form of firstOfNull
   * Run tests
   * Talk about API design by adding extension methods to existing types instead of defining new types 
   * typealias List<Session> to Sessions
