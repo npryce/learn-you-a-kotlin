@@ -36,8 +36,9 @@ public class JsonFormat {
         List<Presenter> presenters = stream(spliterator(authorsNode::elements), false)
             .map(JsonFormat::presenterFromJson)
             .collect(Collectors.toList());
+        Slots slots = new Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue());
 
-        return new Session(title, subtitle, new Slots(1, 2), presenters);
+        return new Session(title, subtitle, slots, presenters);
 
     }
 
