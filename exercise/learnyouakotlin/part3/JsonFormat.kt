@@ -2,6 +2,7 @@ package learnyouakotlin.part3
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import learnyouakotlin.part1.Presenter
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
@@ -30,7 +31,7 @@ fun JsonNode.toSession(): Session {
     return Session(title!!, subtitle, slots, presenters)
 }
 
-private fun Presenter.toJson(): JsonNode = obj(prop("name", name))
+private fun Presenter.toJson(): ObjectNode = obj(prop("name", name))
 
 private fun JsonNode.toPresenter() = Presenter(path("name").asText())
 
