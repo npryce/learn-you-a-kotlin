@@ -19,7 +19,7 @@ fun Session.toJson() =
     )
 
 fun JsonNode.toSession() = Session(
-    title = nonBlankText(path("title")),
+    title = path("title").nonBlankText(),
     subtitle = optionalNonBlankText(path("subtitle")),
     slots = Slots(at("/slots/first").intValue(), at("/slots/last").intValue()),
     presenters = path("presenters").map { it.toPresenter() }
@@ -29,12 +29,8 @@ private fun Presenter.toJson(): ObjectNode = obj("name" `=` name)
 
 private fun JsonNode.toPresenter() = Presenter(path("name").asText())
 
-private fun optionalNonBlankText(node: JsonNode): String? =
-    when {
-        node.isMissingNode -> null
-        else -> nonBlankText(node)
-    }
+private fun optionalNonBlankText(node: JsonNode): String? = node.takeUnless { it.isMissingNode }?.nonBlankText()
 
-private fun nonBlankText(node: JsonNode): String =
-    node.textValue().takeUnless { it.isNullOrBlank() }
+private fun JsonNode.nonBlankText(): String =
+    textValue().takeUnless { it.isNullOrBlank() }
         ?: throw JsonMappingException(null, "missing or empty text")
