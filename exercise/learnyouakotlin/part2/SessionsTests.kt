@@ -17,7 +17,7 @@ class SessionsTests {
 
     @Test
     fun `nulls and flow typing`() {
-        val session: Session? = Sessions.findWithTitle(sessions, "learn you a kotlin")
+        val session: Session? = findWithTitle(sessions, "learn you a kotlin")
 
         // Uncomment to see that this can't compile
         // session.subtitle
@@ -29,19 +29,19 @@ class SessionsTests {
 
     @Test
     fun `null safe access`() {
-        assertEquals("for all the good it will do you", Sessions.subtitleOf(learnYouAKotlin))
-        assertNull(Sessions.subtitleOf(null))
+        assertEquals("for all the good it will do you", learnYouAKotlin.subtitle)
+        assertNull(null.subtitle)
     }
 
     @Test
     fun subtitleOrPrompt() {
-        assertEquals("for all the good it will do you", Sessions.subtitleOrPrompt(learnYouAKotlin))
-        assertEquals("click to enter subtitle", Sessions.subtitleOrPrompt(refactoringToStreams))
+        assertEquals("for all the good it will do you", learnYouAKotlin.subtitleOrPrompt())
+        assertEquals("click to enter subtitle", refactoringToStreams.subtitleOrPrompt())
     }
 
     @Test
     fun find() {
-        assertEquals(refactoringToStreams, Sessions.findWithTitle(sessions, "refactoring to streams"))
-        assertNull(Sessions.findWithTitle(sessions, "nosuch"))
+        assertEquals(refactoringToStreams, findWithTitle(sessions, "refactoring to streams"))
+        assertNull(findWithTitle(sessions, "nosuch"))
     }
 }

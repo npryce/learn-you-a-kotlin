@@ -3,11 +3,14 @@ package learnyouakotlin.part3;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import kotlin.Pair;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
@@ -19,31 +22,31 @@ public class Json {
     private static final JsonNodeFactory nodes = JsonNodeFactory.instance;
     static final ObjectMapper stableMapper = new ObjectMapper().enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS);
 
-    public static Map.Entry<String, JsonNode> prop(String name, String textValue) {
+    public static Pair<String, JsonNode> prop(String name, String textValue) {
         return prop(name, new TextNode(textValue));
     }
 
-    public static Map.Entry<String, JsonNode> prop(String name, int intValue) {
+    public static Pair<String, JsonNode> prop(String name, int intValue) {
         return prop(name, new IntNode(intValue));
     }
 
-    public static Map.Entry<String, JsonNode> prop(String name, JsonNode value) {
-        return new SimpleImmutableEntry<>(name, value);
+    public static Pair<String, JsonNode> prop(String name, JsonNode value) {
+        return new Pair<>(name, value);
     }
 
-    public static ObjectNode obj(Iterable<Map.Entry<String, JsonNode>> props) {
+    public static ObjectNode obj(Iterable<Pair<String, JsonNode>> props) {
         ObjectNode object = new ObjectNode(nodes);
         props.forEach(p -> {
-            // p can be null, but no way to annotate the Map.Entry within the Iterable
+            // p can be null, but no way to annotate the Map.Pair within the Iterable
             if (p != null) {
-                object.set(p.getKey(), p.getValue());
+                object.set(p.getFirst(), p.getSecond());
             }
         });
         return object;
     }
 
     @SafeVarargs
-    public static ObjectNode obj(Map.Entry<String, JsonNode>... props) {
+    public static ObjectNode obj(Pair<String, JsonNode>... props) {
         // Elements of props may be null, but there's no way to use annotations to indicate that. Annotating the
         // props parameter with @Nullable means that the whole array may be null
         return obj(asList(props));
