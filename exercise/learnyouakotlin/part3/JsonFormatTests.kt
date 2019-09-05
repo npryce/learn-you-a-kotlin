@@ -55,10 +55,26 @@ class JsonFormatTests {
     }
 
     @Test
+    fun reading_throws_with_empty_subtitle() {
+        val json = """{  
+                "title" : "Has empty subtitle",
+                "subtitle" : "",
+                "slots" : { "first" : 3, "last" : 3 },
+                "presenters" : [ { "name" : "Ivan Moore" } ]
+            }"""
+        try {
+            stableMapper.readTree(json).toSession()
+            fail()
+        } catch (expected: JsonMappingException) {
+            assertThat(expected.message, equalTo("missing or empty text"))
+        }
+    }
+
+    @Test
     fun reading_throws_with_blank_subtitle() {
         val json = """{  
                 "title" : "Has blank subtitle",
-                "subtitle" : "",
+                "subtitle" : " ",
                 "slots" : { "first" : 3, "last" : 3 },
                 "presenters" : [ { "name" : "Ivan Moore" } ]
             }"""
