@@ -20,11 +20,7 @@ fun obj(props: Iterable<Pair<String, JsonNode>?>) = ObjectNode(nodes, props.filt
 
 fun obj(vararg props: Pair<String, JsonNode>?): ObjectNode = obj(props.asList())
 
-fun array(elements: Iterable<JsonNode>): ArrayNode {
-    val array = ArrayNode(nodes)
-    elements.forEach({ array.add(it) })
-    return array
-}
+fun array(elements: Iterable<JsonNode>) = ArrayNode(nodes, elements.toList())
 
 fun <T> array(elements: List<T>, fn: (T) -> JsonNode) = array(elements.map(fn))
 
@@ -34,4 +30,3 @@ fun JsonNode.toStableJsonString(): String =
     } catch (e: JsonProcessingException) {
         throw IllegalArgumentException("failed to convert JsonNode to JSON string", e)
     }
-
