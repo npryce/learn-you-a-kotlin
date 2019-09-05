@@ -36,10 +36,5 @@ private fun optionalNonBlankText(node: JsonNode): String? =
     }
 
 private fun nonBlankText(node: JsonNode): String =
-    node.textValue().let { text ->
-        if (text.isNullOrBlank()) {
-            throw JsonMappingException(null, "missing or empty text")
-        } else {
-            text
-        }
-    }
+    node.textValue().takeUnless { it.isNullOrBlank() }
+        ?: throw JsonMappingException(null, "missing or empty text")
