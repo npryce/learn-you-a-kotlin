@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 public class Json {
     private static final JsonNodeFactory nodes = JsonNodeFactory.instance;
-    private static final ObjectMapper stableMapper = new ObjectMapper().enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS);
+    static final ObjectMapper stableMapper = new ObjectMapper().enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS);
 
     public static Map.Entry<String, JsonNode> prop(String name, String textValue) {
         return prop(name, new TextNode(textValue));
