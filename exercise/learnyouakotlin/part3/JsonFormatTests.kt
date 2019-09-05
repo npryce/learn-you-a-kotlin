@@ -55,12 +55,12 @@ class JsonFormatTests {
 
     @Test
     fun reading_throws_with_blank_subtitle() {
-        val json = ("{" +
-            "  'title' : 'Has blank subtitle'," +
-            "  'subtitle' : ''," +
-            "  'slots' : { 'first' : 3, 'last' : 3  }," +
-            "  'presenters' : [ {    'name' : 'Ivan Moore'  } ]\n" +
-            "}").replace("'", "\"")
+        val json = """{  
+                "title" : "Has blank subtitle",
+                "subtitle" : "",
+                "slots" : { "first" : 3, "last" : 3 },
+                "presenters" : [ { "name" : "Ivan Moore" } ]
+            }"""
         try {
             stableMapper.readTree(json).toSession()
             fail()
@@ -71,12 +71,12 @@ class JsonFormatTests {
 
     @Test
     fun reading_throws_with_null_subtitle() {
-        val json = ("{" +
-            "  'title' : 'Has blank subtitle'," +
-            "  'subtitle' : null," +
-            "  'slots' : { 'first' : 3, 'last' : 3  }," +
-            "  'presenters' : [ {    'name' : 'Ivan Moore'  } ]\n" +
-            "}").replace("'", "\"")
+        val json = """{  
+                "title" : "Has blank subtitle",
+                "subtitle" : null,
+                "slots" : { "first" : 3, "last" : 3 },
+                "presenters" : [ { "name" : "Ivan Moore" } ]
+            }"""
         try {
             stableMapper.readTree(json).toSession()
             fail()
