@@ -15,9 +15,5 @@ data class Session(
         vararg presenters: Presenter
     ) : this(title, subtitle, slots, presenters.asList())
 
-    fun withPresenters(newLineUp: List<Presenter>) = copy(presenters = newLineUp)
-
-    fun withTitle(newTitle: String) = copy(title = newTitle)
-
-    fun withSubtitle(newSubtitle: String?) = copy(subtitle = newSubtitle)
+    fun withPresenters(vararg newLineUp: Presenter) = copy(presenters = newLineUp.asList())
 }
