@@ -34,7 +34,7 @@ public class Json {
         return new Pair<>(name, value);
     }
 
-    public static ObjectNode obj(Iterable<Pair<String, JsonNode>> props) {
+    public static JsonNode obj(Iterable<Pair<String, JsonNode>> props) {
         ObjectNode object = new ObjectNode(nodes);
         props.forEach(p -> {
             // p can be null, but no way to annotate the Map.Pair within the Iterable
@@ -46,7 +46,7 @@ public class Json {
     }
 
     @SafeVarargs
-    public static ObjectNode obj(Pair<String, JsonNode>... props) {
+    public static JsonNode obj(Pair<String, JsonNode>... props) {
         // Elements of props may be null, but there's no way to use annotations to indicate that. Annotating the
         // props parameter with @Nullable means that the whole array may be null
         return obj(asList(props));
