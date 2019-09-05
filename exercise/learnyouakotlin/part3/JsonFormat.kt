@@ -9,13 +9,13 @@ import learnyouakotlin.part1.Slots
 
 fun Session.toJson(): JsonNode {
     return obj(
-        prop("title", title),
-        if (subtitle == null) null else prop("subtitle", subtitle),
-        prop("slots", obj(
-            prop("first", slots.start),
-            prop("last", slots.endInclusive)
-        )),
-        prop("presenters", array(presenters) { it.toJson() }))
+        "title" `=` title,
+        if (subtitle == null) null else "subtitle" `=` subtitle,
+        "slots" `=` obj(
+            "first" `=` slots.start,
+            "last" `=` slots.endInclusive
+        ),
+        "presenters" `=` array(presenters) { it.toJson() })
 }
 
 fun JsonNode.toSession(): Session {
@@ -29,7 +29,7 @@ fun JsonNode.toSession(): Session {
     return Session(title!!, subtitle, slots, presenters)
 }
 
-private fun Presenter.toJson(): ObjectNode = obj(prop("name", name))
+private fun Presenter.toJson(): ObjectNode = obj("name".`=`(name))
 
 private fun JsonNode.toPresenter() = Presenter(path("name").asText())
 
