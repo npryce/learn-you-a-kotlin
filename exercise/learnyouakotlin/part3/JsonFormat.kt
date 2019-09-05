@@ -30,21 +30,15 @@ fun JsonNode.toSession(): Session {
     return Session(title!!, subtitle, slots, presenters)
 }
 
-private fun Presenter.toJson(): JsonNode {
-    return obj(prop("name", name))
-}
+private fun Presenter.toJson(): JsonNode = obj(prop("name", name))
 
-private fun JsonNode.toPresenter(): Presenter {
-    return Presenter(path("name").asText())
-}
+private fun JsonNode.toPresenter() = Presenter(path("name").asText())
 
-private fun optionalNonBlankText(node: JsonNode): String? {
-    return if (node.isMissingNode) {
-        null
-    } else {
-        nonBlankText(node)
+private fun optionalNonBlankText(node: JsonNode): String? =
+    when {
+        node.isMissingNode -> null
+        else -> nonBlankText(node)
     }
-}
 
 private fun nonBlankText(node: JsonNode): String? {
     val text = node.asText()
