@@ -44,7 +44,8 @@ class JsonFormatTests {
     @Test
     fun session_to_and_from_json() {
         val original = Session(
-            "Working Effectively with Legacy Tests", null,
+            "Working Effectively with Legacy Tests",
+            null,
             Slots(4, 5),
             Presenter("Nat Pryce"),
             Presenter("Duncan McGregor"))
@@ -65,7 +66,7 @@ class JsonFormatTests {
             stableMapper.readTree(json).toSession()
             fail()
         } catch (expected: JsonMappingException) {
-            assertThat<String>(expected.message, equalTo("missing or empty text"))
+            assertThat(expected.message, equalTo("missing or empty text"))
         }
     }
 
@@ -81,7 +82,7 @@ class JsonFormatTests {
             stableMapper.readTree(json).toSession()
             fail()
         } catch (expected: JsonMappingException) {
-            assertThat<String>(expected.message, equalTo("missing or empty text"))
+            assertThat(expected.message, equalTo("missing or empty text"))
         }
     }
 }
