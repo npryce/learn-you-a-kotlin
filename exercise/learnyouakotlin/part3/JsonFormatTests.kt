@@ -68,4 +68,20 @@ class JsonFormatTests {
             assertThat<String>(expected.message, equalTo("missing or empty text"))
         }
     }
+
+    @Test
+    fun reading_throws_with_null_subtitle() {
+        val json = ("{" +
+            "  'title' : 'Has blank subtitle'," +
+            "  'subtitle' : null," +
+            "  'slots' : { 'first' : 3, 'last' : 3  }," +
+            "  'presenters' : [ {    'name' : 'Ivan Moore'  } ]\n" +
+            "}").replace("'", "\"")
+        try {
+            stableMapper.readTree(json).toSession()
+            fail()
+        } catch (expected: JsonMappingException) {
+            assertThat<String>(expected.message, equalTo("missing or empty text"))
+        }
+    }
 }
