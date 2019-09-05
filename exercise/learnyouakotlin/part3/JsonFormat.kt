@@ -10,7 +10,7 @@ import learnyouakotlin.part1.Slots
 fun Session.toJson() =
     obj(
         "title" `=` title,
-        if (subtitle == null) null else "subtitle" `=` subtitle,
+        subtitle?.let { "subtitle" `=` it },
         "slots" `=` obj(
             "first" `=` slots.start,
             "last" `=` slots.endInclusive
@@ -18,16 +18,12 @@ fun Session.toJson() =
         "presenters" `=` array(presenters) { it.toJson() }
     )
 
-fun JsonNode.toSession(): Session {
-    val title = nonBlankText(path("title"))
-    val subtitle = optionalNonBlankText(path("subtitle"))
-
-    val authorsNode = path("presenters")
-    val presenters = authorsNode.map { it.toPresenter() }
-    val slots = Slots(at("/slots/first").intValue(), at("/slots/last").intValue())
-
-    return Session(title, subtitle, slots, presenters)
-}
+fun JsonNode.toSession() = Session(
+    title = nonBlankText(path("title")),
+    subtitle = optionalNonBlankText(path("subtitle")),
+    slots = Slots(at("/slots/first").intValue(), at("/slots/last").intValue()),
+    presenters = path("presenters").map { it.toPresenter() }
+)
 
 private fun Presenter.toJson(): ObjectNode = obj("name" `=` name)
 
