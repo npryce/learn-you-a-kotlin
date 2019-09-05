@@ -15,5 +15,4 @@ data class Session(
         vararg presenters: Presenter
     ) : this(title, subtitle, slots, presenters.asList())
 
-    fun withPresenters(vararg newLineUp: Presenter) = copy(presenters = newLineUp.asList())
 }

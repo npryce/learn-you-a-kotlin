@@ -15,3 +15,5 @@ class SessionTests {
             equalTo(Session("The Title", null, Slots(1, 2), Presenter("Bob"), Presenter("Carol"))))
     }
 }
+
+private fun Session.withPresenters(vararg newLineUp: Presenter) = copy(presenters = newLineUp.asList())
