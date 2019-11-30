@@ -9,10 +9,13 @@ import learnyouakotlin.part1.Slots;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static learnyouakotlin.part3.JsonFormat.sessionFromJson;
 import static learnyouakotlin.part3.JsonFormat.sessionToJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.fail;
 
 public class JsonFormatTests {
     @Rule
@@ -23,7 +26,7 @@ public class JsonFormatTests {
         Session session = new Session(
                 "Learn You a Kotlin For All The Good It Will Do You",
                 null,
-                new Slots(1,2),
+                new Slots(1, 2),
                 new Presenter("Duncan McGregor"),
                 new Presenter("Nat Pryce"));
 
@@ -36,7 +39,7 @@ public class JsonFormatTests {
         Session session = new Session(
                 "Scrapheap Challenge",
                 "A Workshop in Postmodern Programming",
-                new Slots(3,3),
+                new Slots(3, 3),
                 new Presenter("Ivan Moore"));
 
         JsonNode json = sessionToJson(session);
@@ -48,11 +51,27 @@ public class JsonFormatTests {
         Session original = new Session(
                 "Working Effectively with Legacy Tests",
                 null,
-                new Slots(1,2),
+                new Slots(4, 5),
                 new Presenter("Nat Pryce"),
                 new Presenter("Duncan McGregor"));
 
         Session parsed = sessionFromJson(sessionToJson(original));
         assertThat(parsed, equalTo(original));
+    }
+
+    @Test
+    public void reading_throws_with_blank_subtitle() throws IOException {
+        String json = ("{" +
+            "  'title' : 'Has blank subtitle'," +
+            "  'subtitle' : ''," +
+            "  'slots' : { 'first' : 3, 'last' : 3  }," +
+            "  'presenters' : [ {    'name' : 'Ivan Moore'  } ]\n" +
+            "}").replace("'", "\"");
+        try {
+            sessionFromJson(Json.stableMapper.readTree(json));
+            fail();
+        } catch (JsonMappingException expected) {
+            assertThat(expected.getMessage(), equalTo("missing or empty text"));
+        }
     }
 }

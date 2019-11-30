@@ -19,6 +19,9 @@ class SessionsTests {
     fun `nulls and flow typing`() {
         val session: Session? = Sessions.findWithTitle(sessions, "learn you a kotlin")
 
+        // Uncomment to see that this can't compile
+        // session.subtitle
+
         val notNullSession = session as Session
         assertEquals("for all the good it will do you", notNullSession.subtitle)
         assertEquals("for all the good it will do you", session.subtitle)

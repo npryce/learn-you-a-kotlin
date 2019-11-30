@@ -75,7 +75,12 @@ Suggested progress
   * Make into extension functions
   * Note use of extension functions on nullable types
   * Remove boilerplate
-  * Convert findWithTitle to Kotlin - note lambda syntax and destructuring
+  * Convert subtitleOrPrompt to property (Alt-Enter)
+  * Talk about properties v functions
+  * Convert findWithTitle to Kotlin (remove .stream()) - note lambda syntax and destructuring
+  * Remove the destructuring as unhelpful
+  * Talk about the difference between iterables and sequences
+  * Use predicate form of firstOfNull
   * Run tests
   * Talk about API design by adding extension methods to existing types instead of defining new types 
   * typealias List<Session> to Sessions
@@ -102,6 +107,7 @@ Suggested progress
   * JsonFormatTests
     * Convert to Kotlin AND RERUN THE TESTS
     * They fail, because JUnit needs `approval` to be a field.  Annotate with @JvmField
+    * Also mention the @Throws annotations, and then remove them
   * JsonFormat
     * Convert to Kotlin - IJ doesn't do a very good job in the face of Java lambdas sometimes
     * Fix compilation errors by removing explicit `Function<...>` SAM notation
@@ -129,6 +135,7 @@ Suggested progress
     * Convert `prop(name,value)` to `name of value` (infix function)
       * Discuss gradual introduction of mini-DSLs, rather than up-front DSL design which often ends up inflexible
   * Back to JsonFormat
+    * convert the JSON as text into multiline strings
     * make extension properties from nonBlank functions
     * use isNullOrBlank
     * use let in Session.toJson

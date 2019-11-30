@@ -17,6 +17,7 @@ import static java.util.stream.StreamSupport.stream;
 import static learnyouakotlin.part3.Json.*;
 
 public class JsonFormat {
+
     public static JsonNode sessionToJson(Session session) {
         return obj(
             prop("title", session.title),
@@ -36,9 +37,9 @@ public class JsonFormat {
         List<Presenter> presenters = stream(spliterator(authorsNode::elements), false)
             .map(JsonFormat::presenterFromJson)
             .collect(Collectors.toList());
+        Slots slots = new Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue());
 
-        return new Session(title, subtitle, new Slots(1, 2), presenters);
-
+        return new Session(title, subtitle, slots, presenters);
     }
 
     private static Spliterator<JsonNode> spliterator(Iterable<JsonNode> elements) {
