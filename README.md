@@ -10,18 +10,23 @@ looks when used from Java
 Suggested progress
 
 * Part 0: Compiling Kotlin
-  
+  * Open project in IntelliJ, build on command line, run tests in IntelliJ
+  * Tools/Kotlin/Configure Kotlin in Project
+  * Look at the changes to build.gradle
+  * Build and test
+  * Tools/Kotlin/Configure Kotlin Plugin Updates - use New Java To Kotlin Converter
 * Part 1: Class syntax and data classes
   * Presenter
     * note that this an immutable value class with a public final field 
-    * convert to Kotlin
+    * convert to Kotlin, accept change other files.
+    * try to run tests - see compilation failure, talk about converter 
+    * talk about properties v fields, fix JsonFormat.java (Alt-Enter)
     * talk through the bits of the Kotlin class - ctor, property, methods
     * run tests
     * remove equals, hashcode, to string - show tests fail
     * make a data class - show tests now pass
     * remove the unneeded class body
-    * go to checkin - note JsonFormat.java has changed - IntelliJ has changed the field access to a getter - talk about this
-    * checkin
+    * check in
   * Session
     * note that this is an immutable value class with public fields, one of which is nullable, and it defensively copies the presenters
     * also that we have 2 constructors - one a convenience vararg
@@ -32,6 +37,7 @@ Suggested progress
     * Talk about init block, but then remove it
     * show tests pass, remove equals etc - show tests fail
     * convert to a data class
+    * can't have a val outside ctor, remove it
     * No need to wrap List in unmodifiableList: discuss List/MutableList split, show List defn
     * Observe spread operator in constructor, remove it and replace with presenters.toList() - discuss asList()
     * Remove empty ctor body
@@ -52,6 +58,7 @@ Suggested progress
     * Move withPresenters methods out of class into extension ... much nicer in Kotlin, yeah?
     * Explain extension functions in more detail ... syntactic sugar for static methods
     * Move withPresenters into SessionTests where it is used to illustrate convenience extensions
+    * Talk about top level functions
     * Rename test to `illustrate convenience extension methods` and talk about names
     * run the tests, check diffs, talk about diffs, checkin
   * Slots  
