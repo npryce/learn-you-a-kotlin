@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.iml" group="learn-you-a-kotlin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin_main.iml" group="learn-you-a-kotlin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin_test.iml" group="learn-you-a-kotlin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/learn-you-a-kotlin.test.iml" />
     </modules>
   </component>
 </project>
