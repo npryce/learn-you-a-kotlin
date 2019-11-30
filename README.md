@@ -9,6 +9,8 @@ looks when used from Java
 
 Suggested progress
 
+* Part 0: Compiling Kotlin
+  
 * Part 1: Class syntax and data classes
   * Presenter
     * note that this an immutable value class with a public final field 

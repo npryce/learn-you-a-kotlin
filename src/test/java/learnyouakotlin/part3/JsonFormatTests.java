@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 
 public class JsonFormatTests {
     @Rule
-    public final ApprovalsRule approval = ApprovalsRule.fileSystemRule("exercise");
+    public final ApprovalsRule approval = ApprovalsRule.usualRule();
 
     @Test
     public void session_to_json() {

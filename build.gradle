@@ -8,14 +8,6 @@ buildscript {
 
 apply plugin: "java"
 
-sourceSets {
-    test {
-        java {
-            srcDir "exercise"
-        }
-    }
-}
-
 repositories {
     mavenCentral()
 }
