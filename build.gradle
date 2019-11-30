@@ -13,7 +13,7 @@ plugins {
 sourceSets {
     test {
         java {
-            srcDir 'exercise'
+            srcDir "exercise"
         }
     }
 }
@@ -29,7 +29,7 @@ dependencies {
     compile "com.google.code.findbugs:jsr305:3.0.1"
 
     testCompile "org.jetbrains.kotlin:kotlin-test"
-    testCompile 'junit:junit:4.12'
-    testCompile 'com.natpryce:hamkrest:1.4.2.2'
-    testCompile 'com.oneeyedmen:okeydoke:1.1.0'
+    testCompile "junit:junit:4.12"
+    testCompile "com.natpryce:hamkrest:1.4.2.2"
+    testCompile "com.oneeyedmen:okeydoke:1.1.0"
 }
