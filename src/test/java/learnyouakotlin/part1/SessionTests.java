@@ -1,8 +1,5 @@
 package learnyouakotlin.part1;
 
-import learnyouakotlin.part1.Session;
-import learnyouakotlin.part1.Slots;
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
