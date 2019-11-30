@@ -3,8 +3,8 @@ package learnyouakotlin.part2
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 
 class SessionsTests {
 
