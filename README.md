@@ -71,9 +71,10 @@ Suggested progress
   * Look at SessionsTests - already Kotlin
   * Talk about companion object, static etc
   * `nulls` test
-    * show null-check with bang-bang instead of `as`
-    * Kotlin infers second reference cannot be null because of flow typing
-    * Change the title, and show bang bang you're dead
+    * show TypeCastException when we change the title
+    * change cast to !! and show KotlinNullPointerException when we change the title
+    * Show infers second reference cannot be null because of flow typing
+    * Show the type of notNullSession given as or !!
   * Convert Sessions to Kotlin
   * Run tests
   * subtitleOf
