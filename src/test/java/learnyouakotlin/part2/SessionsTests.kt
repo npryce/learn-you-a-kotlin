@@ -17,7 +17,7 @@ class SessionsTests {
 
     @Test
     fun `nulls and flow typing`() {
-        val session: Session? = findWithTitle(sessions, "learn you a kotlin")
+        val session: Session? = sessions.findWithTitle("learn you a kotlin")
 
         // Uncomment to see that this can't compile
        //  session.subtitle
@@ -35,7 +35,7 @@ class SessionsTests {
 
     @Test
     fun find() {
-        assertEquals(refactoringToStreams, findWithTitle(sessions, "refactoring to streams"))
-        assertNull(findWithTitle(sessions, "nosuch"))
+        assertEquals(refactoringToStreams, sessions.findWithTitle("refactoring to streams"))
+        assertNull(sessions.findWithTitle("nosuch"))
     }
 }
