@@ -28,7 +28,7 @@ class JsonFormatTests {
             Presenter("Nat Pryce"))
 
         val json = session.toJson()
-        approval.assertApproved(Json.toStableJsonString(json))
+        approval.assertApproved(toStableJsonString(json))
     }
 
     @Test
@@ -40,7 +40,7 @@ class JsonFormatTests {
             Presenter("Ivan Moore"))
 
         val json = session.toJson()
-        approval.assertApproved(Json.toStableJsonString(json))
+        approval.assertApproved(toStableJsonString(json))
     }
 
     @Test
@@ -71,7 +71,7 @@ class JsonFormatTests {
               ]
             }""")
         try {
-            Json.stableMapper.readTree(json).toSession()
+            stableMapper.readTree(json).toSession()
             fail()
         } catch (expected: JsonMappingException) {
             assertThat<String>(expected.message, equalTo("missing or empty text"))
