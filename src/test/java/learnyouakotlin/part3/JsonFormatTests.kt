@@ -11,8 +11,6 @@ import org.junit.Test
 
 import java.io.IOException
 
-import learnyouakotlin.part3.JsonFormat.sessionFromJson
-import learnyouakotlin.part3.JsonFormat.sessionToJson
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
 import org.intellij.lang.annotations.Language
