@@ -27,17 +27,14 @@ fun JsonNode.toSession() =
         presenters = path("presenters").map { it.toPresenter() }
     )
 
-
 private fun Presenter.toJson(): ObjectNode = obj("name" of name)
 
 private fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
-private fun optionalNonBlankText(node: JsonNode): String? =
-    if (node.isMissingNode) {
-        null
-    } else {
-        nonBlankText(node)
-    }
+private fun optionalNonBlankText(node: JsonNode): String? = when {
+    node.isMissingNode -> null
+    else -> nonBlankText(node)
+}
 
 private fun nonBlankText(node: JsonNode): String =
     node.asText().takeIf { !it.isNullOrEmpty() }
