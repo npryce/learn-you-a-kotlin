@@ -29,7 +29,7 @@ fun JsonNode.toSession(): Session {
 }
 
 
-private fun Presenter.toJson(): ObjectNode = obj("name".of(name))
+private fun Presenter.toJson(): ObjectNode = obj("name" of name)
 
 private fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
