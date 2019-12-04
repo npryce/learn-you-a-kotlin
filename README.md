@@ -15,6 +15,7 @@ Suggested progress
   * Look at the changes to build.gradle
   * Build and test
   * Tools/Kotlin/Configure Kotlin Plugin Updates - use New Java To Kotlin Converter
+
 * Part 1: Class syntax and data classes
   * Presenter
     * note that this an immutable value class with a public final field 
@@ -65,7 +66,6 @@ Suggested progress
     * Convert Slots.  It's all Kotlin!!! That was easy!
     * run the tests, check diffs, talk about diffs, checkin
 
-
 * Part 2: Null and nullability
   * Look at Sessions - a bunch of static convenience methods to manage a collection
   * Look at SessionsTests - already Kotlin
@@ -95,7 +95,6 @@ Suggested progress
   * Talk about API design by adding extension methods to existing types instead of defining new types 
   * typealias List<Session> to Sessions
   * run the tests, check diffs, talk about diffs, checkin
-
 
 * Part 3: modules and functions
   * Look at JsonFormatTests 
