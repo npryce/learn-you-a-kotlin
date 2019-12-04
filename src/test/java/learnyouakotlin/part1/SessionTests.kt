@@ -12,28 +12,10 @@ class SessionTests {
     @Test
     fun `can change presenters`() {
         assertThat(
-            original.withPresenters(listOf(Presenter("Bob"), Presenter("Carol"))),
+            original.withPresenters(Presenter("Bob"), Presenter("Carol")),
             equalTo(Session("The Title", null, Slots(1, 2), Presenter("Bob"), Presenter("Carol"))))
     }
 
-    @Test
-    fun `can change title`() {
-        assertThat(
-            original.withTitle("Another Title"),
-            equalTo(Session("Another Title", null, Slots(1, 2), Presenter("Alice"))))
-    }
-
-    @Test
-    fun `can change subtitle`() {
-        assertThat(
-            original.withSubtitle("The Subtitle"),
-            equalTo(Session("The Title", "The Subtitle", Slots(1, 2), Presenter("Alice"))))
-    }
-
-    @Test
-    fun `can remove subtitle`() {
-        assertThat(
-            original.withSubtitle("The Subtitle").withSubtitle(null),
-            equalTo(Session("The Title", null, Slots(1, 2), Presenter("Alice"))))
-    }
 }
+
+fun Session.withPresenters(vararg newLineUp: Presenter) = copy(presenters = newLineUp.toList())
