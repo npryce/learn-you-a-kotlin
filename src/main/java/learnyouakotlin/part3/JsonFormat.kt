@@ -8,13 +8,13 @@ import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
 
 fun Session.toJson(): JsonNode = obj(
-    prop("title", title),
-    if (subtitle == null) null else prop("subtitle", subtitle),
-    prop("slots", obj(
-        prop("first", slots.start),
-        prop("last", slots.endInclusive)
-    )),
-    prop("presenters", array(presenters) { it.toJson() }))
+    "title" of title,
+    if (subtitle == null) null else "subtitle" of subtitle,
+    "slots" of obj(
+        "first" of slots.start,
+        "last" of slots.endInclusive
+    ),
+    "presenters" of array(presenters) { it.toJson() })
 
 fun JsonNode.toSession(): Session {
     val title = nonBlankText(path("title"))
@@ -29,7 +29,7 @@ fun JsonNode.toSession(): Session {
 }
 
 
-private fun Presenter.toJson(): ObjectNode = obj(prop("name", name))
+private fun Presenter.toJson(): ObjectNode = obj("name".of(name))
 
 private fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
