@@ -26,7 +26,7 @@ fun JsonNode.toSession(): Session {
         .map { it.toPresenter() }
     val slots = Slots(at("/slots/first").intValue(), at("/slots/last").intValue())
 
-    return Session(title!!, subtitle, slots, presenters)
+    return Session(title, subtitle, slots, presenters)
 }
 
 
@@ -34,17 +34,16 @@ private fun Presenter.toJson(): ObjectNode = obj(prop("name", name))
 
 private fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
-private fun optionalNonBlankText(node: JsonNode): String? {
-    return if (node.isMissingNode) {
+private fun optionalNonBlankText(node: JsonNode): String? =
+    if (node.isMissingNode) {
         null
     } else {
         nonBlankText(node)
     }
-}
 
-private fun nonBlankText(node: JsonNode): String? {
-    val text = node.asText()
-    return if (node.isNull || text == "") {
+private fun nonBlankText(node: JsonNode): String {
+    val text: String? = node.asText()
+    return if (text.isNullOrEmpty()) {
         throw JsonMappingException(null, "missing or empty text")
     } else {
         text
