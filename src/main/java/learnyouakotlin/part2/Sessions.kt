@@ -2,13 +2,8 @@ package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
 
-fun subtitleOf(session: Session?): String? {
-    return session?.subtitle
-}
-
-fun subtitleOrPrompt(session: Session): String {
-    return session.subtitle ?: "click to enter subtitle"
-}
+val Session.subtitleOrPrompt: String
+    get() = this.subtitle ?: "click to enter subtitle"
 
 fun findWithTitle(sessions: List<Session>, title: String): Session? {
     return sessions.stream()

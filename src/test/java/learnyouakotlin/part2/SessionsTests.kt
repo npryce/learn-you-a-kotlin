@@ -28,15 +28,9 @@ class SessionsTests {
     }
 
     @Test
-    fun `null safe access`() {
-        assertEquals("for all the good it will do you", subtitleOf(learnYouAKotlin))
-        assertNull(subtitleOf(null))
-    }
-
-    @Test
     fun subtitleOrPrompt() {
-        assertEquals("for all the good it will do you", subtitleOrPrompt(learnYouAKotlin))
-        assertEquals("click to enter subtitle", subtitleOrPrompt(refactoringToStreams))
+        assertEquals("for all the good it will do you", learnYouAKotlin.subtitleOrPrompt)
+        assertEquals("click to enter subtitle", refactoringToStreams.subtitleOrPrompt)
     }
 
     @Test
