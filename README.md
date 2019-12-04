@@ -102,7 +102,7 @@ Suggested progress
     * note that we want to marshall session to and from JSON
   * Look at JsonFormat
     * we're groping towards a Java DSL for JSON, using Json
-  * Json
+  * Look at Json
     * Try annotating `props` param of `obj` method with `@Nullable` so comments about nullability
       are not necessary -- you cannot!
     * Note use of Map.Entry - used as a pair. But Kotlin has a pair.
@@ -110,7 +110,7 @@ Suggested progress
     * Run tests, checkin
     * Convert to Kotlin, applying changes to affected code
       * You'll get compiler errors - ignore them for now 
-      * Look at the changes.  JsonFormat and JsonFormatTests are now FUGLY!
+      * Look at the changes.  JsonFormat and JsonFormatTests are full of INSTANCE!
          * Explain Kotlin objects -- they are singletons!!! :scream-emoji: 
          * Revert.
       * We could annotate all methods in Json with @JvmStatic.  Or we could convert the dependent classes first.  Let's do the latter.
@@ -118,15 +118,20 @@ Suggested progress
     * Convert to Kotlin AND RERUN THE TESTS
     * They fail, because JUnit needs `approval` to be a field.  Annotate with @JvmField
     * Also mention the @Throws annotations, and then remove them
+    * Run and checkin
   * JsonFormat
     * Convert to Kotlin - IJ doesn't do a very good job in the face of Java lambdas sometimes
+    * Try the pedagogical object: java.util.function.Function<Presenter, JsonNode> fix
     * Fix compilation errors by removing explicit `Function<...>` SAM notation
     * Explain `it` variable in lambdas
     * Don't convert lambdas to references - do move them outside parameter list
+    * That collect turns out to be `collect<List<Presenter>, Any>(Collectors.toList<Presenter>() as Collector<in Presenter, Any, List<Presenter>>?`
+    * Run tests
     * Remove @Throws: it's not called from Java any more (we'll talk about type safe error handling later if we have time)
     * Convert streams code to Kotlin map/flatMap/etc. (Remember that JsonNode is iterable, so has map, etc. defined for it)
     * move functions to module scope
     * convert to extension methods on domain types and JsonNode
+    * Test and checkin
   * Back to Json
     * Convert to Kotlin
     * To make it compile:
