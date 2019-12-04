@@ -8,38 +8,31 @@ import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
 import learnyouakotlin.part3.Json.*
 
+fun Session.toJson(): JsonNode = obj(
+    prop("title", title),
+    if (subtitle == null) null else prop("subtitle", subtitle),
+    prop("slots", obj(
+        prop("first", slots.start),
+        prop("last", slots.endInclusive)
+    )),
+    prop("presenters", array(presenters) { it.toJson() }))
 
-fun sessionToJson(session: Session): JsonNode {
-    return obj(
-        prop("title", session.title),
-        if (session.subtitle == null) null else prop("subtitle", session.subtitle),
-        prop("slots", obj(
-            prop("first", session.slots.start),
-            prop("last", session.slots.endInclusive)
-        )),
-        prop("presenters", array(session.presenters) { presenterToJson(it) }))
-}
+fun JsonNode.toSession(): Session {
+    val title = nonBlankText(path("title"))
+    val subtitle = optionalNonBlankText(path("subtitle"))
 
-fun sessionFromJson(json: JsonNode): Session {
-    val title = nonBlankText(json.path("title"))
-    val subtitle = optionalNonBlankText(json.path("subtitle"))
-
-    val authorsNode: JsonNode = json.path("presenters")
+    val authorsNode: JsonNode = path("presenters")
     val presenters = authorsNode
-        .map { presenterFromJson(it) }
-    val slots = Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue())
+        .map { it.toPresenter() }
+    val slots = Slots(at("/slots/first").intValue(), at("/slots/last").intValue())
 
     return Session(title!!, subtitle, slots, presenters)
 }
 
 
-private fun presenterToJson(p: Presenter): ObjectNode {
-    return obj(prop("name", p.name))
-}
+private fun Presenter.toJson(): ObjectNode = obj(prop("name", name))
 
-private fun presenterFromJson(authorNode: JsonNode): Presenter {
-    return Presenter(authorNode.path("name").asText())
-}
+private fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
 private fun optionalNonBlankText(node: JsonNode): String? {
     return if (node.isMissingNode) {

@@ -1,15 +1,12 @@
 package learnyouakotlin.part3
 
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.JsonNode
 import com.oneeyedmen.okeydoke.junit.ApprovalsRule
 import learnyouakotlin.part1.Presenter
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
 import org.junit.Rule
 import org.junit.Test
-
-import java.io.IOException
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
@@ -30,7 +27,7 @@ class JsonFormatTests {
             Presenter("Duncan McGregor"),
             Presenter("Nat Pryce"))
 
-        val json = sessionToJson(session)
+        val json = session.toJson()
         approval.assertApproved(Json.toStableJsonString(json))
     }
 
@@ -42,7 +39,7 @@ class JsonFormatTests {
             Slots(3, 3),
             Presenter("Ivan Moore"))
 
-        val json = sessionToJson(session)
+        val json = session.toJson()
         approval.assertApproved(Json.toStableJsonString(json))
     }
 
@@ -54,7 +51,7 @@ class JsonFormatTests {
             Presenter("Nat Pryce"),
             Presenter("Duncan McGregor"))
 
-        val parsed = sessionFromJson(sessionToJson(original))
+        val parsed = original.toJson().toSession()
         assertThat(parsed, equalTo(original))
     }
 
@@ -74,7 +71,7 @@ class JsonFormatTests {
               ]
             }""")
         try {
-            sessionFromJson(Json.stableMapper.readTree(json))
+            Json.stableMapper.readTree(json).toSession()
             fail()
         } catch (expected: JsonMappingException) {
             assertThat<String>(expected.message, equalTo("missing or empty text"))
