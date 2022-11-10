@@ -53,13 +53,13 @@ Suggested progress
     * talk about lack of a "new" keyword -- classes look like, and can be used as, functions
     * talk about listOf vs Arrays.asList -- Kotlin stdlib has lots of useful collection methods
     * talk about lack of return type when Unit
-    * Now all of our Session clients are Kotlin we can inline the copys, except for withPresenters, which we
-      can make vararg
+    * Now all of our Session clients are Kotlin we can inline the 'copy's, except for 
+      withPresenters, which we can make vararg
     * Now the copy invocations don't need testing
     * Move withPresenters methods out of class into extension ... much nicer in Kotlin, yeah?
     * Explain extension functions in more detail ... syntactic sugar for static methods
     * Move withPresenters into SessionTests where it is used to illustrate convenience extensions
-    * Talk about top level functions
+    * Talk about top-level functions
     * Rename test to `illustrate convenience extension methods` and talk about names
     * run the tests, check diffs, talk about diffs, checkin
   * Slots  
@@ -88,7 +88,7 @@ Suggested progress
   * Convert subtitleOrPrompt to property (Alt-Enter)
   * Talk about properties v functions
   * Convert findWithTitle to Kotlin (remove .stream()) - note lambda syntax and destructuring
-  * Remove the destructuring as unhelpful
+  * Remove the destructuring as unhelpful (even risky -- explain risks)
   * Talk about the difference between iterables and sequences
   * Use predicate form of firstOfNull
   * Run tests
