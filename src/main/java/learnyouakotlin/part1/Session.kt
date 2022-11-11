@@ -8,12 +8,5 @@ data class Session(val title: String, val subtitle: String?, val slots: Slots, v
         presenters.asList()
     )
     
-    fun withPresenters(presenters: List<Presenter>) =
-        copy(presenters = presenters)
-    
-    fun withTitle(newTitle: String) =
-        copy(title = newTitle)
-    
-    fun withSubtitle(newSubtitle: String?) =
-        copy(subtitle = newSubtitle)
 }
+
