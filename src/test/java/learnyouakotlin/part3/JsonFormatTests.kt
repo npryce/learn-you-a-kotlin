@@ -25,7 +25,7 @@ class JsonFormatTests {
             Presenter("Duncan McGregor"),
             Presenter("Nat Pryce")
         )
-        val json = JsonFormat.sessionToJson(session)
+        val json = session.toJson()
         approval.assertApproved(toStableJsonString(json))
     }
     
@@ -37,7 +37,7 @@ class JsonFormatTests {
             Slots(3, 3),
             Presenter("Ivan Moore")
         )
-        val json = JsonFormat.sessionToJson(session)
+        val json = session.toJson()
         approval.assertApproved(toStableJsonString(json))
     }
     
@@ -50,7 +50,7 @@ class JsonFormatTests {
             Presenter("Nat Pryce"),
             Presenter("Duncan McGregor")
         )
-        val parsed = JsonFormat.sessionFromJson(JsonFormat.sessionToJson(original))
+        val parsed = original.toJson().toSession()
         MatcherAssert.assertThat(parsed, IsEqual.equalTo(original))
     }
     
@@ -60,7 +60,7 @@ class JsonFormatTests {
             """{  'title' : 'Has blank subtitle',  'subtitle' : '',  'slots' : { 'first' : 3, 'last' : 3  },  'presenters' : [ {    'name' : 'Ivan Moore'  } ]
 }""".replace("'", "\"")
         try {
-            JsonFormat.sessionFromJson(Json.stableMapper.readTree(json))
+            Json.stableMapper.readTree(json).toSession()
             Assert.fail()
         } catch (expected: JsonMappingException) {
             MatcherAssert.assertThat(expected.message, IsEqual.equalTo("missing or empty text"))

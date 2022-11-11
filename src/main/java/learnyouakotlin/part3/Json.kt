@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import java.util.function.Consumer
-import java.util.function.Function
 import java.util.stream.Collectors
 
 object Json {
@@ -23,7 +22,7 @@ object Json {
     }
     
     @JvmStatic
-    fun prop(name: String, textValue: String?): Pair<String, JsonNode> {
+    fun prop(name: String, textValue: String?): Pair<String, JsonNode?> {
         return prop(name, TextNode(textValue))
     }
     
@@ -51,7 +50,7 @@ object Json {
     
     @JvmStatic
     @SafeVarargs
-    fun obj(vararg props: Pair<String, JsonNode?>): ObjectNode {
+    fun obj(vararg props: Pair<String, JsonNode?>?): ObjectNode {
         return obj(props.asList())
     }
     
@@ -63,9 +62,8 @@ object Json {
     }
     
     @JvmStatic
-    fun <T> array(elements: List<T>, fn: Function<T, JsonNode?>): ArrayNode {
-        return array(elements.stream().map(fn).collect(Collectors.toList()))
-    }
+    fun <T> array(elements: List<T>, fn: (T) -> JsonNode?): ArrayNode =
+        array(elements.stream().map(fn).collect(Collectors.toList()))
     
     @JvmStatic
     fun toStableJsonString(n: JsonNode): String {
