@@ -36,11 +36,8 @@ fun JsonNode.toPresenter(): Presenter = Presenter(path("name").asText())
 
 fun JsonNode.optionalNonBlankText(): String? = if (isMissingNode) null else this.nonBlankText()
 
-fun JsonNode.nonBlankText(): String {
-    val text = asText()
-    return if (isNull || text == "") {
+fun JsonNode.nonBlankText(): String = asText().also {
+    if (isNull || it == "") {
         throw JsonMappingException(null, "missing or empty text")
-    } else {
-        text
     }
 }
