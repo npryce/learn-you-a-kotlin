@@ -1,69 +1,78 @@
-package learnyouakotlin.part3;
+package learnyouakotlin.part3
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
+import com.fasterxml.jackson.databind.SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.stream.Collectors
 
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
-import static com.fasterxml.jackson.databind.SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-
-public class Json {
-    private static final JsonNodeFactory nodes = JsonNodeFactory.instance;
-    static final ObjectMapper stableMapper = new ObjectMapper().enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS);
-
-    public static Map.Entry<String, JsonNode> prop(String name, String textValue) {
-        return prop(name, new TextNode(textValue));
+object Json {
+    private val nodes = JsonNodeFactory.instance
+    
+    @JvmField
+    val stableMapper = ObjectMapper().apply{
+        enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS)
     }
-
-    public static Map.Entry<String, JsonNode> prop(String name, int intValue) {
-        return prop(name, new IntNode(intValue));
+    
+    @JvmStatic
+    fun prop(name: String, textValue: String?): Pair<String, JsonNode> {
+        return prop(name, TextNode(textValue))
     }
-
-    public static Map.Entry<String, JsonNode> prop(String name, JsonNode value) {
-        return new SimpleImmutableEntry<>(name, value);
+    
+    @JvmStatic
+    fun prop(name: String, intValue: Int): Pair<String, JsonNode> {
+        return prop(name, IntNode(intValue))
     }
-
-    public static ObjectNode obj(Iterable<Map.Entry<String, JsonNode>> props) {
-        ObjectNode object = new ObjectNode(nodes);
-        props.forEach(p -> {
+    
+    @JvmStatic
+    fun prop(name: String, value: JsonNode): Pair<String, JsonNode> {
+        return name to value
+    }
+    
+    @JvmStatic
+    fun obj(props: Iterable<Pair<String, JsonNode?>?>): ObjectNode {
+        val o = ObjectNode(nodes)
+        props.forEach(Consumer { p: Pair<String, JsonNode?>? ->
             // p can be null, but no way to annotate the Map.Entry within the Iterable
             if (p != null) {
-                object.set(p.getKey(), p.getValue());
+                o.set<JsonNode>(p.first, p.second)
             }
-        });
-        return object;
+        })
+        return o
     }
-
+    
+    @JvmStatic
     @SafeVarargs
-    public static ObjectNode obj(Map.Entry<String, JsonNode>... props) {
-        // Elements of props may be null, but there's no way to use annotations to indicate that. Annotating the
-        // props parameter with @Nullable means that the whole array may be null
-        return obj(asList(props));
+    fun obj(vararg props: Pair<String, JsonNode?>): ObjectNode {
+        return obj(props.asList())
     }
-
-    public static ArrayNode array(Iterable<JsonNode> elements) {
-        ArrayNode array = new ArrayNode(nodes);
-        elements.forEach(array::add);
-        return array;
+    
+    @JvmStatic
+    fun array(elements: Iterable<JsonNode?>): ArrayNode {
+        val array = ArrayNode(nodes)
+        elements.forEach(Consumer { value: JsonNode? -> array.add(value) })
+        return array
     }
-
-    public static <T> ArrayNode array(List<T> elements, Function<T, JsonNode> fn) {
-        return array(elements.stream().map(fn).collect(toList()));
+    
+    @JvmStatic
+    fun <T> array(elements: List<T>, fn: Function<T, JsonNode?>): ArrayNode {
+        return array(elements.stream().map(fn).collect(Collectors.toList()))
     }
-
-    public static String toStableJsonString(JsonNode n) {
-        try {
-            return stableMapper.writeValueAsString(n);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("failed to convert JsonNode to JSON string", e);
+    
+    @JvmStatic
+    fun toStableJsonString(n: JsonNode): String {
+        return try {
+            stableMapper.writeValueAsString(n)
+        } catch (e: JsonProcessingException) {
+            throw IllegalArgumentException("failed to convert JsonNode to JSON string", e)
         }
     }
 }
