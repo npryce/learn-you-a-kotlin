@@ -5,7 +5,6 @@ import com.oneeyedmen.okeydoke.junit.ApprovalsRule
 import learnyouakotlin.part1.Presenter
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
-import learnyouakotlin.part3.Json.toStableJsonString
 import org.hamcrest.MatcherAssert
 import org.hamcrest.core.IsEqual
 import org.junit.Assert
@@ -60,7 +59,7 @@ class JsonFormatTests {
             """{  'title' : 'Has blank subtitle',  'subtitle' : '',  'slots' : { 'first' : 3, 'last' : 3  },  'presenters' : [ {    'name' : 'Ivan Moore'  } ]
 }""".replace("'", "\"")
         try {
-            Json.stableMapper.readTree(json).toSession()
+            stableMapper.readTree(json).toSession()
             Assert.fail()
         } catch (expected: JsonMappingException) {
             MatcherAssert.assertThat(expected.message, IsEqual.equalTo("missing or empty text"))
