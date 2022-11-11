@@ -1,29 +1,20 @@
-package learnyouakotlin.part1;
+package learnyouakotlin.part1
 
-import java.util.Objects;
+import java.util.Objects
 
-public class Presenter {
-    public final String name;
-
-    public Presenter(String name) {
-        this.name = name;
+class Presenter(val name: String) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val presenter = o as Presenter
+        return name == presenter.name
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Presenter presenter = (Presenter) o;
-        return Objects.equals(name, presenter.name);
+    
+    override fun hashCode(): Int {
+        return Objects.hash(name)
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
-    public String toString() {
-        return name;
+    
+    override fun toString(): String {
+        return name
     }
 }
