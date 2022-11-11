@@ -1,67 +1,22 @@
-package learnyouakotlin.part1;
+package learnyouakotlin.part1
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import static java.util.Arrays.asList;
-
-
-public class Session {
-    public final String title;
-    @Nullable
-    public final String subtitle;
-    public final Slots slots;
-    public final List<Presenter> presenters;
-
-    public Session(String title, @Nullable String subtitle, Slots slots, List<Presenter> presenters) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.slots = slots;
-        this.presenters = Collections.unmodifiableList(new ArrayList<>(presenters));
+data class Session(val title: String, val subtitle: String?, val slots: Slots, val presenters: List<Presenter>) {
+    constructor(title: String, subtitle: String?, slots: Slots, vararg presenters: Presenter) : this(
+        title,
+        subtitle,
+        slots,
+        presenters.asList()
+    )
+    
+    fun withPresenters(newLineUp: List<Presenter>): Session {
+        return Session(title, subtitle, slots, newLineUp)
     }
-
-    public Session(String title, @Nullable String subtitle, Slots slots, Presenter... presenters) {
-        this(title, subtitle, slots, asList(presenters));
+    
+    fun withTitle(newTitle: String): Session {
+        return Session(newTitle, subtitle, slots, presenters)
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Session session = (Session) o;
-        return Objects.equals(title, session.title) &&
-                Objects.equals(subtitle, session.subtitle) &&
-                Objects.equals(slots, session.slots) &&
-                Objects.equals(presenters, session.presenters);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(title, subtitle, slots, presenters);
-    }
-
-    @Override
-    public String toString() {
-        return "Session{" +
-                "title='" + title + '\'' +
-                ", subtitle='" + subtitle + '\'' +
-                ", slots=" + slots +
-                ", presenters=" + presenters +
-                '}';
-    }
-
-    public Session withPresenters(List<Presenter> newLineUp) {
-        return new Session(title, subtitle, slots, newLineUp);
-    }
-
-    public Session withTitle(String newTitle) {
-        return new Session(newTitle, subtitle, slots, presenters);
-    }
-
-    public Session withSubtitle(@Nullable String newSubtitle) {
-        return new Session(title, newSubtitle, slots, presenters);
+    
+    fun withSubtitle(newSubtitle: String?): Session {
+        return Session(title, newSubtitle, slots, presenters)
     }
 }
