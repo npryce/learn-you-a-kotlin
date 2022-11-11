@@ -2,9 +2,9 @@ package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Test
 
 class SessionsTests {
 
@@ -13,7 +13,7 @@ class SessionsTests {
         val refactoringToStreams = Session("Refactoring to Streams", null, Slots(2, 2))
     }
 
-    val sessions = listOf(learnYouAKotlin, refactoringToStreams)
+    private val sessions = listOf(learnYouAKotlin, refactoringToStreams)
 
     @Test
     fun `nulls and flow typing`() {
@@ -22,7 +22,7 @@ class SessionsTests {
         // Uncomment to see that this can't compile
         // session.subtitle
 
-        val notNullSession = session as Session
+        val notNullSession = session!!
         assertEquals("for all the good it will do you", notNullSession.subtitle)
         assertEquals("for all the good it will do you", session.subtitle)
     }
