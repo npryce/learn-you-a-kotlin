@@ -20,16 +20,16 @@ val stableMapper = ObjectMapper().apply{
     enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS)
 }
 
-fun prop(name: String, textValue: String?): Pair<String, JsonNode?> {
-    return prop(name, TextNode(textValue))
+infix fun String.of(textValue: String?): Pair<String, JsonNode?> {
+    return this.of(TextNode(textValue))
 }
 
-fun prop(name: String, intValue: Int): Pair<String, JsonNode> {
-    return prop(name, IntNode(intValue))
+infix fun String.of(intValue: Int): Pair<String, JsonNode> {
+    return this.of(IntNode(intValue))
 }
 
-fun prop(name: String, value: JsonNode): Pair<String, JsonNode> {
-    return name to value
+infix fun String.of(value: JsonNode): Pair<String, JsonNode> {
+    return this to value
 }
 
 fun obj(props: Iterable<Pair<String, JsonNode?>?>): ObjectNode {
