@@ -13,7 +13,7 @@ class SessionsTests {
         val refactoringToStreams = Session("Refactoring to Streams", null, Slots(2, 2))
     }
 
-    private val sessions = listOf(learnYouAKotlin, refactoringToStreams)
+    private val sessions: Sessions = listOf(learnYouAKotlin, refactoringToStreams)
 
     @Test
     fun `nulls and flow typing`() {
