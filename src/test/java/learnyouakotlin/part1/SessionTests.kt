@@ -1,40 +1,40 @@
-package learnyouakotlin.part1;
+package learnyouakotlin.part1
 
-import org.junit.Test;
+import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
+import org.junit.Test
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-public class SessionTests {
-
-    Session original = new Session("The Title", null, new Slots(1, 2), new Presenter("Alice"));
-
+class SessionTests {
+    var original = Session("The Title", null, Slots(1, 2), Presenter("Alice"))
     @Test
-    public void can_change_presenters() {
-        assertThat(
-            original.withPresenters(asList(new Presenter("Bob"), new Presenter("Carol"))),
-            equalTo(new Session("The Title", null, new Slots(1, 2), new Presenter("Bob"), new Presenter("Carol"))));
+    fun can_change_presenters() {
+        MatcherAssert.assertThat(
+            original.withPresenters(listOf(Presenter("Bob"), Presenter("Carol"))),
+            CoreMatchers.equalTo(Session("The Title", null, Slots(1, 2), Presenter("Bob"), Presenter("Carol")))
+        )
     }
-
+    
     @Test
-    public void can_change_title() {
-        assertThat(
+    fun can_change_title() {
+        MatcherAssert.assertThat(
             original.withTitle("Another Title"),
-            equalTo(new Session("Another Title", null, new Slots(1, 2), new Presenter("Alice"))));
+            CoreMatchers.equalTo(Session("Another Title", null, Slots(1, 2), Presenter("Alice")))
+        )
     }
-
+    
     @Test
-    public void can_change_subtitle() {
-        assertThat(
+    fun can_change_subtitle() {
+        MatcherAssert.assertThat(
             original.withSubtitle("The Subtitle"),
-            equalTo(new Session("The Title", "The Subtitle", new Slots(1, 2), new Presenter("Alice"))));
+            CoreMatchers.equalTo(Session("The Title", "The Subtitle", Slots(1, 2), Presenter("Alice")))
+        )
     }
-
+    
     @Test
-    public void can_remove_subtitle() {
-        assertThat(
+    fun can_remove_subtitle() {
+        MatcherAssert.assertThat(
             original.withSubtitle("The Subtitle").withSubtitle(null),
-            equalTo(new Session("The Title", null, new Slots(1, 2), new Presenter("Alice"))));
+            CoreMatchers.equalTo(Session("The Title", null, Slots(1, 2), Presenter("Alice")))
+        )
     }
 }
