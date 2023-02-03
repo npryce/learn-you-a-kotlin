@@ -10,8 +10,6 @@ import learnyouakotlin.part3.Json.array
 import learnyouakotlin.part3.Json.obj
 import learnyouakotlin.part3.Json.prop
 import java.util.Spliterator
-import java.util.stream.Collectors
-import java.util.stream.StreamSupport
 
 object JsonFormat {
     @JvmStatic
@@ -34,11 +32,8 @@ object JsonFormat {
         val title = nonBlankText(json.path("title"))
         val subtitle = optionalNonBlankText(json.path("subtitle"))
         val authorsNode = json.path("presenters")
-        val presenters = StreamSupport.stream(spliterator(
-            Iterable { authorsNode.elements() }), false
-        )
+        val presenters = authorsNode
             .map(::presenterFromJson)
-            .collect(Collectors.toList())
         val slots = Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue())
         return Session(title, subtitle, slots, presenters)
     }
