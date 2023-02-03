@@ -30,7 +30,6 @@ object JsonFormat {
     }
     
     @JvmStatic
-    @Throws(JsonMappingException::class)
     fun sessionFromJson(json: JsonNode): Session {
         val title = nonBlankText(json.path("title"))
         val subtitle = optionalNonBlankText(json.path("subtitle"))
@@ -56,7 +55,6 @@ object JsonFormat {
         return Presenter(authorNode.path("name").asText())
     }
     
-    @Throws(JsonMappingException::class)
     private fun optionalNonBlankText(node: JsonNode): String? {
         return if (node.isMissingNode) {
             null
@@ -65,7 +63,6 @@ object JsonFormat {
         }
     }
     
-    @Throws(JsonMappingException::class)
     private fun nonBlankText(node: JsonNode): String {
         val text = node.asText()
         return if (node.isNull || text == "") {
