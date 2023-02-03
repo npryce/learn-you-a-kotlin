@@ -1,75 +1,77 @@
-package learnyouakotlin.part3;
+package learnyouakotlin.part3
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import learnyouakotlin.part1.Presenter;
-import learnyouakotlin.part1.Session;
-import learnyouakotlin.part1.Slots;
+import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import learnyouakotlin.part1.Presenter
+import learnyouakotlin.part1.Session
+import learnyouakotlin.part1.Slots
+import learnyouakotlin.part3.Json.array
+import learnyouakotlin.part3.Json.obj
+import learnyouakotlin.part3.Json.prop
+import java.util.Spliterator
+import java.util.stream.Collectors
+import java.util.stream.StreamSupport
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.stream.Collectors;
-
-import static java.util.stream.StreamSupport.stream;
-import static learnyouakotlin.part3.Json.*;
-
-public class JsonFormat {
-
-    public static JsonNode sessionToJson(Session session) {
+object JsonFormat {
+    @JvmStatic
+    fun sessionToJson(session: Session): JsonNode {
         return obj(
             prop("title", session.title),
-            session.subtitle == null ? null : prop("subtitle", session.subtitle),
-            prop("slots", obj(
-                prop("first", session.slots.start),
-                prop("last", session.slots.endInclusive)
-            )),
-            prop("presenters", array(session.presenters, JsonFormat::presenterToJson)));
+            if (session.subtitle == null) null else prop("subtitle", session.subtitle),
+            prop(
+                "slots", obj(
+                    prop("first", session.slots.start),
+                    prop("last", session.slots.endInclusive)
+                )
+            ),
+            prop("presenters", array(session.presenters, ::presenterToJson))
+        )
     }
-
-    public static Session sessionFromJson(JsonNode json) throws JsonMappingException {
-        String title = nonBlankText(json.path("title"));
-        @Nullable String subtitle = optionalNonBlankText(json.path("subtitle"));
-
-        JsonNode authorsNode = json.path("presenters");
-        List<Presenter> presenters = stream(spliterator(authorsNode::elements), false)
-            .map(JsonFormat::presenterFromJson)
-            .collect(Collectors.toList());
-        Slots slots = new Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue());
-
-        return new Session(title, subtitle, slots, presenters);
+    
+    @JvmStatic
+    @Throws(JsonMappingException::class)
+    fun sessionFromJson(json: JsonNode): Session {
+        val title = nonBlankText(json.path("title"))
+        val subtitle = optionalNonBlankText(json.path("subtitle"))
+        val authorsNode = json.path("presenters")
+        val presenters = StreamSupport.stream(spliterator(
+            Iterable { authorsNode.elements() }), false
+        )
+            .map(::presenterFromJson)
+            .collect(Collectors.toList())
+        val slots = Slots(json.at("/slots/first").intValue(), json.at("/slots/last").intValue())
+        return Session(title, subtitle, slots, presenters)
     }
-
-    private static Spliterator<JsonNode> spliterator(Iterable<JsonNode> elements) {
-        return elements.spliterator();
+    
+    private fun spliterator(elements: Iterable<JsonNode>): Spliterator<JsonNode> {
+        return elements.spliterator()
     }
-
-    private static ObjectNode presenterToJson(Presenter p) {
-        return obj(prop("name", p.getName()));
+    
+    private fun presenterToJson(p: Presenter): ObjectNode {
+        return obj(prop("name", p.name))
     }
-
-    private static Presenter presenterFromJson(JsonNode authorNode) {
-        return new Presenter(authorNode.path("name").asText());
+    
+    private fun presenterFromJson(authorNode: JsonNode): Presenter {
+        return Presenter(authorNode.path("name").asText())
     }
-
-    private static
-    @Nullable
-    String optionalNonBlankText(JsonNode node) throws JsonMappingException {
-        if (node.isMissingNode()) {
-            return null;
+    
+    @Throws(JsonMappingException::class)
+    private fun optionalNonBlankText(node: JsonNode): String? {
+        return if (node.isMissingNode) {
+            null
         } else {
-            return nonBlankText(node);
+            nonBlankText(node)
         }
     }
-
-    private static String nonBlankText(JsonNode node) throws JsonMappingException {
-        String text = node.asText();
-        if (node.isNull() || Objects.equals(text, "")) {
-            throw new JsonMappingException(null, "missing or empty text");
+    
+    @Throws(JsonMappingException::class)
+    private fun nonBlankText(node: JsonNode): String {
+        val text = node.asText()
+        return if (node.isNull || text == "") {
+            throw JsonMappingException(null, "missing or empty text")
         } else {
-            return text;
+            text
         }
     }
 }
