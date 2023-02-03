@@ -31,7 +31,7 @@ public class JsonFormatTests {
                 new Presenter("Nat Pryce"));
 
         JsonNode json = sessionToJson(session);
-        approval.assertApproved(Json.toStableJsonString(json));
+        approval.assertApproved(JsonKt.toStableJsonString(json));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class JsonFormatTests {
                 new Presenter("Ivan Moore"));
 
         JsonNode json = sessionToJson(session);
-        approval.assertApproved(Json.toStableJsonString(json));
+        approval.assertApproved(JsonKt.toStableJsonString(json));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class JsonFormatTests {
             "  'presenters' : [ {    'name' : 'Ivan Moore'  } ]\n" +
             "}").replace("'", "\"");
         try {
-            sessionFromJson(Json.stableMapper.readTree(json));
+            sessionFromJson(JsonKt.stableMapper.readTree(json));
             fail();
         } catch (JsonMappingException expected) {
             assertThat(expected.getMessage(), equalTo("missing or empty text"));
