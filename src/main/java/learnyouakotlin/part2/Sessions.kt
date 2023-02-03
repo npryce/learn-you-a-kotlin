@@ -3,11 +3,11 @@ package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
 
-fun subtitleOf(session: Session?): String? =
-    session?.subtitle
+fun Session?.subtitleOf(): String? =
+    this?.subtitle
 
-fun subtitleOrPrompt(session: Session): String =
-    session.subtitle ?: "click to enter subtitle"
+fun Session.subtitleOrPrompt(): String =
+    subtitle ?: "click to enter subtitle"
 
 fun findWithTitle(sessions: List<Session?>, title: String?): Session? =
     sessions.stream()
