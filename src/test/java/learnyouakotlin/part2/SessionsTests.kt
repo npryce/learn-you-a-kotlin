@@ -2,9 +2,9 @@ package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
 import learnyouakotlin.part1.Slots
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Test
 
 class SessionsTests {
 
@@ -17,13 +17,12 @@ class SessionsTests {
 
     @Test
     fun `nulls and flow typing`() {
-        val session: Session? = Sessions.findWithTitle(sessions, "learn you a kotlin")
-
+        val session: Session = Sessions.findWithTitle(sessions, "learn you a kotlin") !!
+    
         // Uncomment to see that this can't compile
-        // session.subtitle
+        //session.subtitle
 
-        val notNullSession = session as Session
-        assertEquals("for all the good it will do you", notNullSession.subtitle)
+        assertEquals("for all the good it will do you", session.subtitle)
         assertEquals("for all the good it will do you", session.subtitle)
     }
 
