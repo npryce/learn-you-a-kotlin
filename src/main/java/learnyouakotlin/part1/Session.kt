@@ -14,14 +14,14 @@ data class Session(
     )
     
     fun withPresenters(newLineUp: List<Presenter>): Session {
-        return Session(title, subtitle, slots, newLineUp)
+        return copy(presenters = newLineUp)
     }
     
     fun withTitle(newTitle: String): Session {
-        return Session(newTitle, subtitle, slots, presenters)
+        return copy(title = newTitle)
     }
     
     fun withSubtitle(newSubtitle: String?): Session {
-        return Session(title, newSubtitle, slots, presenters)
+        return copy(subtitle = newSubtitle)
     }
 }
