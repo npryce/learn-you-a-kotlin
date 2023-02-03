@@ -1,3 +1,4 @@
+@file:JvmName("Sessions")
 package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
