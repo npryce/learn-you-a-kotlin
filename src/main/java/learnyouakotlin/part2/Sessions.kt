@@ -2,7 +2,7 @@ package learnyouakotlin.part2
 
 import learnyouakotlin.part1.Session
 
-internal object Sessions {
+object Sessions {
     fun subtitleOf(session: Session?): String? {
         return session?.subtitle
     }
