@@ -34,8 +34,8 @@ class SessionsTests {
 
     @Test
     fun subtitleOrPrompt() {
-        assertEquals("for all the good it will do you", learnYouAKotlin.subtitleOrPrompt())
-        assertEquals("click to enter subtitle", refactoringToStreams.subtitleOrPrompt())
+        assertEquals("for all the good it will do you", learnYouAKotlin.subtitleOrPrompt)
+        assertEquals("click to enter subtitle", refactoringToStreams.subtitleOrPrompt)
     }
 
     @Test

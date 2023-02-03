@@ -6,8 +6,8 @@ import learnyouakotlin.part1.Session
 fun Session?.subtitleOf(): String? =
     this?.subtitle
 
-fun Session.subtitleOrPrompt(): String =
-    subtitle ?: "click to enter subtitle"
+val Session.subtitleOrPrompt: String
+    get() = subtitle ?: "click to enter subtitle"
 
 fun findWithTitle(sessions: List<Session?>, title: String?): Session? =
     sessions.stream()
