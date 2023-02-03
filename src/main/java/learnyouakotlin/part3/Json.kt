@@ -18,11 +18,15 @@ private val nodes = JsonNodeFactory.instance
 @JvmField
 val stableMapper: ObjectMapper = ObjectMapper().enable(INDENT_OUTPUT, ORDER_MAP_ENTRIES_BY_KEYS)
 
-fun prop(name: String, value: JsonNode): Pair<String, JsonNode> = Pair(name, value)
+infix fun String.of(
+    value: JsonNode
+) = this to value
 
-fun prop(name: String, textValue: String?): Pair<String, JsonNode> = prop(name, TextNode(textValue))
+infix fun String.of(
+    textValue: String?
+) = this of TextNode(textValue)
 
-fun prop(name: String, intValue: Int): Pair<String, JsonNode> = prop(name, IntNode(intValue))
+fun prop(name: String, intValue: Int): Pair<String, JsonNode> = name of IntNode(intValue)
 fun obj(props: Iterable<Pair<String, JsonNode>?>): ObjectNode {
     val objectNode = ObjectNode(nodes)
     props.forEach { p: Pair<String, JsonNode>? ->

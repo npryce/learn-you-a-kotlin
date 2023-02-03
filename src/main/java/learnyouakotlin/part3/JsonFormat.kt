@@ -12,15 +12,13 @@ object JsonFormat {
     @JvmStatic
     fun sessionToJson(session: Session): JsonNode {
         return obj(
-            prop("title", session.title),
-            if (session.subtitle == null) null else prop("subtitle", session.subtitle),
-            prop(
-                "slots", obj(
-                    prop("first", session.slots.start),
-                    prop("last", session.slots.endInclusive)
-                )
+            "title" of session.title,
+            if (session.subtitle == null) null else "subtitle" of session.subtitle,
+            "slots" of obj(
+                prop("first", session.slots.start),
+                prop("last", session.slots.endInclusive)
             ),
-            prop("presenters", array(session.presenters, ::presenterToJson))
+            "presenters" of array(session.presenters, ::presenterToJson)
         )
     }
     
@@ -40,7 +38,7 @@ object JsonFormat {
     }
     
     private fun presenterToJson(p: Presenter): ObjectNode {
-        return obj(prop("name", p.name))
+        return obj("name" of p.name)
     }
     
     private fun presenterFromJson(authorNode: JsonNode): Presenter {
