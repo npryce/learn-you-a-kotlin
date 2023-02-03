@@ -10,6 +10,13 @@ plugins {
     id "java-library"
 }
 
+java {
+    toolchain {
+        version = "17"
+        targetCompatibility = "17"
+    }
+}
+
 repositories {
     mavenCentral()
 }

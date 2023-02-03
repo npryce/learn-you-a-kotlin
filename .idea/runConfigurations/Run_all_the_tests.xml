@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All in learn-you-a-kotlin.test" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+  <configuration default="false" name="Run all the tests" type="JUnit" factoryName="JUnit">
     <module name="learn-you-a-kotlin.test" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
