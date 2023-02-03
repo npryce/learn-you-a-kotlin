@@ -9,8 +9,5 @@ fun Session?.subtitleOf(): String? =
 val Session.subtitleOrPrompt: String
     get() = subtitle ?: "click to enter subtitle"
 
-fun findWithTitle(sessions: List<Session?>, title: String?): Session? =
-    sessions.stream()
-        .filter { session: Session? -> session!!.title.equals(title, ignoreCase = true) }
-        .findFirst()
-        .orElse(null)
+fun List<Session>.findWithTitle(title: String): Session? =
+    firstOrNull { it.title.equals(title, ignoreCase = true) }
