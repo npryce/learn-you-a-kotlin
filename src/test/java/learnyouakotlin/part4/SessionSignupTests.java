@@ -12,7 +12,6 @@ public class SessionSignupTests {
     private static final AttendeeId bob = AttendeeId.of("bob");
     private static final AttendeeId carol = AttendeeId.of("carol");
     private static final AttendeeId dave = AttendeeId.of("dave");
-    private static final AttendeeId eve = AttendeeId.of("eve");
 
     SessionSignup signup = new SessionSignup();
 
