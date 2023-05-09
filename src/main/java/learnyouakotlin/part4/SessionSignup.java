@@ -29,12 +29,16 @@ public class SessionSignup {
     }
 
     public void signUp(AttendeeId attendeeId) {
-        if (isFull()) {
-            throw new IllegalStateException("session is full");
+        if (signups.contains(attendeeId)) {
+            return;
         }
 
         if (isSessionStarted()) {
             throw new IllegalStateException("cannot sign up for session after it has started");
+        }
+
+        if (isFull()) {
+            throw new IllegalStateException("session is full");
         }
 
         signups.add(attendeeId);

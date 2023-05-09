@@ -36,6 +36,18 @@ public class SessionSignupTests {
     }
 
     @Test
+    public void each_attendee_can_only_sign_up_once() {
+        signup.setCapacity(3);
+
+        signup.signUp(alice);
+        signup.signUp(alice);
+        signup.signUp(alice);
+
+        assertTrue(!signup.isFull());
+        assertEquals(Set.of(alice), signup.getSignups());
+    }
+
+    @Test
     public void can_cancel_signup() {
         signup.setCapacity(15);
 
@@ -68,6 +80,16 @@ public class SessionSignupTests {
     }
 
     @Test
+    public void duplicate_signup_ignored_when_full() {
+        signup.setCapacity(3);
+        signup.signUp(alice);
+        signup.signUp(bob);
+        signup.signUp(carol);
+
+        signup.signUp(alice); // does not throw
+    }
+
+    @Test
     public void cannot_sign_up_after_session_has_started() {
         signup.setCapacity(3);
 
@@ -80,5 +102,14 @@ public class SessionSignupTests {
         assertTrue(signup.isSessionStarted());
         assertThrows(IllegalStateException.class, () ->
             signup.signUp(carol));
+    }
+
+    @Test
+    public void ignores_duplicate_signup_after_session_has_started() {
+        signup.setCapacity(3);
+
+        signup.signUp(alice);
+        signup.start();
+        signup.signUp(alice); // Does not throw
     }
 }
