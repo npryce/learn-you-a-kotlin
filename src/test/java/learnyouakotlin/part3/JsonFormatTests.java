@@ -2,27 +2,25 @@ package learnyouakotlin.part3;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.oneeyedmen.okeydoke.junit.ApprovalsRule;
+import com.oneeyedmen.okeydoke.Approver;
+import com.oneeyedmen.okeydoke.junit5.ApprovalsExtension;
 import learnyouakotlin.part1.Presenter;
 import learnyouakotlin.part1.Session;
 import learnyouakotlin.part1.Slots;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
 import static learnyouakotlin.part3.JsonFormat.sessionFromJson;
 import static learnyouakotlin.part3.JsonFormat.sessionToJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(ApprovalsExtension.class)
 public class JsonFormatTests {
-    @Rule
-    public final ApprovalsRule approval = ApprovalsRule.usualRule();
-
     @Test
-    public void session_to_json() {
+    public void session_to_json(Approver approval) {
         Session session = new Session(
                 "Learn You a Kotlin For All The Good It Will Do You",
                 null,
@@ -35,7 +33,7 @@ public class JsonFormatTests {
     }
 
     @Test
-    public void session_with_subtitle_to_json() {
+    public void session_with_subtitle_to_json(Approver approval) {
         Session session = new Session(
                 "Scrapheap Challenge",
                 "A Workshop in Postmodern Programming",
@@ -47,7 +45,7 @@ public class JsonFormatTests {
     }
 
     @Test
-    public void session_to_and_from_json() throws JsonMappingException {
+    public void session_to_and_from_json(Approver approval) throws JsonMappingException {
         Session original = new Session(
                 "Working Effectively with Legacy Tests",
                 null,
@@ -56,11 +54,11 @@ public class JsonFormatTests {
                 new Presenter("Duncan McGregor"));
 
         Session parsed = sessionFromJson(sessionToJson(original));
-        assertThat(parsed, equalTo(original));
+        assertEquals(original, parsed);
     }
 
     @Test
-    public void reading_throws_with_blank_subtitle() throws IOException {
+    public void reading_throws_with_blank_subtitle(Approver approval) throws IOException {
         String json = ("{" +
             "  'title' : 'Has blank subtitle'," +
             "  'subtitle' : ''," +
@@ -71,7 +69,7 @@ public class JsonFormatTests {
             sessionFromJson(Json.stableMapper.readTree(json));
             fail();
         } catch (JsonMappingException expected) {
-            assertThat(expected.getMessage(), equalTo("missing or empty text"));
+            assertEquals("missing or empty text", expected.getMessage());
         }
     }
 }
