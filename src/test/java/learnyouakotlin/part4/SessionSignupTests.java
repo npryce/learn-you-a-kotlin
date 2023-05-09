@@ -13,7 +13,7 @@ public class SessionSignupTests {
     private static final AttendeeId carol = AttendeeId.of("carol");
     private static final AttendeeId dave = AttendeeId.of("dave");
 
-    SessionSignup signup = new SessionSignup();
+    private final SessionSignup signup = new SessionSignup();
 
     @Test
     public void collects_signups() {
