@@ -45,7 +45,7 @@ public class JsonFormatTests {
     }
 
     @Test
-    public void session_to_and_from_json(Approver approval) throws JsonMappingException {
+    public void session_to_and_from_json() throws JsonMappingException {
         Session original = new Session(
                 "Working Effectively with Legacy Tests",
                 null,
@@ -58,7 +58,7 @@ public class JsonFormatTests {
     }
 
     @Test
-    public void reading_throws_with_blank_subtitle(Approver approval) throws IOException {
+    public void reading_throws_with_blank_subtitle() throws IOException {
         String json = ("{" +
             "  'title' : 'Has blank subtitle'," +
             "  'subtitle' : ''," +
