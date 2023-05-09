@@ -1,10 +1,10 @@
 package learnyouakotlin.part4;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class SessionSignupTests {

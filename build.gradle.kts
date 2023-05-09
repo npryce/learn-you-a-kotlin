@@ -11,6 +11,12 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-databind:2.15.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation(platform("org.junit:junit-bom:5.9.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("com.oneeyedmen:okeydoke:1.3.3")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
