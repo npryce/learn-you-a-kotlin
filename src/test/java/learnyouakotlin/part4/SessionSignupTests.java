@@ -73,9 +73,8 @@ public class SessionSignupTests {
         signup.signUp(carol);
 
         assertTrue(signup.isFull());
-        assertThrows(IllegalStateException.class, () -> {
-            signup.signUp(dave);
-        });
+        assertThrows(IllegalStateException.class, () ->
+            signup.signUp(dave));
     }
 
     @Test
