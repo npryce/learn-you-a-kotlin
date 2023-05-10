@@ -102,6 +102,7 @@ class SessionSignupTests {
         
         signup = signup.withCapacity(4)
         assertTrue(!signup.isFull)
+        
         signup = signup.signUp(carol)
         signup = signup.signUp(dave)
         assertEquals(4, signup.capacity)

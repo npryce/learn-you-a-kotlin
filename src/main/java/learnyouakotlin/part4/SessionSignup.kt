@@ -1,53 +1,39 @@
 package learnyouakotlin.part4
 
-class SessionSignup(capacity: Int = 0) {
-    private var _capacity = capacity
-    
-    var capacity: Int
-        set(newCapacity) {
-            withCapacity(newCapacity)
-        }
-        get() = _capacity
-    
-    fun withCapacity(newCapacity: Int) : SessionSignup{
+class SessionSignup(
+    val capacity: Int = 0,
+    val signups: Set<AttendeeId> = emptySet(),
+    val isSessionStarted: Boolean = false
+) {
+    fun withCapacity(newCapacity: Int): SessionSignup {
         check(!isSessionStarted) {
             "you cannot change the capacity after the session as started"
         }
-        check(_signups.size <= newCapacity) {
+        check(signups.size <= newCapacity) {
             "you cannot change the capacity to fewer than the number of signups"
         }
-        _capacity = newCapacity
-        return this
+        return SessionSignup(newCapacity, signups, isSessionStarted)
     }
     
-    private val _signups = LinkedHashSet<AttendeeId>()
-    
-    val signups: Set<AttendeeId>
-        get() = _signups.toSet()
-    
-    var isSessionStarted = false
-        private set
-    
     val isFull: Boolean
-        get() = _signups.size == capacity
+        get() = signups.size == capacity
     
     fun signUp(attendeeId: AttendeeId): SessionSignup {
-        if (_signups.contains(attendeeId)) {
+        if (signups.contains(attendeeId)) {
             return this
         }
+        
         check(!isSessionStarted) { "cannot sign up for session after it has started" }
         check(!isFull) { "session is full" }
-        _signups.add(attendeeId)
-        return this
+        
+        return SessionSignup(capacity, signups + attendeeId, isSessionStarted)
     }
     
     fun cancelSignUp(attendeeId: AttendeeId): SessionSignup {
-        _signups.remove(attendeeId)
-        return this
+        return SessionSignup(capacity, signups - attendeeId, isSessionStarted)
     }
     
     fun start(): SessionSignup {
-        isSessionStarted = true
-        return this
+        return SessionSignup(capacity, signups, isSessionStarted = true)
     }
 }
