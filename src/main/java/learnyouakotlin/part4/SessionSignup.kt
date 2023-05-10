@@ -23,13 +23,14 @@ class SessionSignup(capacity: Int = 0) {
     val isFull: Boolean
         get() = _signups.size == capacity
     
-    fun signUp(attendeeId: AttendeeId) {
+    fun signUp(attendeeId: AttendeeId): SessionSignup {
         if (_signups.contains(attendeeId)) {
-            return
+            return this
         }
         check(!isSessionStarted) { "cannot sign up for session after it has started" }
         check(!isFull) { "session is full" }
         _signups.add(attendeeId)
+        return this
     }
     
     fun cancelSignUp(attendeeId: AttendeeId) {
