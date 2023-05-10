@@ -5,12 +5,15 @@ class SessionSignup(
     val signups: Set<AttendeeId> = emptySet(),
     val isSessionStarted: Boolean = false
 ) {
+    init {
+        check(signups.size <= capacity) {
+            "you cannot set the capacity to fewer than the number of signups"
+        }
+    }
+    
     fun withCapacity(newCapacity: Int): SessionSignup {
         check(!isSessionStarted) {
             "you cannot change the capacity after the session as started"
-        }
-        check(signups.size <= newCapacity) {
-            "you cannot change the capacity to fewer than the number of signups"
         }
         return SessionSignup(newCapacity, signups, isSessionStarted)
     }
