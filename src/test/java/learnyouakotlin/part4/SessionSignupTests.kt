@@ -6,13 +6,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class SessionSignupTests {
-    private val signup = SessionSignup()
-    
     @Test
     fun collects_signups() {
-        signup.capacity = 15
+        val signup = SessionSignup(capacity = 15)
         
-        assertEquals(emptySet<AttendeeId>(), signup.signups)
+        assertEquals(emptySet(), signup.signups)
         signup.signUp(alice)
         
         assertEquals(setOf(alice), signup.signups)
@@ -29,7 +27,8 @@ class SessionSignupTests {
     
     @Test
     fun each_attendee_can_only_sign_up_once() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
+        
         signup.signUp(alice)
         signup.signUp(alice)
         signup.signUp(alice)
@@ -39,7 +38,8 @@ class SessionSignupTests {
     
     @Test
     fun can_cancel_signup() {
-        signup.capacity = 15
+        val signup = SessionSignup(capacity = 15)
+        
         signup.signUp(alice)
         signup.signUp(bob)
         signup.signUp(carol)
@@ -49,7 +49,8 @@ class SessionSignupTests {
     
     @Test
     fun can_only_sign_up_to_capacity() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
+        
         assertTrue(!signup.isFull)
         signup.signUp(alice)
         assertTrue(!signup.isFull)
@@ -62,7 +63,8 @@ class SessionSignupTests {
     
     @Test
     fun duplicate_signup_ignored_when_full() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
+        
         signup.signUp(alice)
         signup.signUp(bob)
         signup.signUp(carol)
@@ -71,7 +73,8 @@ class SessionSignupTests {
     
     @Test
     fun cannot_sign_up_after_session_has_started() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
+        
         signup.signUp(alice)
         signup.signUp(bob)
         assertTrue(!signup.isSessionStarted)
@@ -82,7 +85,8 @@ class SessionSignupTests {
     
     @Test
     fun ignores_duplicate_signup_after_session_has_started() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
+        
         signup.signUp(alice)
         signup.start()
         signup.signUp(alice) // Does not throw
@@ -90,10 +94,12 @@ class SessionSignupTests {
     
     @Test
     fun can_increase_capacity() {
-        signup.capacity = 2
+        val signup = SessionSignup(capacity = 2)
+        
         signup.signUp(alice)
         signup.signUp(bob)
         assertTrue(signup.isFull)
+        
         signup.capacity = 4
         assertTrue(!signup.isFull)
         signup.signUp(carol)
@@ -104,7 +110,8 @@ class SessionSignupTests {
     
     @Test
     fun cannot_reduce_capacity_to_fewer_than_number_of_signups() {
-        signup.capacity = 4
+        val signup = SessionSignup(capacity = 4)
+        
         signup.signUp(alice)
         signup.signUp(bob)
         signup.signUp(carol)
@@ -114,7 +121,7 @@ class SessionSignupTests {
     
     @Test
     fun cannot_reduce_capacity_after_session_started() {
-        signup.capacity = 3
+        val signup = SessionSignup(capacity = 3)
         signup.signUp(alice)
         signup.signUp(bob)
         signup.signUp(carol)

@@ -1,7 +1,7 @@
 package learnyouakotlin.part4
 
-class SessionSignup {
-    var capacity = 0
+class SessionSignup(capacity: Int = 0) {
+    var capacity = capacity
         set(newCapacity) {
             check(!isSessionStarted) {
                 "you cannot change the capacity after the session as started"
