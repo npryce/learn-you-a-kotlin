@@ -100,7 +100,7 @@ class SessionSignupTests {
         signup = signup.signUp(bob)
         assertTrue(signup.isFull)
         
-        signup.capacity = 4
+        signup = signup.withCapacity(4)
         assertTrue(!signup.isFull)
         signup = signup.signUp(carol)
         signup = signup.signUp(dave)
@@ -116,7 +116,7 @@ class SessionSignupTests {
         signup = signup.signUp(bob)
         signup = signup.signUp(carol)
         signup = signup.signUp(dave)
-        assertFailsWith<IllegalStateException> { signup.capacity = 3 }
+        assertFailsWith<IllegalStateException> { signup.withCapacity(3) }
     }
     
     @Test
@@ -126,7 +126,7 @@ class SessionSignupTests {
         signup = signup.signUp(bob)
         signup = signup.signUp(carol)
         signup = signup.start()
-        assertFailsWith<IllegalStateException> { signup.capacity = 6 }
+        assertFailsWith<IllegalStateException> { signup.withCapacity(6) }
     }
     
     companion object {
