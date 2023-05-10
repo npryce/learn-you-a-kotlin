@@ -123,9 +123,9 @@ class SessionSignupTests {
     }
     
     companion object {
-        private val alice = AttendeeId.of("alice")
-        private val bob = AttendeeId.of("bob")
-        private val carol = AttendeeId.of("carol")
-        private val dave = AttendeeId.of("dave")
+        private val alice = AttendeeId("alice")
+        private val bob = AttendeeId("bob")
+        private val carol = AttendeeId("carol")
+        private val dave = AttendeeId("dave")
     }
 }
