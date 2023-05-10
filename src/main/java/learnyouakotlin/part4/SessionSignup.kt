@@ -1,16 +1,24 @@
 package learnyouakotlin.part4
 
 class SessionSignup(capacity: Int = 0) {
-    var capacity = capacity
+    private var _capacity = capacity
+    
+    var capacity: Int
         set(newCapacity) {
-            check(!isSessionStarted) {
-                "you cannot change the capacity after the session as started"
-            }
-            check(_signups.size <= newCapacity) {
-                "you cannot change the capacity to fewer than the number of signups"
-            }
-            field = newCapacity
+            withCapacity(newCapacity)
         }
+        get() = _capacity
+    
+    fun withCapacity(newCapacity: Int) : SessionSignup{
+        check(!isSessionStarted) {
+            "you cannot change the capacity after the session as started"
+        }
+        check(_signups.size <= newCapacity) {
+            "you cannot change the capacity to fewer than the number of signups"
+        }
+        _capacity = newCapacity
+        return this
+    }
     
     private val _signups = LinkedHashSet<AttendeeId>()
     
