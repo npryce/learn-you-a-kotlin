@@ -33,11 +33,13 @@ class SessionSignup(capacity: Int = 0) {
         return this
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId) {
+    fun cancelSignUp(attendeeId: AttendeeId): SessionSignup {
         _signups.remove(attendeeId)
+        return this
     }
     
-    fun start() {
+    fun start(): SessionSignup {
         isSessionStarted = true
+        return this
     }
 }
