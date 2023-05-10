@@ -1,10 +1,9 @@
 package learnyouakotlin.part4
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-import java.util.Set
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class SessionSignupTests {
     private val signup = SessionSignup()
@@ -16,16 +15,16 @@ class SessionSignupTests {
         assertEquals(emptySet<AttendeeId>(), signup.signups)
         signup.signUp(alice)
         
-        assertEquals(Set.of(alice), signup.signups)
+        assertEquals(setOf(alice), signup.signups)
         signup.signUp(bob)
         
-        assertEquals(Set.of(alice, bob), signup.signups)
+        assertEquals(setOf(alice, bob), signup.signups)
         signup.signUp(carol)
         
-        assertEquals(Set.of(alice, bob, carol), signup.signups)
+        assertEquals(setOf(alice, bob, carol), signup.signups)
         signup.signUp(dave)
         
-        assertEquals(Set.of(alice, bob, carol, dave), signup.signups)
+        assertEquals(setOf(alice, bob, carol, dave), signup.signups)
     }
     
     @Test
@@ -35,7 +34,7 @@ class SessionSignupTests {
         signup.signUp(alice)
         signup.signUp(alice)
         assertTrue(!signup.isFull)
-        assertEquals(Set.of(alice), signup.signups)
+        assertEquals(setOf(alice), signup.signups)
     }
     
     @Test
@@ -45,7 +44,7 @@ class SessionSignupTests {
         signup.signUp(bob)
         signup.signUp(carol)
         signup.cancelSignUp(bob)
-        assertEquals(Set.of(alice, carol), signup.signups)
+        assertEquals(setOf(alice, carol), signup.signups)
     }
     
     @Test
@@ -58,7 +57,7 @@ class SessionSignupTests {
         assertTrue(!signup.isFull)
         signup.signUp(carol)
         assertTrue(signup.isFull)
-        assertThrows(IllegalStateException::class.java) { signup.signUp(dave) }
+        assertFailsWith<IllegalStateException> { signup.signUp(dave) }
     }
     
     @Test
@@ -78,7 +77,7 @@ class SessionSignupTests {
         assertTrue(!signup.isSessionStarted)
         signup.start()
         assertTrue(signup.isSessionStarted)
-        assertThrows(IllegalStateException::class.java) { signup.signUp(carol) }
+        assertFailsWith<IllegalStateException> { signup.signUp(carol) }
     }
     
     @Test
@@ -110,7 +109,7 @@ class SessionSignupTests {
         signup.signUp(bob)
         signup.signUp(carol)
         signup.signUp(dave)
-        assertThrows(IllegalStateException::class.java) { signup.capacity = 3 }
+        assertFailsWith<IllegalStateException> { signup.capacity = 3 }
     }
     
     @Test
@@ -120,7 +119,7 @@ class SessionSignupTests {
         signup.signUp(bob)
         signup.signUp(carol)
         signup.start()
-        assertThrows(IllegalStateException::class.java) { signup.capacity = 6 }
+        assertFailsWith<IllegalStateException> { signup.capacity = 6 }
     }
     
     companion object {
