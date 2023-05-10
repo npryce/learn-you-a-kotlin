@@ -1,62 +1,42 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-public class SessionSignup {
-    private int capacity;
-    private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
-    private boolean isSessionStarted = false;
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int newCapacity) {
-        if (isSessionStarted) {
-            throw new IllegalStateException("you cannot change the capacity after the session as started");
+class SessionSignup {
+    var capacity = 0
+        set(newCapacity) {
+            check(!isSessionStarted) {
+                "you cannot change the capacity after the session as started"
+            }
+            check(_signups.size <= newCapacity) {
+                "you cannot change the capacity to fewer than the number of signups"
+            }
+            field = newCapacity
         }
-
-        if (signups.size() > newCapacity) {
-            throw new IllegalStateException("you cannot change the capacity to fewer than the number of signups");
+    
+    private val _signups = LinkedHashSet<AttendeeId>()
+    
+    val signups: Set<AttendeeId>
+        get() = _signups.toSet()
+    
+    var isSessionStarted = false
+        private set
+    
+    val isFull: Boolean
+        get() = _signups.size == capacity
+    
+    fun signUp(attendeeId: AttendeeId) {
+        if (_signups.contains(attendeeId)) {
+            return
         }
-
-        this.capacity = newCapacity;
+        check(!isSessionStarted) { "cannot sign up for session after it has started" }
+        check(!isFull) { "session is full" }
+        _signups.add(attendeeId)
     }
-
-    public boolean isFull() {
-        return signups.size() == capacity;
+    
+    fun cancelSignUp(attendeeId: AttendeeId) {
+        _signups.remove(attendeeId)
     }
-
-    public boolean isSessionStarted() {
-        return isSessionStarted;
-    }
-
-    public void start() {
-        isSessionStarted = true;
-    }
-
-    public void signUp(AttendeeId attendeeId) {
-        if (signups.contains(attendeeId)) {
-            return;
-        }
-
-        if (isSessionStarted()) {
-            throw new IllegalStateException("cannot sign up for session after it has started");
-        }
-
-        if (isFull()) {
-            throw new IllegalStateException("session is full");
-        }
-
-        signups.add(attendeeId);
-    }
-
-    public void cancelSignUp(AttendeeId attendeeId) {
-        signups.remove(attendeeId);
-    }
-
-    public Set<AttendeeId> getSignups() {
-        return Set.copyOf(signups);
+    
+    fun start() {
+        isSessionStarted = true
     }
 }
