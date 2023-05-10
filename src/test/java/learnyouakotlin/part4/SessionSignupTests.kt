@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 class SessionSignupTests {
     @Test
     fun collects_signups() {
-        var signup = SessionSignup(capacity = 15)
+        var signup = newSessionSignup(15)
         
         assertEquals(emptySet(), signup.signups)
         signup = signup.signUp(alice)
@@ -27,7 +27,7 @@ class SessionSignupTests {
     
     @Test
     fun each_attendee_can_only_sign_up_once() {
-        var signup = SessionSignup(capacity = 3)
+        var signup = newSessionSignup(3)
         
         signup = signup.signUp(alice)
         signup = signup.signUp(alice)
@@ -38,7 +38,7 @@ class SessionSignupTests {
     
     @Test
     fun can_cancel_signup() {
-        var signup = SessionSignup(capacity = 15)
+        var signup = newSessionSignup(15)
         
         signup = signup.signUp(alice)
         signup = signup.signUp(bob)
@@ -49,7 +49,7 @@ class SessionSignupTests {
     
     @Test
     fun can_only_sign_up_to_capacity() {
-        var signup = SessionSignup(capacity = 3)
+        var signup = newSessionSignup(3)
         
         assertTrue(!signup.isFull)
         signup = signup.signUp(alice)
@@ -63,7 +63,7 @@ class SessionSignupTests {
     
     @Test
     fun duplicate_signup_ignored_when_full() {
-        var signup = SessionSignup(capacity = 3)
+        var signup = newSessionSignup(3)
         
         signup = signup.signUp(alice)
         signup = signup.signUp(bob)
@@ -72,29 +72,8 @@ class SessionSignupTests {
     }
     
     @Test
-    fun cannot_sign_up_after_session_has_started() {
-        var signup = SessionSignup(capacity = 3)
-        
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
-        assertTrue(!signup.isSessionStarted)
-        signup = signup.start()
-        assertTrue(signup.isSessionStarted)
-        assertFailsWith<IllegalStateException> { signup.signUp(carol) }
-    }
-    
-    @Test
-    fun ignores_duplicate_signup_after_session_has_started() {
-        var signup = SessionSignup(capacity = 3)
-        
-        signup = signup.signUp(alice)
-        signup = signup.start()
-        signup = signup.signUp(alice) // Does not throw
-    }
-    
-    @Test
     fun can_increase_capacity() {
-        var signup = SessionSignup(capacity = 2)
+        var signup = newSessionSignup(2)
         
         signup = signup.signUp(alice)
         signup = signup.signUp(bob)
@@ -111,23 +90,13 @@ class SessionSignupTests {
     
     @Test
     fun cannot_reduce_capacity_to_fewer_than_number_of_signups() {
-        var signup = SessionSignup(capacity = 4)
+        var signup = newSessionSignup(4)
         
         signup = signup.signUp(alice)
         signup = signup.signUp(bob)
         signup = signup.signUp(carol)
         signup = signup.signUp(dave)
         assertFailsWith<IllegalStateException> { signup.withCapacity(3) }
-    }
-    
-    @Test
-    fun cannot_reduce_capacity_after_session_started() {
-        var signup = SessionSignup(capacity = 3)
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
-        signup = signup.signUp(carol)
-        signup = signup.start()
-        assertFailsWith<IllegalStateException> { signup.withCapacity(6) }
     }
     
     companion object {
