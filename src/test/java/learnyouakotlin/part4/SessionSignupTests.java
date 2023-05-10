@@ -111,4 +111,46 @@ public class SessionSignupTests {
         signup.start();
         signup.signUp(alice); // Does not throw
     }
+
+    @Test
+    public void can_increase_capacity() {
+        signup.setCapacity(2);
+        signup.signUp(alice);
+        signup.signUp(bob);
+        assertTrue(signup.isFull());
+
+        signup.setCapacity(4);
+        assertTrue(!signup.isFull());
+        signup.signUp(carol);
+        signup.signUp(dave);
+        assertEquals(4, signup.getCapacity());
+        assertTrue(signup.isFull());
+    }
+
+    @Test
+    public void cannot_reduce_capacity_to_fewer_than_number_of_signups() {
+        signup.setCapacity(4);
+        signup.signUp(alice);
+        signup.signUp(bob);
+        signup.signUp(carol);
+        signup.signUp(dave);
+
+        assertThrows(IllegalStateException.class, () ->
+            signup.setCapacity(3)
+        );
+    }
+
+    @Test
+    public void cannot_reduce_capacity_after_session_started() {
+        signup.setCapacity(3);
+
+        signup.signUp(alice);
+        signup.signUp(bob);
+        signup.signUp(carol);
+        signup.start();
+
+        assertThrows(IllegalStateException.class, () ->
+            signup.setCapacity(6)
+        );
+    }
 }

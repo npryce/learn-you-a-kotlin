@@ -1,19 +1,27 @@
 package learnyouakotlin.part4;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SessionSignup {
     private int capacity;
-    private final Set<AttendeeId> signups = new HashSet<>();
+    private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isSessionStarted = false;
 
     public int getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setCapacity(int newCapacity) {
+        if (isSessionStarted) {
+            throw new IllegalStateException("you cannot change the capacity after the session as started");
+        }
+
+        if (signups.size() > newCapacity) {
+            throw new IllegalStateException("you cannot change the capacity to fewer than the number of signups");
+        }
+
+        this.capacity = newCapacity;
     }
 
     public boolean isFull() {
