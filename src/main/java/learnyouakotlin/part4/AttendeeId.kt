@@ -1,41 +1,37 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import java.util.Objects;
+import java.util.Objects
 
-public final class AttendeeId {
-    private final String value;
-
-    private AttendeeId(String value) {
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("empty value");
+class AttendeeId private constructor(value: String?) {
+    private val value: String
+    
+    init {
+        require(!(value == null || value.isEmpty())) { "empty value" }
+        this.value = value
+    }
+    
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as AttendeeId
+        return value == that.value
+    }
+    
+    override fun hashCode(): Int {
+        return Objects.hash(value)
+    }
+    
+    override fun toString(): String {
+        return javaClass.simpleName + ":" + value
+    }
+    
+    fun internalRepresentation(): String {
+        return value
+    }
+    
+    companion object {
+        fun of(value: String?): AttendeeId {
+            return AttendeeId(value)
         }
-
-        this.value = value;
-    }
-
-    public static AttendeeId of(String value) {
-        return new AttendeeId(value);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AttendeeId that = (AttendeeId) o;
-        return value.equals(that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + ":" + value;
-    }
-
-    public String internalRepresentation() {
-        return value;
     }
 }
