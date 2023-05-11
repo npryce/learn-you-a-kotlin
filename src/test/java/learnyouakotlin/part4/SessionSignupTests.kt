@@ -3,6 +3,7 @@ package learnyouakotlin.part4
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class SessionSignupTests {
@@ -10,17 +11,17 @@ class SessionSignupTests {
     fun collects_signups() {
         var signup = newSessionSignup(15)
         
-        assertEquals(emptySet(), signup.signups)
-        signup = signup.signUp(alice)
+        assertTrue(signup.signups.isEmpty())
+        signup = signup.signUp(alice) as AvailableSession
         
         assertEquals(setOf(alice), signup.signups)
-        signup = signup.signUp(bob)
+        signup = signup.signUp(bob) as AvailableSession
         
         assertEquals(setOf(alice, bob), signup.signups)
-        signup = signup.signUp(carol)
+        signup = signup.signUp(carol) as AvailableSession
         
         assertEquals(setOf(alice, bob, carol), signup.signups)
-        signup = signup.signUp(dave)
+        signup = signup.signUp(dave) as AvailableSession
         
         assertEquals(setOf(alice, bob, carol, dave), signup.signups)
     }
@@ -29,74 +30,72 @@ class SessionSignupTests {
     fun each_attendee_can_only_sign_up_once() {
         var signup = newSessionSignup(3)
         
-        signup = signup.signUp(alice)
-        signup = signup.signUp(alice)
-        signup = signup.signUp(alice)
-        assertTrue(!signup.isFull)
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(alice) as AvailableSession
         assertEquals(setOf(alice), signup.signups)
     }
     
     @Test
     fun can_cancel_signup() {
-        var signup = newSessionSignup(15)
+        var signup : SessionSignup = newSessionSignup(15)
         
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
-        signup = signup.signUp(carol)
+        assertIs<AvailableSession>(signup)
+        
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(bob) as AvailableSession
+        signup = signup.signUp(carol) as AvailableSession
         signup = signup.cancelSignUp(bob)
         assertEquals(setOf(alice, carol), signup.signups)
     }
     
     @Test
     fun can_only_sign_up_to_capacity() {
-        var signup = newSessionSignup(3)
+        var signup : SessionSignup = newSessionSignup(3)
         
-        assertTrue(!signup.isFull)
-        signup = signup.signUp(alice)
-        assertTrue(!signup.isFull)
-        signup = signup.signUp(bob)
-        assertTrue(!signup.isFull)
-        signup = signup.signUp(carol)
-        assertTrue(signup.isFull)
-        assertFailsWith<IllegalStateException> { signup.signUp(dave) }
-    }
-    
-    @Test
-    fun duplicate_signup_ignored_when_full() {
-        var signup = newSessionSignup(3)
+        assertIs<AvailableSession>(signup)
         
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(bob) as AvailableSession
         signup = signup.signUp(carol)
-        signup = signup.signUp(alice) // does not throw
+        assertIs<FullSession>(signup)
     }
     
     @Test
     fun can_increase_capacity() {
-        var signup = newSessionSignup(2)
+        var signup : SessionSignup = FullSession(signups = setOf(alice,bob))
         
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
-        assertTrue(signup.isFull)
+        assertIs<FullSession>(signup)
         
         signup = signup.withCapacity(4)
-        assertTrue(!signup.isFull)
-        
-        signup = signup.signUp(carol)
+        assertIs<AvailableSession>(signup)
+        signup = signup.signUp(carol) as AvailableSession
         signup = signup.signUp(dave)
-        assertEquals(4, signup.capacity)
-        assertTrue(signup.isFull)
+        assertIs<FullSession>(signup)
     }
     
     @Test
     fun cannot_reduce_capacity_to_fewer_than_number_of_signups() {
-        var signup = newSessionSignup(4)
+        var signup : SessionSignup = newSessionSignup(5)
+        assertIs<AvailableSession>(signup)
         
-        signup = signup.signUp(alice)
-        signup = signup.signUp(bob)
-        signup = signup.signUp(carol)
-        signup = signup.signUp(dave)
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(bob) as AvailableSession
+        signup = signup.signUp(carol) as AvailableSession
+        signup = signup.signUp(dave) as AvailableSession
         assertFailsWith<IllegalStateException> { signup.withCapacity(3) }
+    }
+    
+    @Test
+    fun cannot_sign_up_after_session_has_started() {
+        var signup : SessionSignup = newSessionSignup(capacity = 3)
+        
+        assertIs<AvailableSession>(signup)
+        
+        signup = signup.signUp(alice) as AvailableSession
+        signup = signup.signUp(bob) as AvailableSession
+        signup = signup.start()
+        assertIs<StartedSession>(signup)
     }
     
     companion object {

@@ -3,34 +3,37 @@ package learnyouakotlin.part4
 sealed interface SessionSignup {
     val capacity: Int
     val signups: Set<AttendeeId>
-    val isFull: Boolean get() = signups.size == capacity
+}
+
+sealed interface ScheduledSession : SessionSignup {
+    fun withCapacity(newCapacity: Int): AvailableSession
 }
 
 fun newSessionSignup(capacity: Int) =
-    ScheduledSessionSignup(capacity = capacity)
+    AvailableSession(capacity = capacity)
 
-data class ScheduledSessionSignup(
+data class AvailableSession(
     override val capacity: Int = 0,
     override val signups: Set<AttendeeId> = emptySet()
-) : SessionSignup {
+) : ScheduledSession {
     init {
-        check(signups.size <= capacity) {
-            "you cannot set the capacity to fewer than the number of signups"
+        check(signups.size < capacity) {
+            "must have fewer signups than capacity"
         }
     }
     
-    fun withCapacity(newCapacity: Int): ScheduledSessionSignup {
+    override fun withCapacity(newCapacity: Int): AvailableSession {
         return copy(capacity = newCapacity)
     }
     
-    override val isFull: Boolean
-        get() = signups.size == capacity
-    
-    fun signUp(attendeeId: AttendeeId): ScheduledSessionSignup = when {
+    fun signUp(attendeeId: AttendeeId): SessionSignup = when {
         signups.contains(attendeeId) -> this
         else -> {
-            check(!isFull) { "session is full" }
-            copy(signups = signups + attendeeId)
+            val newSignups = signups + attendeeId
+            when (newSignups.size) {
+                capacity -> FullSession(newSignups)
+                else ->AvailableSession(capacity, newSignups)
+            }
         }
     }
     
@@ -39,6 +42,17 @@ data class ScheduledSessionSignup(
     
     fun start() =
         StartedSession(capacity, signups)
+}
+
+data class FullSession(
+    override val signups: Set<AttendeeId>
+) : ScheduledSession {
+    
+    override val capacity: Int = signups.size
+    
+    override fun withCapacity(newCapacity: Int): AvailableSession {
+        return AvailableSession(newCapacity, signups)
+    }
 }
 
 data class StartedSession(
