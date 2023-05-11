@@ -4,9 +4,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SessionSignup {
+    private SessionId id;
     private int capacity;
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isSessionStarted = false;
+
+    public SessionId getId() {
+        return id;
+    }
+
+    public void setId(SessionId id) {
+        this.id = id;
+    }
 
     public int getCapacity() {
         return capacity;
@@ -37,10 +46,6 @@ public class SessionSignup {
     }
 
     public void signUp(AttendeeId attendeeId) {
-        if (signups.contains(attendeeId)) {
-            return;
-        }
-
         if (isSessionStarted()) {
             throw new IllegalStateException("cannot sign up for session after it has started");
         }

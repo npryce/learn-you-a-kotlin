@@ -12,11 +12,13 @@ public class SessionSignupTests {
     private static final AttendeeId bob = AttendeeId.of("bob");
     private static final AttendeeId carol = AttendeeId.of("carol");
     private static final AttendeeId dave = AttendeeId.of("dave");
+    public static final SessionId exampleSessionId = SessionId.of("example-session");
 
-    private final SessionSignup signup = new SessionSignup();
 
     @Test
     public void collects_signups() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(15);
 
         assertEquals(Set.of(), signup.getSignups());
@@ -36,6 +38,8 @@ public class SessionSignupTests {
 
     @Test
     public void each_attendee_can_only_sign_up_once() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(3);
 
         signup.signUp(alice);
@@ -48,6 +52,8 @@ public class SessionSignupTests {
 
     @Test
     public void can_cancel_signup() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(15);
 
         signup.signUp(alice);
@@ -61,6 +67,8 @@ public class SessionSignupTests {
 
     @Test
     public void can_only_sign_up_to_capacity() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(3);
 
         assertTrue(!signup.isFull());
@@ -78,17 +86,9 @@ public class SessionSignupTests {
     }
 
     @Test
-    public void duplicate_signup_ignored_when_full() {
-        signup.setCapacity(3);
-        signup.signUp(alice);
-        signup.signUp(bob);
-        signup.signUp(carol);
-
-        signup.signUp(alice); // does not throw
-    }
-
-    @Test
     public void cannot_sign_up_after_session_has_started() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(3);
 
         signup.signUp(alice);
@@ -103,17 +103,11 @@ public class SessionSignupTests {
     }
 
     @Test
-    public void ignores_duplicate_signup_after_session_has_started() {
-        signup.setCapacity(3);
-
-        signup.signUp(alice);
-        signup.start();
-        signup.signUp(alice); // Does not throw
-    }
-
-    @Test
     public void can_increase_capacity() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(2);
+
         signup.signUp(alice);
         signup.signUp(bob);
         assertTrue(signup.isFull());
@@ -128,7 +122,10 @@ public class SessionSignupTests {
 
     @Test
     public void cannot_reduce_capacity_to_fewer_than_number_of_signups() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(4);
+
         signup.signUp(alice);
         signup.signUp(bob);
         signup.signUp(carol);
@@ -141,6 +138,8 @@ public class SessionSignupTests {
 
     @Test
     public void cannot_reduce_capacity_after_session_started() {
+        SessionSignup signup = new SessionSignup();
+        signup.setId(exampleSessionId);
         signup.setCapacity(3);
 
         signup.signUp(alice);
