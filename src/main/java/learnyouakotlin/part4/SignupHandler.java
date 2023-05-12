@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.net.HttpURLConnection.*;
+
 
 public class SignupHandler implements HttpHandler {
     private static final Pattern pathPattern =
@@ -30,7 +32,7 @@ public class SignupHandler implements HttpHandler {
         try {
             final var match = pathPattern.matcher(exchange.getRequestURI().getPath());
             if (!match.matches()) {
-                exchange.sendResponseHeaders(404, 0);
+                exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
                 return;
             }
 
@@ -39,34 +41,34 @@ public class SignupHandler implements HttpHandler {
 
             final var session = signups.load(sessionId);
             if (session == null) {
-                exchange.sendResponseHeaders(404, 0);
+                exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
                 return;
             }
 
             switch (exchange.getRequestMethod()) {
                 case "GET" -> {
-                    sendResponseBody(exchange, 200, Boolean.toString(session.isSignedUp(attendeeId)));
+                    sendResponseBody(exchange, HTTP_OK, Boolean.toString(session.isSignedUp(attendeeId)));
                 }
                 case "POST" -> {
                     session.signUp(attendeeId);
                     signups.save(session);
-                    sendResponseBody(exchange, 200, "subscribed");
+                    sendResponseBody(exchange, HTTP_OK, "subscribed");
                 }
                 case "DELETE" -> {
                     session.cancelSignUp(attendeeId);
                     signups.save(session);
-                    sendResponseBody(exchange, 200, "unsubscribed");
+                    sendResponseBody(exchange, HTTP_OK, "unsubscribed");
                 }
                 default -> {
-                    exchange.sendResponseHeaders(405, 0);
+                    exchange.sendResponseHeaders(HTTP_BAD_METHOD, 0);
                 }
             }
         }
         catch (IllegalStateException e) {
-            sendResponseBody(exchange, 409, e.getMessage());
+            sendResponseBody(exchange, HTTP_CONFLICT, e.getMessage());
         }
         catch (Exception e) {
-            exchange.sendResponseHeaders(500, 0);
+            exchange.sendResponseHeaders(HTTP_INTERNAL_ERROR, 0);
             PrintWriter writer = new PrintWriter(exchange.getResponseBody());
             e.printStackTrace(writer);
             writer.flush();
