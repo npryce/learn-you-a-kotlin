@@ -45,6 +45,10 @@ public class SessionSignup {
         isSessionStarted = true;
     }
 
+    public boolean isSignedUp(AttendeeId attendeeId) {
+        return signups.contains(attendeeId);
+    }
+
     public void signUp(AttendeeId attendeeId) {
         if (isSessionStarted()) {
             throw new IllegalStateException("cannot sign up for session after it has started");
