@@ -30,7 +30,7 @@ public abstract class Identifier {
         return getClass().getSimpleName() + ":" + value;
     }
 
-    public String internalRepresentation() {
+    public String getValue() {
         return value;
     }
 }
