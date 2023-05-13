@@ -3,18 +3,18 @@ package learnyouakotlin.part4;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SessionSignup {
-    private SessionId id;
+public class SignupSheet {
+    private SessionId sessionId;
     private int capacity;
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isSessionStarted = false;
 
-    public SessionId getId() {
-        return id;
+    public SessionId getSessionId() {
+        return sessionId;
     }
 
-    public void setId(SessionId id) {
-        this.id = id;
+    public void setSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
     }
 
     public int getCapacity() {

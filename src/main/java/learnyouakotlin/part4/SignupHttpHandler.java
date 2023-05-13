@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 import static java.net.HttpURLConnection.*;
 
 
-public class SignupHandler implements HttpHandler {
+public class SignupHttpHandler implements HttpHandler {
     private static final Pattern pathPattern =
         Pattern.compile("^/sessions/(?<sessionId>[^/]+)/signups/(?<attendeeId>[^/]+)$");
 
-    private final SessionSignups signups;
+    private final SignupBook signups;
 
-    public SignupHandler(SessionSignups signups) {
+    public SignupHttpHandler(SignupBook signups) {
         this.signups = signups;
     }
 
@@ -39,7 +39,7 @@ public class SignupHandler implements HttpHandler {
             final var sessionId = pathParam(match, SessionId::of, "sessionId");
             final var attendeeId = pathParam(match, AttendeeId::of, "attendeeId");
 
-            final var session = signups.load(sessionId);
+            final var session = signups.sheetFor(sessionId);
             if (session == null) {
                 exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
                 return;
@@ -93,16 +93,16 @@ public class SignupHandler implements HttpHandler {
 
     public static void main(String[] args) throws IOException {
         final var server = HttpServer.create(new InetSocketAddress(9876), 0);
-        final var signups = new InMemorySessionSignups();
+        final var signups = new InMemorySignupBook();
 
         for (int i = 1; i <= 10; i++) {
-            SessionSignup session = new SessionSignup();
-            session.setId(SessionId.of(Integer.toString(i)));
+            SignupSheet session = new SignupSheet();
+            session.setSessionId(SessionId.of(Integer.toString(i)));
             session.setCapacity(20);
             signups.save(session);
         }
 
-        server.createContext("/", new SignupHandler(signups));
+        server.createContext("/", new SignupHttpHandler(signups));
         server.start();
 
         System.out.println("http://localhost:9876/{sessionId}/signup/{attendeeId}");

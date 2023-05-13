@@ -7,8 +7,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class InMemorySessionSignups implements SessionSignups {
-    private final Map<SessionId, SessionSignup> signupsById = new HashMap<>();
+public class InMemorySignupBook implements SignupBook {
+    private final Map<SessionId, SignupSheet> signupsById = new HashMap<>();
     private final Lock readLock;
     private final Lock writeLock;
 
@@ -19,20 +19,20 @@ public class InMemorySessionSignups implements SessionSignups {
     }
 
     @Override
-    public @Nullable SessionSignup load(SessionId id) {
+    public @Nullable SignupSheet sheetFor(SessionId session) {
         readLock.lock();
         try {
-            return signupsById.get(id);
+            return signupsById.get(session);
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    public void save(SessionSignup signup) {
+    public void save(SignupSheet signup) {
         writeLock.lock();
         try {
-            signupsById.put(signup.getId(), signup);
+            signupsById.put(signup.getSessionId(), signup);
         } finally {
             writeLock.unlock();
         }
