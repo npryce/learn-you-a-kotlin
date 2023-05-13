@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,10 +20,10 @@ public class SignupHttpHandler implements HttpHandler {
     private static final Pattern pathPattern =
         Pattern.compile("^/sessions/(?<sessionId>[^/]+)/signups/(?<attendeeId>[^/]+)$");
 
-    private final SignupBook signups;
+    private final SignupBook book;
 
-    public SignupHttpHandler(SignupBook signups) {
-        this.signups = signups;
+    public SignupHttpHandler(SignupBook book) {
+        this.book = book;
     }
 
     @Override
@@ -39,24 +40,22 @@ public class SignupHttpHandler implements HttpHandler {
             final var sessionId = pathParam(match, SessionId::of, "sessionId");
             final var attendeeId = pathParam(match, AttendeeId::of, "attendeeId");
 
-            final var session = signups.sheetFor(sessionId);
-            if (session == null) {
+            final var sheet = book.sheetFor(sessionId);
+            if (sheet == null) {
                 exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
                 return;
             }
 
             switch (exchange.getRequestMethod()) {
                 case "GET" -> {
-                    sendResponseBody(exchange, HTTP_OK, Boolean.toString(session.isSignedUp(attendeeId)));
+                    sendResponseBody(exchange, HTTP_OK, Boolean.toString(sheet.isSignedUp(attendeeId)));
                 }
                 case "POST" -> {
-                    session.signUp(attendeeId);
-                    signups.save(session);
+                    sheet.signUp(attendeeId);
                     sendResponseBody(exchange, HTTP_OK, "subscribed");
                 }
                 case "DELETE" -> {
-                    session.cancelSignUp(attendeeId);
-                    signups.save(session);
+                    sheet.cancelSignUp(attendeeId);
                     sendResponseBody(exchange, HTTP_OK, "unsubscribed");
                 }
                 default -> {
@@ -92,19 +91,20 @@ public class SignupHttpHandler implements HttpHandler {
     }
 
     public static void main(String[] args) throws IOException {
-        final var server = HttpServer.create(new InetSocketAddress(9876), 0);
-        final var signups = new InMemorySignupBook();
-
+        final var book = new InMemorySignupBook();
         for (int i = 1; i <= 10; i++) {
             SignupSheet session = new SignupSheet();
             session.setSessionId(SessionId.of(Integer.toString(i)));
             session.setCapacity(20);
-            signups.save(session);
+            book.add(session);
         }
 
-        server.createContext("/", new SignupHttpHandler(signups));
+        final var server = HttpServer.create(new InetSocketAddress(9876), 0);
+        // So we don't have to worry that SignupSheet is not thread safe
+        server.setExecutor(Executors.newSingleThreadExecutor());
+        server.createContext("/", new SignupHttpHandler(book));
         server.start();
 
-        System.out.println("http://localhost:9876/{sessionId}/signup/{attendeeId}");
+        System.out.println("Waiting at: http://localhost:9876/{sessionId}/signup/{attendeeId}");
     }
 }
