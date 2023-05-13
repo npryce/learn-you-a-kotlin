@@ -6,7 +6,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -28,12 +27,10 @@ public class SignupHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        exchange.getRequestBody().close();
-
         try {
             final var match = pathPattern.matcher(exchange.getRequestURI().getPath());
             if (!match.matches()) {
-                exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
+                sendResponseBody(exchange, HTTP_NOT_FOUND, "resource not found");
                 return;
             }
 
@@ -42,7 +39,7 @@ public class SignupHttpHandler implements HttpHandler {
 
             final var sheet = book.sheetFor(sessionId);
             if (sheet == null) {
-                exchange.sendResponseHeaders(HTTP_NOT_FOUND, 0);
+                sendResponseBody(exchange, HTTP_NOT_FOUND, "session not found");
                 return;
             }
 
@@ -59,7 +56,8 @@ public class SignupHttpHandler implements HttpHandler {
                     sendResponseBody(exchange, HTTP_OK, "unsubscribed");
                 }
                 default -> {
-                    exchange.sendResponseHeaders(HTTP_BAD_METHOD, 0);
+                    sendResponseBody(exchange, HTTP_BAD_METHOD,
+                        exchange.getRequestMethod() + " method not supported");
                 }
             }
         }
@@ -67,10 +65,7 @@ public class SignupHttpHandler implements HttpHandler {
             sendResponseBody(exchange, HTTP_CONFLICT, e.getMessage());
         }
         catch (Exception e) {
-            exchange.sendResponseHeaders(HTTP_INTERNAL_ERROR, 0);
-            PrintWriter writer = new PrintWriter(exchange.getResponseBody());
-            e.printStackTrace(writer);
-            writer.flush();
+            sendResponseBody(exchange, HTTP_INTERNAL_ERROR, e.getMessage());
         }
         finally {
             exchange.getResponseBody().close();
