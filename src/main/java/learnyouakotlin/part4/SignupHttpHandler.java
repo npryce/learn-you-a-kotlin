@@ -27,10 +27,10 @@ public class SignupHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        try {
+        try (exchange) {
             final var match = pathPattern.matcher(exchange.getRequestURI().getPath());
             if (!match.matches()) {
-                sendResponseBody(exchange, HTTP_NOT_FOUND, "resource not found");
+                sendResponse(exchange, HTTP_NOT_FOUND, "resource not found");
                 return;
             }
 
@@ -39,40 +39,35 @@ public class SignupHttpHandler implements HttpHandler {
 
             final var sheet = book.sheetFor(sessionId);
             if (sheet == null) {
-                sendResponseBody(exchange, HTTP_NOT_FOUND, "session not found");
+                sendResponse(exchange, HTTP_NOT_FOUND, "session not found");
                 return;
             }
 
             switch (exchange.getRequestMethod()) {
                 case "GET" -> {
-                    sendResponseBody(exchange, HTTP_OK, Boolean.toString(sheet.isSignedUp(attendeeId)));
+                    sendResponse(exchange, HTTP_OK, Boolean.toString(sheet.isSignedUp(attendeeId)));
                 }
                 case "POST" -> {
                     sheet.signUp(attendeeId);
-                    sendResponseBody(exchange, HTTP_OK, "subscribed");
+                    sendResponse(exchange, HTTP_OK, "subscribed");
                 }
                 case "DELETE" -> {
                     sheet.cancelSignUp(attendeeId);
-                    sendResponseBody(exchange, HTTP_OK, "unsubscribed");
+                    sendResponse(exchange, HTTP_OK, "unsubscribed");
                 }
                 default -> {
-                    sendResponseBody(exchange, HTTP_BAD_METHOD,
+                    sendResponse(exchange, HTTP_BAD_METHOD,
                         exchange.getRequestMethod() + " method not supported");
                 }
             }
-        }
-        catch (IllegalStateException e) {
-            sendResponseBody(exchange, HTTP_CONFLICT, e.getMessage());
-        }
-        catch (Exception e) {
-            sendResponseBody(exchange, HTTP_INTERNAL_ERROR, e.getMessage());
-        }
-        finally {
-            exchange.getResponseBody().close();
+        } catch (IllegalStateException e) {
+            sendResponse(exchange, HTTP_CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            sendResponse(exchange, HTTP_INTERNAL_ERROR, e.getMessage());
         }
     }
 
-    private static void sendResponseBody(HttpExchange exchange, int statusCode, String bodyString) throws IOException {
+    private static void sendResponse(HttpExchange exchange, int statusCode, String bodyString) throws IOException {
         exchange.getResponseHeaders().add("Content-Type", "text/plain");
         exchange.sendResponseHeaders(statusCode, 0);
         final var body = new OutputStreamWriter(exchange.getResponseBody());
