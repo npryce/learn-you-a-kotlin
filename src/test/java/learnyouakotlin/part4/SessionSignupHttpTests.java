@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static jakarta.ws.rs.HttpMethod.*;
@@ -14,8 +16,8 @@ import static jakarta.ws.rs.core.Response.Status.CONFLICT;
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static jakarta.ws.rs.core.Response.Status.Family.familyOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static learnyouakotlin.part4.SignupHttpHandler.signupTemplate;
-import static learnyouakotlin.part4.SignupHttpHandler.startedTemplate;
+import static java.util.stream.Collectors.toCollection;
+import static learnyouakotlin.part4.SignupHttpHandler.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,83 +28,71 @@ public class SessionSignupHttpTests {
     private static final AttendeeId carol = AttendeeId.of("carol");
     private static final AttendeeId dave = AttendeeId.of("dave");
 
-    public static final SessionId exampleSessionId = SessionId.of("example-session");
+    private final SessionId exampleSessionId = SessionId.of(UUID.randomUUID().toString());
 
     private final InMemorySignupBook book = new InMemorySignupBook();
     private final SignupHttpHandler api = new SignupHttpHandler(book);
 
-    SignupSheet sheet = new SignupSheet();
-
-    {
-        sheet.setSessionId(exampleSessionId);
-        book.add(sheet);
-    }
 
     @Test
     public void collects_signups() {
-        sheet.setCapacity(15);
+        book.add(new SignupSheet(exampleSessionId, 15));
 
-        assertEquals(Set.of(), sheet.getSignups());
+        assertEquals(Set.of(), getSignups(exampleSessionId));
 
         signUp(exampleSessionId, alice);
-        assertEquals(Set.of(alice), sheet.getSignups());
+        assertEquals(Set.of(alice), getSignups(exampleSessionId));
 
         signUp(exampleSessionId, bob);
-        assertEquals(Set.of(alice, bob), sheet.getSignups());
+        assertEquals(Set.of(alice, bob), getSignups(exampleSessionId));
 
         signUp(exampleSessionId, carol);
-        assertEquals(Set.of(alice, bob, carol), sheet.getSignups());
+        assertEquals(Set.of(alice, bob, carol), getSignups(exampleSessionId));
 
         signUp(exampleSessionId, dave);
-        assertEquals(Set.of(alice, bob, carol, dave), sheet.getSignups());
+        assertEquals(Set.of(alice, bob, carol, dave), getSignups(exampleSessionId));
     }
 
     @Test
     public void each_attendee_can_only_sign_up_once() {
-        sheet.setCapacity(3);
+        book.add(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, alice);
 
-        assertTrue(!sheet.isFull());
-        assertEquals(Set.of(alice), sheet.getSignups());
+        assertEquals(Set.of(alice), getSignups(exampleSessionId));
     }
 
     @Test
-    public void can_cancel_signup() {
-        sheet.setCapacity(15);
+    public void can_only_sign_up_to_capacity() {
+        book.add(new SignupSheet(exampleSessionId, 3));
+
+        signUp(exampleSessionId, alice);
+        signUp(exampleSessionId, bob);
+        signUp(exampleSessionId, carol);
+
+        signUp(failsWithConflict, exampleSessionId, dave);
+    }
+
+    @Test
+    public void cancelling_a_signup_frees_capacity() {
+        book.add(new SignupSheet(exampleSessionId, 15));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
         signUp(exampleSessionId, carol);
 
         cancelSignUp(exampleSessionId, bob);
+        assertEquals(Set.of(alice, carol), getSignups(exampleSessionId));
 
-        assertEquals(Set.of(alice, carol), sheet.getSignups());
-    }
-
-    @Test
-    public void can_only_sign_up_to_capacity() {
-        sheet.setCapacity(3);
-
-        assertTrue(!sheet.isFull());
-        signUp(exampleSessionId, alice);
-
-        assertTrue(!sheet.isFull());
-        signUp(exampleSessionId, bob);
-
-        assertTrue(!sheet.isFull());
-        signUp(exampleSessionId, carol);
-
-        assertTrue(sheet.isFull());
-
-        signUp(failsWithConflict, exampleSessionId, dave);
+        signUp(exampleSessionId, dave);
+        assertEquals(Set.of(alice, carol, dave), getSignups(exampleSessionId));
     }
 
     @Test
     public void cannot_sign_up_after_session_has_started() {
-        sheet.setCapacity(3);
+        book.add(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -128,6 +118,14 @@ public class SessionSignupHttpTests {
         apiCall(isSuccessful, DELETE, signupTemplate.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
+    }
+
+    private Set<AttendeeId> getSignups(SessionId sessionId) {
+        return apiCall(isSuccessful, GET, signupsTemplate.createURI(Map.of(
+            "sessionId", sessionId.getValue()))
+        ).lines()
+            .map(AttendeeId::of)
+            .collect(toCollection(LinkedHashSet::new));
     }
 
     private boolean isSessionStarted(SessionId sessionId) {

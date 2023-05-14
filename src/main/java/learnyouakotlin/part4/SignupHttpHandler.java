@@ -9,12 +9,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static jakarta.ws.rs.HttpMethod.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 
 
 public class SignupHttpHandler implements HttpHandler {
+    public static UriTemplate signupsTemplate =
+        new UriTemplate("/sessions/{sessionId}/signups");
     public static UriTemplate signupTemplate =
         new UriTemplate("/sessions/{sessionId}/signups/{attendeeId}");
     public static UriTemplate startedTemplate =
@@ -32,7 +35,9 @@ public class SignupHttpHandler implements HttpHandler {
             String path = exchange.getRequestURI().getPath();
             final var params = new HashMap<String, String>();
 
-            if (signupTemplate.match(path, params)) {
+            if (signupsTemplate.match(path,params)) {
+                handleSignups(exchange, params);
+            } else if (signupTemplate.match(path, params)) {
                 handleSignup(exchange, params);
             } else if (startedTemplate.match(path, params)) {
                 handleStarted(exchange, params);
@@ -41,6 +46,27 @@ public class SignupHttpHandler implements HttpHandler {
             }
         } catch (Exception e) {
             sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private void handleSignups(HttpExchange exchange, Map<String, String> params) throws IOException {
+        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
+        if (sheet == null) {
+            sendResponse(exchange, NOT_FOUND, "session not found");
+            return;
+        }
+
+        switch (exchange.getRequestMethod()) {
+            case GET -> {
+                sendResponse(exchange, OK,
+                    sheet.getSignups().stream()
+                        .map(Identifier::getValue)
+                        .collect(Collectors.joining("\n")));
+            }
+            default -> {
+                sendResponse(exchange, METHOD_NOT_ALLOWED,
+                    exchange.getRequestMethod() + " method not supported");
+            }
         }
     }
 
