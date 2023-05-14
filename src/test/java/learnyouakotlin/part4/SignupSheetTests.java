@@ -95,60 +95,10 @@ public class SignupSheetTests {
         sheet.signUp(bob);
 
         assertTrue(!sheet.isSessionStarted());
-        sheet.start();
+        sheet.sessionStarted();
 
         assertTrue(sheet.isSessionStarted());
         assertThrows(IllegalStateException.class, () ->
             sheet.signUp(carol));
-    }
-
-    @Test
-    public void can_increase_capacity() {
-        SignupSheet sheet = new SignupSheet();
-        sheet.setSessionId(exampleSessionId);
-        sheet.setCapacity(2);
-
-        sheet.signUp(alice);
-        sheet.signUp(bob);
-        assertTrue(sheet.isFull());
-
-        sheet.setCapacity(4);
-        assertTrue(!sheet.isFull());
-        sheet.signUp(carol);
-        sheet.signUp(dave);
-        assertEquals(4, sheet.getCapacity());
-        assertTrue(sheet.isFull());
-    }
-
-    @Test
-    public void cannot_reduce_capacity_to_fewer_than_number_of_signups() {
-        SignupSheet sheet = new SignupSheet();
-        sheet.setSessionId(exampleSessionId);
-        sheet.setCapacity(4);
-
-        sheet.signUp(alice);
-        sheet.signUp(bob);
-        sheet.signUp(carol);
-        sheet.signUp(dave);
-
-        assertThrows(IllegalStateException.class, () ->
-            sheet.setCapacity(3)
-        );
-    }
-
-    @Test
-    public void cannot_reduce_capacity_after_session_started() {
-        SignupSheet sheet = new SignupSheet();
-        sheet.setSessionId(exampleSessionId);
-        sheet.setCapacity(3);
-
-        sheet.signUp(alice);
-        sheet.signUp(bob);
-        sheet.signUp(carol);
-        sheet.start();
-
-        assertThrows(IllegalStateException.class, () ->
-            sheet.setCapacity(6)
-        );
     }
 }

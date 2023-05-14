@@ -22,12 +22,8 @@ public class SignupSheet {
     }
 
     public void setCapacity(int newCapacity) {
-        if (isSessionStarted) {
-            throw new IllegalStateException("you cannot change the capacity after the session as started");
-        }
-
-        if (signups.size() > newCapacity) {
-            throw new IllegalStateException("you cannot change the capacity to fewer than the number of signups");
+        if (capacity != 0) {
+            throw new IllegalStateException("you cannot change the capacity after it has been set");
         }
 
         this.capacity = newCapacity;
@@ -41,7 +37,7 @@ public class SignupSheet {
         return isSessionStarted;
     }
 
-    public void start() {
+    public void sessionStarted() {
         isSessionStarted = true;
     }
 
@@ -51,7 +47,7 @@ public class SignupSheet {
 
     public void signUp(AttendeeId attendeeId) {
         if (isSessionStarted()) {
-            throw new IllegalStateException("cannot sign up for session after it has started");
+            throw new IllegalStateException("you cannot sign up for session after it has started");
         }
 
         if (isFull()) {

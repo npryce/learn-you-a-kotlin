@@ -2,22 +2,23 @@ package learnyouakotlin.part4;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import jakarta.ws.rs.core.Response;
+import org.glassfish.jersey.uri.UriTemplate;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.net.HttpURLConnection.*;
+import static jakarta.ws.rs.HttpMethod.*;
+import static jakarta.ws.rs.core.Response.Status.*;
 
 
 public class SignupHttpHandler implements HttpHandler {
-    private static final Pattern pathPattern =
-        Pattern.compile("^/sessions/(?<sessionId>[^/]+)/signups/(?<attendeeId>[^/]+)$");
+    public static UriTemplate signupTemplate =
+        new UriTemplate("/sessions/{sessionId}/signups/{attendeeId}");
+    public static UriTemplate startedTemplate =
+        new UriTemplate("/sessions/{sessionId}/started");
 
     private final SignupBook book;
 
@@ -28,73 +29,80 @@ public class SignupHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try (exchange) {
-            final var match = pathPattern.matcher(exchange.getRequestURI().getPath());
-            if (!match.matches()) {
-                sendResponse(exchange, HTTP_NOT_FOUND, "resource not found");
-                return;
-            }
+            String path = exchange.getRequestURI().getPath();
+            final var params = new HashMap<String, String>();
 
-            final var sessionId = pathParam(match, SessionId::of, "sessionId");
-            final var attendeeId = pathParam(match, AttendeeId::of, "attendeeId");
-
-            final var sheet = book.sheetFor(sessionId);
-            if (sheet == null) {
-                sendResponse(exchange, HTTP_NOT_FOUND, "session not found");
-                return;
+            if (signupTemplate.match(path, params)) {
+                handleSignup(exchange, params);
+            } else if (startedTemplate.match(path, params)) {
+                handleStarted(exchange, params);
+            } else {
+                sendResponse(exchange, NOT_FOUND, "resource not found");
             }
-
-            switch (exchange.getRequestMethod()) {
-                case "GET" -> {
-                    sendResponse(exchange, HTTP_OK, Boolean.toString(sheet.isSignedUp(attendeeId)));
-                }
-                case "POST" -> {
-                    sheet.signUp(attendeeId);
-                    sendResponse(exchange, HTTP_OK, "subscribed");
-                }
-                case "DELETE" -> {
-                    sheet.cancelSignUp(attendeeId);
-                    sendResponse(exchange, HTTP_OK, "unsubscribed");
-                }
-                default -> {
-                    sendResponse(exchange, HTTP_BAD_METHOD,
-                        exchange.getRequestMethod() + " method not supported");
-                }
-            }
-        } catch (IllegalStateException e) {
-            sendResponse(exchange, HTTP_CONFLICT, e.getMessage());
         } catch (Exception e) {
-            sendResponse(exchange, HTTP_INTERNAL_ERROR, e.getMessage());
+            sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-    private static void sendResponse(HttpExchange exchange, int statusCode, String bodyString) throws IOException {
+    private void handleSignup(HttpExchange exchange, Map<String, String> params) throws IOException {
+        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
+        if (sheet == null) {
+            sendResponse(exchange, NOT_FOUND, "session not found");
+            return;
+        }
+
+        final var attendeeId = AttendeeId.of(params.get("attendeeId"));
+
+        switch (exchange.getRequestMethod()) {
+            case GET -> {
+                sendResponse(exchange, OK, sheet.isSignedUp(attendeeId));
+            }
+            case POST -> {
+                try {
+                    sheet.signUp(attendeeId);
+                    sendResponse(exchange, OK, "subscribed");
+                } catch (IllegalStateException e) {
+                    sendResponse(exchange, CONFLICT, e.getMessage());
+                }
+            }
+            case DELETE -> {
+                sheet.cancelSignUp(attendeeId);
+                sendResponse(exchange, OK, "unsubscribed");
+            }
+            default -> {
+                sendResponse(exchange, METHOD_NOT_ALLOWED,
+                    exchange.getRequestMethod() + " method not supported");
+            }
+        }
+    }
+
+    private void handleStarted(HttpExchange exchange, HashMap<String, String> params) throws IOException {
+        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
+        if (sheet == null) {
+            sendResponse(exchange, NOT_FOUND, "session not found");
+            return;
+        }
+
+        switch (exchange.getRequestMethod()) {
+            case GET -> {
+                sendResponse(exchange, OK, sheet.isSessionStarted());
+            }
+            case POST -> {
+                sheet.sessionStarted();
+                sendResponse(exchange, OK, "started");
+            }
+            default -> {
+                sendResponse(exchange, METHOD_NOT_ALLOWED,
+                    exchange.getRequestMethod() + " method not supported");
+            }
+        }
+    }
+
+    private static void sendResponse(HttpExchange exchange, Response.Status status, Object bodyValue) throws IOException {
         exchange.getResponseHeaders().add("Content-Type", "text/plain");
-        exchange.sendResponseHeaders(statusCode, 0);
+        exchange.sendResponseHeaders(status.getStatusCode(), 0);
         final var body = new OutputStreamWriter(exchange.getResponseBody());
-        body.write(bodyString);
+        body.write(bodyValue.toString());
         body.flush();
-    }
-
-    private static <T> T pathParam(Matcher match, Function<String, T> wrapper, String paramName) {
-        var strValue = match.group(paramName);
-        return strValue != null ? wrapper.apply(strValue) : null;
-    }
-
-    public static void main(String[] args) throws IOException {
-        final var book = new InMemorySignupBook();
-        for (int i = 1; i <= 10; i++) {
-            SignupSheet session = new SignupSheet();
-            session.setSessionId(SessionId.of(Integer.toString(i)));
-            session.setCapacity(20);
-            book.add(session);
-        }
-
-        final var server = HttpServer.create(new InetSocketAddress(9876), 0);
-        // So we don't have to worry that SignupSheet is not thread safe
-        server.setExecutor(Executors.newSingleThreadExecutor());
-        server.createContext("/", new SignupHttpHandler(book));
-        server.start();
-
-        System.out.println("Waiting at: http://localhost:9876/{sessionId}/signup/{attendeeId}");
     }
 }
