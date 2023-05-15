@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm") version "1.8.21"
 }
 
 repositories {
@@ -16,6 +17,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("com.oneeyedmen:okeydoke:1.3.3")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<Test> {
@@ -25,5 +27,10 @@ tasks.withType<Test> {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+kotlin {
+    jvmToolchain {
+        java.toolchain.languageVersion
     }
 }
