@@ -31,12 +31,13 @@ public class SessionSignupHttpTests {
     private final SessionId exampleSessionId = SessionId.of(UUID.randomUUID().toString());
 
     private final InMemorySignupBook book = new InMemorySignupBook();
-    private final SignupHttpHandler api = new SignupHttpHandler(book);
+
+    private final SignupHttpHandler api = new SignupHttpHandler(new InMemoryTransactor<>(book));
 
 
     @Test
     public void collects_signups() {
-        book.add(new SignupSheet(exampleSessionId, 15));
+        book.save(new SignupSheet(exampleSessionId, 15));
 
         assertEquals(Set.of(), getSignups(exampleSessionId));
 
@@ -55,7 +56,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void each_attendee_can_only_sign_up_once() {
-        book.add(new SignupSheet(exampleSessionId, 3));
+        book.save(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, alice);
@@ -66,7 +67,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void can_only_sign_up_to_capacity() {
-        book.add(new SignupSheet(exampleSessionId, 3));
+        book.save(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -77,7 +78,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cancelling_a_signup_frees_capacity() {
-        book.add(new SignupSheet(exampleSessionId, 15));
+        book.save(new SignupSheet(exampleSessionId, 15));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -92,7 +93,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cannot_sign_up_after_session_has_started() {
-        book.add(new SignupSheet(exampleSessionId, 3));
+        book.save(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -109,19 +110,19 @@ public class SessionSignupHttpTests {
     }
 
     private void signUp(Predicate<HttpExchange> expectedOutcome, SessionId sessionId, AttendeeId attendeeId) {
-        apiCall(expectedOutcome, POST, signupTemplate.createURI(Map.of(
+        apiCall(expectedOutcome, POST, signupRoute.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
     }
 
     private void cancelSignUp(SessionId sessionId, AttendeeId attendeeId) {
-        apiCall(isSuccessful, DELETE, signupTemplate.createURI(Map.of(
+        apiCall(isSuccessful, DELETE, signupRoute.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
     }
 
     private Set<AttendeeId> getSignups(SessionId sessionId) {
-        return apiCall(isSuccessful, GET, signupsTemplate.createURI(Map.of(
+        return apiCall(isSuccessful, GET, signupsRoute.createURI(Map.of(
             "sessionId", sessionId.getValue()))
         ).lines()
             .map(AttendeeId::of)
@@ -129,13 +130,12 @@ public class SessionSignupHttpTests {
     }
 
     private boolean isSessionStarted(SessionId sessionId) {
-        return Boolean.parseBoolean(
-            apiCall(isSuccessful, GET, startedTemplate.createURI(Map.of(
-                "sessionId", sessionId.getValue()))));
+        return Boolean.parseBoolean(apiCall(isSuccessful, GET, startedRoute.createURI(Map.of(
+            "sessionId", sessionId.getValue()))));
     }
 
     private void startSession(SessionId sessionId) {
-        apiCall(isSuccessful, POST, startedTemplate.createURI(Map.of(
+        apiCall(isSuccessful, POST, startedRoute.createURI(Map.of(
             "sessionId", sessionId.getValue())));
     }
 
@@ -153,7 +153,7 @@ public class SessionSignupHttpTests {
         return exchange.getResponseBody().toString(UTF_8);
     }
 
-    private static final Predicate<HttpExchange> failsWithConflict = new Predicate<HttpExchange>() {
+    private static final Predicate<HttpExchange> failsWithConflict = new Predicate<>() {
         @Override
         public String toString() {
             return "fails with conflict";
@@ -165,7 +165,7 @@ public class SessionSignupHttpTests {
         }
     };
 
-    private static final Predicate<HttpExchange> isSuccessful = new Predicate<HttpExchange>() {
+    private static final Predicate<HttpExchange> isSuccessful = new Predicate<>() {
         @Override
         public String toString() {
             return "is successful";

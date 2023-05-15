@@ -5,9 +5,11 @@ import com.sun.net.httpserver.HttpHandler;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.uri.UriTemplate;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,46 +18,56 @@ import static jakarta.ws.rs.core.Response.Status.*;
 
 
 public class SignupHttpHandler implements HttpHandler {
-    public static UriTemplate signupsTemplate =
+    public static UriTemplate signupsRoute =
         new UriTemplate("/sessions/{sessionId}/signups");
-    public static UriTemplate signupTemplate =
+    public static UriTemplate signupRoute =
         new UriTemplate("/sessions/{sessionId}/signups/{attendeeId}");
-    public static UriTemplate startedTemplate =
+    public static UriTemplate startedRoute =
         new UriTemplate("/sessions/{sessionId}/started");
 
-    private final SignupBook book;
+    private static final List<UriTemplate> routes =
+        List.of(signupsRoute, signupRoute, startedRoute);
 
-    public SignupHttpHandler(SignupBook book) {
-        this.book = book;
+
+    private final Transactor<SignupBook> transactor;
+
+    public SignupHttpHandler(Transactor<SignupBook> transactor) {
+        this.transactor = transactor;
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try (exchange) {
-            String path = exchange.getRequestURI().getPath();
             final var params = new HashMap<String, String>();
 
-            if (signupsTemplate.match(path,params)) {
-                handleSignups(exchange, params);
-            } else if (signupTemplate.match(path, params)) {
-                handleSignup(exchange, params);
-            } else if (startedTemplate.match(path, params)) {
-                handleStarted(exchange, params);
-            } else {
+            final var matchedRoute = matchRoute(exchange, params);
+            if (matchedRoute == null) {
                 sendResponse(exchange, NOT_FOUND, "resource not found");
+                return;
             }
+
+            transactor.perform(book -> {
+                final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
+                if (sheet == null) {
+                    sendResponse(exchange, NOT_FOUND, "session not found");
+                    return;
+                }
+
+                if (matchedRoute == signupsRoute) {
+                    handleSignups(exchange, book, sheet);
+                } else if (matchedRoute == signupRoute) {
+                    handleSignup(exchange, book, sheet, params);
+                } else if (matchedRoute == startedRoute) {
+                    handleStarted(exchange, book, sheet);
+                }
+            });
+
         } catch (Exception e) {
             sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-    private void handleSignups(HttpExchange exchange, Map<String, String> params) throws IOException {
-        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
-        if (sheet == null) {
-            sendResponse(exchange, NOT_FOUND, "session not found");
-            return;
-        }
-
+    private void handleSignups(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
         switch (exchange.getRequestMethod()) {
             case GET -> {
                 sendResponse(exchange, OK,
@@ -64,19 +76,12 @@ public class SignupHttpHandler implements HttpHandler {
                         .collect(Collectors.joining("\n")));
             }
             default -> {
-                sendResponse(exchange, METHOD_NOT_ALLOWED,
-                    exchange.getRequestMethod() + " method not supported");
+                sendMethodNotAllowed(exchange);
             }
         }
     }
 
-    private void handleSignup(HttpExchange exchange, Map<String, String> params) throws IOException {
-        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
-        if (sheet == null) {
-            sendResponse(exchange, NOT_FOUND, "session not found");
-            return;
-        }
-
+    private void handleSignup(HttpExchange exchange, SignupBook book, SignupSheet sheet, Map<String, String> params) throws IOException {
         final var attendeeId = AttendeeId.of(params.get("attendeeId"));
 
         switch (exchange.getRequestMethod()) {
@@ -86,6 +91,7 @@ public class SignupHttpHandler implements HttpHandler {
             case POST -> {
                 try {
                     sheet.signUp(attendeeId);
+                    book.save(sheet);
                     sendResponse(exchange, OK, "subscribed");
                 } catch (IllegalStateException e) {
                     sendResponse(exchange, CONFLICT, e.getMessage());
@@ -93,35 +99,38 @@ public class SignupHttpHandler implements HttpHandler {
             }
             case DELETE -> {
                 sheet.cancelSignUp(attendeeId);
+                book.save(sheet);
                 sendResponse(exchange, OK, "unsubscribed");
             }
             default -> {
-                sendResponse(exchange, METHOD_NOT_ALLOWED,
-                    exchange.getRequestMethod() + " method not supported");
+                sendMethodNotAllowed(exchange);
             }
         }
     }
 
-    private void handleStarted(HttpExchange exchange, HashMap<String, String> params) throws IOException {
-        final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
-        if (sheet == null) {
-            sendResponse(exchange, NOT_FOUND, "session not found");
-            return;
-        }
-
+    private void handleStarted(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
         switch (exchange.getRequestMethod()) {
             case GET -> {
                 sendResponse(exchange, OK, sheet.isSessionStarted());
             }
             case POST -> {
                 sheet.sessionStarted();
+                book.save(sheet);
                 sendResponse(exchange, OK, "started");
             }
             default -> {
-                sendResponse(exchange, METHOD_NOT_ALLOWED,
-                    exchange.getRequestMethod() + " method not supported");
+                sendMethodNotAllowed(exchange);
             }
         }
+    }
+
+    private static @Nullable UriTemplate matchRoute(HttpExchange exchange, HashMap<String, String> paramsOut) {
+        for (final var t : routes) {
+            if (t.match(exchange.getRequestURI().getPath(), paramsOut)) {
+                return t;
+            }
+        }
+        return null;
     }
 
     private static void sendResponse(HttpExchange exchange, Response.Status status, Object bodyValue) throws IOException {
@@ -130,5 +139,10 @@ public class SignupHttpHandler implements HttpHandler {
         final var body = new OutputStreamWriter(exchange.getResponseBody());
         body.write(bodyValue.toString());
         body.flush();
+    }
+
+    private static void sendMethodNotAllowed(HttpExchange exchange) throws IOException {
+        sendResponse(exchange, METHOD_NOT_ALLOWED,
+            exchange.getRequestMethod() + " method not allowed");
     }
 }

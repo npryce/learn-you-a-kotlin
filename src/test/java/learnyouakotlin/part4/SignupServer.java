@@ -15,13 +15,13 @@ public class SignupServer {
             SignupSheet session = new SignupSheet();
             session.setSessionId(SessionId.of(Integer.toString(i)));
             session.setCapacity(20);
-            book.add(session);
+            book.save(session);
         }
 
         final var server = HttpServer.create(new InetSocketAddress(9876), 0);
         // So we don't have to worry that SignupSheet is not thread safe
         server.setExecutor(Executors.newSingleThreadExecutor());
-        server.createContext("/", new SignupHttpHandler(book));
+        server.createContext("/", new SignupHttpHandler(new InMemoryTransactor<>(book)));
         server.start();
 
         System.out.println("Waiting at: http://localhost:9876/{sessionId}/signup/{attendeeId}");
