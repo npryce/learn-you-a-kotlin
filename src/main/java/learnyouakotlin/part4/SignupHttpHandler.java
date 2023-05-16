@@ -18,11 +18,11 @@ import static jakarta.ws.rs.core.Response.Status.*;
 
 
 public class SignupHttpHandler implements HttpHandler {
-    public static UriTemplate signupsRoute =
+    public static final UriTemplate signupsRoute =
         new UriTemplate("/sessions/{sessionId}/signups");
-    public static UriTemplate signupRoute =
+    public static final UriTemplate signupRoute =
         new UriTemplate("/sessions/{sessionId}/signups/{attendeeId}");
-    public static UriTemplate startedRoute =
+    public static final UriTemplate startedRoute =
         new UriTemplate("/sessions/{sessionId}/started");
 
     private static final List<UriTemplate> routes =
