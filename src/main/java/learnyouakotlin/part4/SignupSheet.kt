@@ -11,10 +11,15 @@ class SignupSheet {
     
     private val signups = LinkedHashSet<AttendeeId>()
     
+    fun getSignups(): Set<AttendeeId> {
+        return java.util.Set.copyOf(signups)
+    }
+    
     var isSessionStarted = false
         private set
     
     constructor()
+    
     constructor(sessionId: SessionId?, capacity: Int) {
         this.sessionId = sessionId
         this.capacity = capacity
@@ -39,9 +44,5 @@ class SignupSheet {
     
     fun cancelSignUp(attendeeId: AttendeeId) {
         signups.remove(attendeeId)
-    }
-    
-    fun getSignups(): Set<AttendeeId> {
-        return java.util.Set.copyOf(signups)
     }
 }
