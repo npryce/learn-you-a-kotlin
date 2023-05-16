@@ -2,7 +2,12 @@ package learnyouakotlin.part4
 
 class SignupSheet {
     var sessionId: SessionId? = null
-    private var capacity = 0
+    var capacity = 0
+        get
+        set(value) {
+            check(field == 0) { "you cannot change the capacity after it has been set" }
+            field = value
+        }
     private val signups = LinkedHashSet<AttendeeId>()
     var isSessionStarted = false
         private set
@@ -11,15 +16,6 @@ class SignupSheet {
     constructor(sessionId: SessionId?, capacity: Int) {
         this.sessionId = sessionId
         this.capacity = capacity
-    }
-    
-    fun getCapacity(): Int {
-        return capacity
-    }
-    
-    fun setCapacity(newCapacity: Int) {
-        check(capacity == 0) { "you cannot change the capacity after it has been set" }
-        capacity = newCapacity
     }
     
     val isFull: Boolean
