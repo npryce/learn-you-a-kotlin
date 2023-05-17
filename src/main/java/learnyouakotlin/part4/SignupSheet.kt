@@ -10,13 +10,11 @@ class SignupSheet @JvmOverloads constructor(
     val isFull: Boolean
         get() = signups.size == capacity
     
-    fun sessionStarted(): SignupSheet {
-        return SignupSheet(sessionId, capacity, isSessionStarted=true)
-    }
+    fun sessionStarted(): SignupSheet =
+        SignupSheet(sessionId, capacity, isSessionStarted=true)
     
-    fun isSignedUp(attendeeId: AttendeeId): Boolean {
-        return signups.contains(attendeeId)
-    }
+    fun isSignedUp(attendeeId: AttendeeId): Boolean =
+        signups.contains(attendeeId)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isSessionStarted) { "you cannot sign up for session after it has started" }
@@ -24,7 +22,6 @@ class SignupSheet @JvmOverloads constructor(
         return SignupSheet(sessionId, capacity, isSessionStarted, signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        return SignupSheet(sessionId, capacity, isSessionStarted, signups - attendeeId)
-    }
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet =
+        SignupSheet(sessionId, capacity, isSessionStarted, signups - attendeeId)
 }
