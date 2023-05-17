@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.Response.Status.OK
 import org.glassfish.jersey.uri.UriTemplate
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.List
 import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
@@ -123,7 +122,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         val signupRoute = UriTemplate("/sessions/{sessionId}/signups/{attendeeId}")
         @JvmField
         val startedRoute = UriTemplate("/sessions/{sessionId}/started")
-        private val routes = List.of(signupsRoute, signupRoute, startedRoute)
+        
+        private val routes = listOf(signupsRoute, signupRoute, startedRoute)
+        
         private fun matchRoute(exchange: HttpExchange, paramsOut: HashMap<String, String>): UriTemplate? {
             for (t in routes) {
                 if (t.match(exchange.requestURI.path, paramsOut)) {
