@@ -26,7 +26,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 }
                 
                 transactor.perform { book: SignupBook ->
-                    val sheet = book.sheetFor(SessionId.of(params["sessionId"]!!))
+                    val sheet = book.sheetFor(SessionId.of(params["sessionId"]))
                     if (sheet == null) {
                         sendResponse(exchange, NOT_FOUND, "session not found")
                         return@perform
