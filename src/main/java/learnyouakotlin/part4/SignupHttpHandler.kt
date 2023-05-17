@@ -32,12 +32,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         return@perform
                     }
                     
-                    if (matchedRoute === signupsRoute) {
-                        handleSignups(exchange, book, sheet)
-                    } else if (matchedRoute === signupRoute) {
-                        handleSignup(exchange, book, sheet, params)
-                    } else if (matchedRoute === startedRoute) {
-                        handleStarted(exchange, book, sheet)
+                    when (matchedRoute) {
+                        signupsRoute -> handleSignups(exchange, book, sheet)
+                        signupRoute -> handleSignup(exchange, book, sheet, params)
+                        startedRoute -> handleStarted(exchange, book, sheet)
                     }
                 }
             }
