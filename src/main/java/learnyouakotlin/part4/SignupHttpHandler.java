@@ -37,34 +37,29 @@ public class SignupHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        try (exchange) {
-            final var params = new HashMap<String, String>();
+        final var params = new HashMap<String, String>();
 
-            final var matchedRoute = matchRoute(exchange, params);
-            if (matchedRoute == null) {
-                sendResponse(exchange, NOT_FOUND, "resource not found");
+        final var matchedRoute = matchRoute(exchange, params);
+        if (matchedRoute == null) {
+            sendResponse(exchange, NOT_FOUND, "resource not found");
+            return;
+        }
+
+        transactor.perform(book -> {
+            final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
+            if (sheet == null) {
+                sendResponse(exchange, NOT_FOUND, "session not found");
                 return;
             }
 
-            transactor.perform(book -> {
-                final var sheet = book.sheetFor(SessionId.of(params.get("sessionId")));
-                if (sheet == null) {
-                    sendResponse(exchange, NOT_FOUND, "session not found");
-                    return;
-                }
-
-                if (matchedRoute == signupsRoute) {
-                    handleSignups(exchange, book, sheet);
-                } else if (matchedRoute == signupRoute) {
-                    handleSignup(exchange, book, sheet, params);
-                } else if (matchedRoute == startedRoute) {
-                    handleStarted(exchange, book, sheet);
-                }
-            });
-
-        } catch (Exception e) {
-            sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+            if (matchedRoute == signupsRoute) {
+                handleSignups(exchange, book, sheet);
+            } else if (matchedRoute == signupRoute) {
+                handleSignup(exchange, book, sheet, params);
+            } else if (matchedRoute == startedRoute) {
+                handleStarted(exchange, book, sheet);
+            }
+        });
     }
 
     private void handleSignups(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
