@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static jakarta.ws.rs.HttpMethod.*;
@@ -53,16 +52,16 @@ public class SignupHttpHandler implements HttpHandler {
             }
 
             if (matchedRoute == signupsRoute) {
-                handleSignups(exchange, book, sheet);
+                handleSignups(exchange, sheet);
             } else if (matchedRoute == signupRoute) {
-                handleSignup(exchange, book, sheet, params);
+                handleSignup(exchange, book, sheet, AttendeeId.of(params.get("attendeeId")));
             } else if (matchedRoute == startedRoute) {
                 handleStarted(exchange, book, sheet);
             }
         });
     }
 
-    private void handleSignups(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
+    private void handleSignups(HttpExchange exchange, SignupSheet sheet) throws IOException {
         switch (exchange.getRequestMethod()) {
             case GET -> {
                 sendResponse(exchange, OK,
@@ -76,8 +75,7 @@ public class SignupHttpHandler implements HttpHandler {
         }
     }
 
-    private void handleSignup(HttpExchange exchange, SignupBook book, SignupSheet sheet, Map<String, String> params) throws IOException {
-        final var attendeeId = AttendeeId.of(params.get("attendeeId"));
+    private void handleSignup(HttpExchange exchange, SignupBook book, SignupSheet sheet, AttendeeId attendeeId) throws IOException {
 
         switch (exchange.getRequestMethod()) {
             case GET -> {
