@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.Response.Status.OK
 import org.glassfish.jersey.uri.UriTemplate
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
     @Throws(IOException::class)
@@ -50,9 +49,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, OK,
-                    sheet.signups.stream()
+                    sheet.signups
                         .map { obj: AttendeeId -> obj.value }
-                        .collect(Collectors.joining("\n")))
+                        .joinToString("\n"))
             }
             
             else -> {
