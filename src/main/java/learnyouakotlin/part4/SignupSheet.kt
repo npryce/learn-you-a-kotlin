@@ -15,8 +15,6 @@ class SignupSheet {
     var isSessionStarted = false
         private set
     
-    constructor()
-    
     constructor(sessionId: SessionId?, capacity: Int) {
         this.sessionId = sessionId
         this.capacity = capacity
