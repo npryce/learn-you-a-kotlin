@@ -73,10 +73,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
             
             HttpMethod.DELETE -> {
-                book.save(
-                    sheet.cancelSignUp(attendeeId)
-                )
-                sendResponse(exchange, OK, "unsubscribed")
+                try {
+                    book.save(
+                        sheet.cancelSignUp(attendeeId)
+                    )
+                    sendResponse(exchange, OK, "unsubscribed")
+                } catch (e: IllegalStateException) {
+                    sendResponse(exchange, CONFLICT, e.message)
+                }
             }
             
             else -> {

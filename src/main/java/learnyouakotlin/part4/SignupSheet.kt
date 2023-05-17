@@ -17,11 +17,14 @@ data class SignupSheet @JvmOverloads constructor(
         signups.contains(attendeeId)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot sign up for session after it has started" }
+        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
         check(!isFull) { "session is full" }
         return copy(signups = signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet =
-        copy(signups = signups - attendeeId)
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
+        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
+        
+        return copy(signups = signups - attendeeId)
+    }
 }

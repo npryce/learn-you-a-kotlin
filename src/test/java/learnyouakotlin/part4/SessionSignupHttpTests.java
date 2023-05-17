@@ -106,6 +106,17 @@ public class SessionSignupHttpTests {
         signUp(failsWithConflict, exampleSessionId, carol);
     }
 
+    @Test
+    public void cannot_cancel_a_sign_up_after_session_has_started() {
+        book.save(new SignupSheet(exampleSessionId, 3));
+
+        signUp(exampleSessionId, alice);
+        signUp(exampleSessionId, bob);
+        startSession(exampleSessionId);
+
+        cancelSignUp(failsWithConflict, exampleSessionId, alice);
+    }
+
     private void signUp(SessionId sessionId, AttendeeId attendeeId) {
         signUp(isSuccessful, sessionId, attendeeId);
     }
@@ -117,7 +128,11 @@ public class SessionSignupHttpTests {
     }
 
     private void cancelSignUp(SessionId sessionId, AttendeeId attendeeId) {
-        apiCall(isSuccessful, DELETE, signupRoute.createURI(Map.of(
+        cancelSignUp(isSuccessful, sessionId, attendeeId);
+    }
+
+    private void cancelSignUp(Predicate<HttpExchange> expectedResult, SessionId sessionId, AttendeeId attendeeId) {
+        apiCall(expectedResult, DELETE, signupRoute.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
     }
