@@ -49,9 +49,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, OK,
-                    sheet.signups
-                        .map { obj: AttendeeId -> obj.value }
-                        .joinToString("\n"))
+                    sheet.signups.joinToString("\n") { it.value })
             }
             
             else -> {
