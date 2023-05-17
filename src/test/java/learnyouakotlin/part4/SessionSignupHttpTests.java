@@ -1,6 +1,7 @@
 package learnyouakotlin.part4;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class SessionSignupHttpTests {
 
     private final InMemorySignupBook book = new InMemorySignupBook();
 
-    private final SignupHttpHandler api = new SignupHttpHandler(new InMemoryTransactor<>(book));
+    private final HttpHandler api = new SignupHttpHandler(new InMemoryTransactor<>(book));
 
 
     @Test
