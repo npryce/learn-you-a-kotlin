@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpHandler
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.Response.Status
 import jakarta.ws.rs.core.Response.Status.CONFLICT
-import jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR
 import jakarta.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED
 import jakarta.ws.rs.core.Response.Status.NOT_FOUND
 import jakarta.ws.rs.core.Response.Status.OK
@@ -16,31 +15,27 @@ import java.io.OutputStreamWriter
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
     @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
-        try {
-            exchange.use {
-                val params = HashMap<String, String>()
-                val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
-                if (matchedRoute == null) {
-                    sendResponse(exchange, NOT_FOUND, "resource not found")
-                    return
+        exchange.use {
+            val params = HashMap<String, String>()
+            val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
+            if (matchedRoute == null) {
+                sendResponse(exchange, NOT_FOUND, "resource not found")
+                return
+            }
+            
+            transactor.perform { book: SignupBook ->
+                val sheet = book.sheetFor(SessionId.of(params["sessionId"]))
+                if (sheet == null) {
+                    sendResponse(exchange, NOT_FOUND, "session not found")
+                    return@perform
                 }
                 
-                transactor.perform { book: SignupBook ->
-                    val sheet = book.sheetFor(SessionId.of(params["sessionId"]))
-                    if (sheet == null) {
-                        sendResponse(exchange, NOT_FOUND, "session not found")
-                        return@perform
-                    }
-                    
-                    when (matchedRoute) {
-                        signupsRoute -> handleSignups(exchange, book, sheet)
-                        signupRoute -> handleSignup(exchange, book, sheet, params)
-                        startedRoute -> handleStarted(exchange, book, sheet)
-                    }
+                when (matchedRoute) {
+                    signupsRoute -> handleSignups(exchange, book, sheet)
+                    signupRoute -> handleSignup(exchange, book, sheet, params)
+                    startedRoute -> handleStarted(exchange, book, sheet)
                 }
             }
-        } catch (e: Exception) {
-            sendResponse(exchange, INTERNAL_SERVER_ERROR, e.message)
         }
     }
     
