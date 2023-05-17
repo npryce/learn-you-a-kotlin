@@ -55,7 +55,7 @@ public class SignupSheet {
 
     public void signUp(AttendeeId attendeeId) {
         if (isSessionStarted()) {
-            throw new IllegalStateException("you cannot sign up for session after it has started");
+            throw new IllegalStateException("you cannot change sign-ups for a session after it has started");
         }
 
         if (isFull()) {
@@ -66,6 +66,10 @@ public class SignupSheet {
     }
 
     public void cancelSignUp(AttendeeId attendeeId) {
+        if (isSessionStarted()) {
+            throw new IllegalStateException("you cannot change sign-ups for a session after it has started");
+        }
+
         signups.remove(attendeeId);
     }
 

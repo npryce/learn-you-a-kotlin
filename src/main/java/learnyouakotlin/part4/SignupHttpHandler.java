@@ -76,7 +76,6 @@ public class SignupHttpHandler implements HttpHandler {
     }
 
     private void handleSignup(HttpExchange exchange, SignupBook book, SignupSheet sheet, AttendeeId attendeeId) throws IOException {
-
         switch (exchange.getRequestMethod()) {
             case GET -> {
                 sendResponse(exchange, OK, sheet.isSignedUp(attendeeId));
@@ -91,9 +90,13 @@ public class SignupHttpHandler implements HttpHandler {
                 }
             }
             case DELETE -> {
-                sheet.cancelSignUp(attendeeId);
-                book.save(sheet);
-                sendResponse(exchange, OK, "unsubscribed");
+                try {
+                    sheet.cancelSignUp(attendeeId);
+                    book.save(sheet);
+                    sendResponse(exchange, OK, "unsubscribed");
+                } catch (IllegalStateException e) {
+                    sendResponse(exchange, CONFLICT, e.getMessage());
+                }
             }
             default -> {
                 sendMethodNotAllowed(exchange);
