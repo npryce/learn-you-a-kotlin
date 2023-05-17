@@ -31,8 +31,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 }
                 
                 when (matchedRoute) {
-                    signupsRoute -> handleSignups(exchange, book, sheet)
-                    signupRoute -> handleSignup(exchange, book, sheet, params)
+                    signupsRoute -> handleSignups(exchange, sheet)
+                    signupRoute -> handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
                     startedRoute -> handleStarted(exchange, book, sheet)
                 }
             }
@@ -40,7 +40,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     }
     
     @Throws(IOException::class)
-    private fun handleSignups(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
+    private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, OK,
@@ -58,9 +58,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         exchange: HttpExchange,
         book: SignupBook,
         sheet: SignupSheet,
-        params: Map<String, String>
+        attendeeId: AttendeeId
     ) {
-        val attendeeId = AttendeeId.of(params["attendeeId"])
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, OK, sheet.isSignedUp(attendeeId))
