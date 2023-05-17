@@ -9,11 +9,9 @@ import jakarta.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED
 import jakarta.ws.rs.core.Response.Status.NOT_FOUND
 import jakarta.ws.rs.core.Response.Status.OK
 import org.glassfish.jersey.uri.UriTemplate
-import java.io.IOException
 import java.io.OutputStreamWriter
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
-    @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
         exchange.use {
             val params = HashMap<String, String>()
@@ -39,7 +37,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -53,7 +50,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleSignup(
         exchange: HttpExchange,
         book: SignupBook,
@@ -87,7 +83,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleStarted(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -118,7 +113,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         
         private val routes = listOf(signupsRoute, signupRoute, startedRoute)
         
-        @Throws(IOException::class)
         private fun sendResponse(exchange: HttpExchange, status: Status, bodyValue: Any?) {
             exchange.responseHeaders.add("Content-Type", "text/plain")
             exchange.sendResponseHeaders(status.statusCode, 0)
@@ -127,7 +121,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             body.flush()
         }
         
-        @Throws(IOException::class)
         private fun sendMethodNotAllowed(exchange: HttpExchange) {
             sendResponse(
                 exchange, METHOD_NOT_ALLOWED,
