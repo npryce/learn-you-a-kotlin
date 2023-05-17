@@ -1,18 +1,18 @@
 package learnyouakotlin.part4
 
-class SignupSheet(val sessionId: SessionId, val capacity: Int) {
+class SignupSheet @JvmOverloads constructor(
+    val sessionId: SessionId,
+    val capacity: Int,
+    val isSessionStarted: Boolean = false
+) {
     var signups = setOf<AttendeeId>()
-        private set
-    
-    var isSessionStarted = false
         private set
     
     val isFull: Boolean
         get() = signups.size == capacity
     
     fun sessionStarted(): SignupSheet {
-        isSessionStarted = true
-        return this
+        return SignupSheet(sessionId, capacity, isSessionStarted=true)
     }
     
     fun isSignedUp(attendeeId: AttendeeId): Boolean {

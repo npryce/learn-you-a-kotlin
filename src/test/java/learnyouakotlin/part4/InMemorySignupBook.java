@@ -14,11 +14,8 @@ public class InMemorySignupBook implements SignupBook {
             return null;
         } else {
             // Return a copy of the sheet, to emulate behaviour of database
-            SignupSheet loaded = new SignupSheet(stored.getSessionId(), stored.getCapacity());
+            SignupSheet loaded = new SignupSheet(stored.getSessionId(), stored.getCapacity(), stored.isSessionStarted());
             stored.getSignups().forEach(loaded::signUp);
-            if (stored.isSessionStarted()) {
-                loaded.sessionStarted();
-            }
             return loaded;
         }
     }
