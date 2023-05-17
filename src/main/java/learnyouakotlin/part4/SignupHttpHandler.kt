@@ -19,17 +19,19 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         try {
             exchange.use {
                 val params = HashMap<String, String>()
-                val matchedRoute = matchRoute(exchange, params)
+                val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
                 if (matchedRoute == null) {
                     sendResponse(exchange, NOT_FOUND, "resource not found")
                     return
                 }
+                
                 transactor.perform { book: SignupBook ->
                     val sheet = book.sheetFor(SessionId.of(params["sessionId"]!!))
                     if (sheet == null) {
                         sendResponse(exchange, NOT_FOUND, "session not found")
                         return@perform
                     }
+                    
                     if (matchedRoute === signupsRoute) {
                         handleSignups(exchange, book, sheet)
                     } else if (matchedRoute === signupRoute) {
@@ -115,21 +117,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     companion object {
         @JvmField
         val signupsRoute = UriTemplate("/sessions/{sessionId}/signups")
+        
         @JvmField
         val signupRoute = UriTemplate("/sessions/{sessionId}/signups/{attendeeId}")
+        
         @JvmField
         val startedRoute = UriTemplate("/sessions/{sessionId}/started")
         
         private val routes = listOf(signupsRoute, signupRoute, startedRoute)
-        
-        private fun matchRoute(exchange: HttpExchange, paramsOut: HashMap<String, String>): UriTemplate? {
-            for (t in routes) {
-                if (t.match(exchange.requestURI.path, paramsOut)) {
-                    return t
-                }
-            }
-            return null
-        }
         
         @Throws(IOException::class)
         private fun sendResponse(exchange: HttpExchange, status: Status, bodyValue: Any?) {
