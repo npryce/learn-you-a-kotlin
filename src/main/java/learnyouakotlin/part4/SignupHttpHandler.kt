@@ -73,7 +73,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     is Closed -> {
-                        TODO()
+                        sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
                     }
                 }
             }
@@ -91,7 +91,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         }
                     }
                     is Closed -> {
-                        TODO()
+                        sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
                     }
                 }
             }
