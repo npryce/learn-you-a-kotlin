@@ -105,7 +105,12 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleStarted(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                sendResponse(exchange, OK, sheet.isSessionStarted)
+                sendResponse(
+                    exchange, OK, when (sheet) {
+                        is Open -> false
+                        is Closed -> true
+                    }
+                )
             }
             
             HttpMethod.POST -> {
