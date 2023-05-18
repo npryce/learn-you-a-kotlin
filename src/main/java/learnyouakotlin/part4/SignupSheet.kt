@@ -40,3 +40,17 @@ data class Open @JvmOverloads constructor(
         return copy(signups = signups - attendeeId)
     }
 }
+
+data class Closed(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>
+
+) : SignupSheet() {
+    override val isSessionStarted: Boolean
+        get() = true
+    
+    override fun sessionStarted(): SignupSheet {
+        return this
+    }
+}
