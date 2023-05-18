@@ -3,7 +3,6 @@ package learnyouakotlin.part4
 sealed class SignupSheet {
     abstract val sessionId: SessionId
     abstract val capacity: Int
-    abstract val isSessionStarted: Boolean
     abstract val signups: Set<AttendeeId>
     
     val isFull: Boolean
@@ -18,7 +17,6 @@ sealed class SignupSheet {
 data class Open @JvmOverloads constructor(
     override val sessionId: SessionId,
     override val capacity: Int,
-    override val isSessionStarted: Boolean = false,
     override val signups: Set<AttendeeId> = emptySet()
 ) : SignupSheet() {
     init {
@@ -43,8 +41,6 @@ data class Closed(
     override val signups: Set<AttendeeId>
 
 ) : SignupSheet() {
-    override val isSessionStarted: Boolean
-        get() = true
     
     override fun sessionStarted(): SignupSheet {
         return this
