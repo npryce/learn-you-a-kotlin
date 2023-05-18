@@ -30,15 +30,11 @@ data class Open @JvmOverloads constructor(
     override fun sessionStarted(): SignupSheet =
         Closed(sessionId, capacity, signups)
     
-    fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
-        return copy(signups = signups + attendeeId)
-    }
+    fun signUp(attendeeId: AttendeeId): SignupSheet =
+        copy(signups = signups + attendeeId)
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
-        return copy(signups = signups - attendeeId)
-    }
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet =
+        copy(signups = signups - attendeeId)
 }
 
 data class Closed(
