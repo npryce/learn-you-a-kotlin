@@ -28,7 +28,7 @@ data class Open @JvmOverloads constructor(
     }
     
     override fun sessionStarted(): SignupSheet =
-        copy(isSessionStarted = true)
+        Closed(sessionId, capacity, signups)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
