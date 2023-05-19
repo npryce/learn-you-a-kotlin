@@ -1,5 +1,13 @@
 # Part 4 -- from mutable Beans to unrepresentable illegal states
 
+## Before people arrive
+
+On flip chart sheets:
+- Draw the logical diagram of the scenario
+- Draw the state machine and class hierarchy diagrams.
+
+Conceal them for use later.
+
 ## Before we start
 
 - Ask audience about experience level with Kotlin and Java.
@@ -11,6 +19,24 @@
 ## Explain the domain
 
 Sign-up for conference sessions.
+
+```plantuml
+:Attendee: as a
+:Presenter: as p
+component "Attendee's Phone" as aPhone {
+    component [Conference App] as aApp
+}
+component "Presenter's Phone" as pPhone {
+    component [Conference App] as pApp
+}
+
+a -right-> aApp : "sign-up\ncancel sign-up"
+p -left-> pApp : "start session"
+
+component "Conference Web Service" as webService
+aApp -down-> webService : HTTP
+pApp -down-> webService : HTTP
+```
 
 Admin user creates sign-up sheets for sessions in an admin app (not covered in this example). Sessions have limited capacity, set when the sign-up sheet is created.
 Attendees sign up for sessions via mobile conference app.  Admins can also sign attendees up for sessions via the admin app.
