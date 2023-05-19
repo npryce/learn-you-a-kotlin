@@ -23,6 +23,8 @@ Sign-up for conference sessions.
 ```plantuml
 :Attendee: as a
 :Presenter: as p
+:Admin: as b
+
 component "Attendee's Phone" as aPhone {
     component [Conference App] as aApp
 }
@@ -36,6 +38,9 @@ p -left-> pApp : "start session"
 component "Conference Web Service" as webService
 aApp -down-> webService : HTTP
 pApp -down-> webService : HTTP
+
+b -right-> webService : "add sessions\nlist attendees"
+
 ```
 
 Admin user creates sign-up sheets for sessions in an admin app (not covered in this example). Sessions have limited capacity, set when the sign-up sheet is created.
