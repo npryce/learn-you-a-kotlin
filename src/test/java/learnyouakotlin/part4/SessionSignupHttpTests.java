@@ -78,8 +78,23 @@ public class SessionSignupHttpTests {
     }
 
     @Test
-    public void cancelling_a_signup_frees_capacity() {
+    public void cancelling_a_signup_frees_capacity_when_not_full() {
         book.save(new Available(exampleSessionId, 15));
+
+        signUp(exampleSessionId, alice);
+        signUp(exampleSessionId, bob);
+        signUp(exampleSessionId, carol);
+
+        cancelSignUp(exampleSessionId, carol);
+        assertEquals(Set.of(alice, bob), getSignups(exampleSessionId));
+
+        signUp(exampleSessionId, dave);
+        assertEquals(Set.of(alice, bob, dave), getSignups(exampleSessionId));
+    }
+
+    @Test
+    public void cancelling_a_signup_frees_capacity_when_full() {
+        book.save(new Available(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
