@@ -33,7 +33,7 @@ component "Presenter's Phone" as pPhone {
 }
 
 a -right-> aApp : "sign-up\ncancel sign-up"
-p -left-> pApp : "start session"
+p -left-> pApp : "start session\nlist attendees"
 
 component "Conference Web Service" as webService
 aApp -down-> webService : HTTP
