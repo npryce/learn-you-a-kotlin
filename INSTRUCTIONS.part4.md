@@ -163,7 +163,7 @@ We can make that happen!  Getting rid of the mutation is the first step on the w
 
 The SignupSheet is used in the SignupHttpHandler, so if we will make the SignupSheet immutable, we'll need to change the handler to work with immutable values, rather than mutable beans.  We might as well convert that to Kotlin first...
 
-## Converting HTTP the handler to Kotlin
+## Converting the HTTP handler to Kotlin
 
 Convert SignupHttpHandler to Kotlin ... Click "Yes" in the dialog.
 
@@ -218,7 +218,7 @@ Run the tests. They pass. COMMIT!
 The HTTP handler is good enough for now... let's return to SignupSheet.
 
 
-## Bean to Data Class
+## Converting the Bean to an immutable data class
 
 Recall... we will make SignupSheet immutable, and then we will use the type system to make it impossible for client code to call methods when the object is in an inappropriate state.
 
