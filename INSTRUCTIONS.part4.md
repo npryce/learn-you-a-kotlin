@@ -1,15 +1,15 @@
 # Part 4 -- from mutable Beans to unrepresentable illegal states
 
-Before we start...
- 
-- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The discursions *are* the tutorial. 
+## Before we start
 
 - Ask audience about experience level with Kotlin and Java.
 
-- We are expecting you to already know Kotlin.  However if there are any language features you don't recognise, shout and we'll explain them.
+- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The discursions *are* the tutorial. 
+
+- We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
 
 
-A quick tour of the Java:
+## Review the Java code
 
 - show SignupSheet.  Highlight...
   - Bean-ness: zero arg constructor, getters and setters, mutable state
@@ -20,9 +20,8 @@ A quick tour of the Java:
   - Strongly-typed IDs (SessionId, AttendeeId) & Identifier base class -- avoid stringly typed design.
 
 - SignupSheets are collected into a SignupBook
-  - Hexagonal architecture: is implemented using an ORM
-  - Fetch/fiddle/flush: changes to a SignupSheet are flushed automagically to the database at the end of a successful transaction.  
-    - Sheets are added to the signup book out-of-band by an admin app, which is not shown in this example.
+  - Hexagonal architecture
+  - Sheets are added to the signup book out-of-band by an admin app, which is not shown in this example.
 
 - SignupHttpHandler implements the HTTP API by which a front-end controls the SignupSheet.
   - Simplified to focus on the topic of the exercise, eliding authentication, authorisation, monitoring, tracing, etc.
@@ -34,14 +33,19 @@ A quick tour of the Java:
   - Briefly walk through `can_only_sign_up_to_capacity` 
   - Show the InMemorySignupBook that emulates the semantics of the persistence layer
 
-Run the tests to show they pass.
+- SignupServer:
+  - Example of a real HTTP server storing signups in memory
 
+
+Run the tests to show they pass.
 
 Let's convert this to Kotlin.
 * Our strategy is to start by converting the domain model and work outwards towards the HTTP layer.
 
 
-But first we must add Kotlin to the project.
+## Adding Kotlin to the project
+
+First we must add Kotlin to the project.
 * Use the menu item: Tools > Kotlin > Configure Kotlin in Project
 * Reload the Gradle file
 * Show changes to the Gradle file
@@ -59,6 +63,8 @@ COMMIT!
 
 ASK: Was that easier than you expected?
 
+
+## Converting the Bean to Kotlin
 
 Now let's convert the SignupSheet to Kotlin.
 
@@ -137,12 +143,15 @@ We want the private property to be a mutable Set, but the public property to be 
 
 Run the tests. They pass. COMMIT!
 
+## Review the Kotlin code
 
 The class is now much cleaner... it's an idiomatic Kotlin implementation of Java style "bean" code.
 
 Review other aspects of the code...
 * constructor keyword
 * check library functions instead of if statements throwing exceptions
+
+ASK: What other differences stand out to the audience?
 
 We can now see the wood for the trees...  
 * Inappropriate mutation (e.g. sessionId, capacity)
@@ -154,7 +163,9 @@ We can make that happen!  Getting rid of the mutation is the first step on the w
 
 The SignupSheet is used in the SignupHttpHandler, so if we will make the SignupSheet immutable, we'll need to change the handler to work with immutable values, rather than mutable beans.  We might as well convert that to Kotlin first...
 
-Convert SignupHttpHandler to Java ... Click "Yes" in the dialog.
+## Converting HTTP the handler to Kotlin
+
+Convert SignupHttpHandler to Kotlin ... Click "Yes" in the dialog.
 
 Run the tests. They pass. COMMIT!
 
@@ -206,6 +217,9 @@ Run the tests. They pass. COMMIT!
 
 The HTTP handler is good enough for now... let's return to SignupSheet.
 
+
+## Bean to Data Class
+
 Recall... we will make SignupSheet immutable, and then we will use the type system to make it impossible for client code to call methods when the object is in an inappropriate state.
 
 Remember the refactoring we did for the signups set, replacing an immutable reference to a mutable collection with a mutable reference to an immutable collection?  We'll apply the same strategy to how SignupHttpHandler uses SignupSheet.  
@@ -238,7 +252,7 @@ In SignupServer, replace the mutation of the sheet with a call to the constructo
 We don't have a test for the server -- it is test code -- but COMMIT! anyway.
 
 We can now delete the no-arg constructor.
-* Most Java code uses Java Bean naming conventions but not actual Java Beans.
+* ASIDE: Like most Java code, this example uses Java Bean naming conventions but not actual Java Beans.
 * In SignupSheet the no-arg constructor is now unused.  Safe-delete it with Option-Enter.
 
 Run the tests. They pass. COMMIT!
@@ -268,7 +282,7 @@ class SignupSheet @JvmOverloads constructor(
 }
 ~~~
 
-Run the tests... they fail!  We also have to update our in-memory simulation of persistence: the InMemorySignupBook.
+Run the tests... they fail!  We also have to update our in-memory simulation of persistence, the InMemorySignupBook.
 * pass stored.isSessionStarted() to the constructor and delete the conditional:
     ~~~
     if (stored.isSessionStarted()) {
@@ -286,7 +300,7 @@ And now we'll do the same with the set of `signups`:
 
 Run the tests. They pass. COMMIT!
 
-We can turn most methods into expression form.  I prefer to use block form for functions with side effects and expression for for pure functions.
+We can turn most methods into expression form.  I prefer to use block form for functions with side effects and expression for pure functions.
 * We cannot do this for signUp because of those checks.  We'll come back to those shortly... 
 
 We can remove duplication by making the code a data class and using the copy method.
@@ -295,7 +309,7 @@ We can remove duplication by making the code a data class and using the copy met
 
 Run the tests. They pass. COMMIT!
 
-The data class does allow us to make the state of a signup sheet inconsistent, by passing in more signips than the capacity.
+The data class does allow us to make the state of a signup sheet inconsistent, by passing in more signups than the capacity.
 * Add a check in the init block:
 
       ~~~
@@ -309,6 +323,8 @@ The data class does allow us to make the state of a signup sheet inconsistent, b
 * We now do not need the isFull check in signUp, so delete it.
 
 
+## Making illegal states unrepresentable
+
 Now... those checks... it would be better to prevent client code from using the SignupSheet incorrectly than to throw an exception after they have used it incorrectly.  In FP circles this is sometimes refered to as "making illegal states unrepresentable". 
 
 The SignupSheet class implements a state machine:
@@ -319,51 +335,53 @@ NOTE: need better names... ask the audience for suggestions.
 
 state Open {
     state choice <<choice>>
+    state closed <<exitPoint>>
+    state open <<entryPoint>>
     
+    open -down-> Available
     Available -down-> Available : cancelSignUp(a)
     Available -right-> choice : signUp(a)
     choice -right-> Full : [#signups = capacity]
     choice -up-> Available : [#signups < capacity]
     Full -left-> Available : cancelSignUp(a)
     
+    Available -> closed : sessionStarted()
+    Full -> closed : sessionStarted()
 }
 
-[*] -down-> Available
-Available -right-> Closed : sessionStarted()
-Full -right-> Closed : sessionStarted()
-Closed -> [*]
+[*] -down-> open
+closed -> Closed
+Closed -> Closed : sessionStarted()
 ~~~
 
 If there is one, we can draw this on the whiteboard or flipchart...
 
 
-* The signUp operation only makes sense in the `Availability` state.  
+* The signUp operation only makes sense in the Open state, and in particular in the Available substate.
 
-* The sessionStarted operation only makes sense in the SignupOpen state. 
+* The sessionStarted operation only makes sense in the Open state but is idempotent, and so is permissible in the Closed state. 
 
 We can express this in Kotlin with a _sealed type hierarchy_...
 
 ~~~plantuml
-hide empty fields
+hide empty members
 hide circle
 
-class SignupSheet <<sealed>>
+class SignupSheet <<sealed>> {
+    sessionStarted(): Started
+}
 
 class Open <<sealed>> extends SignupSheet {
     cancelSignUp(a): Availability
 }
 
-class Available <<data>> extends Open {
+class Available extends Open {
     signUp(a): SignupSheet
-    cancelSignUp(a): Availability
-    sessionStarted(): Started
 }
 
-class Full <<data>> extends Open {
-    cancelSignUp(a): Availability
-}
+class Full extends Open
 
-class Closed <<data>> extends SignupSheet
+class Closed extends SignupSheet
 ~~~
 
 
@@ -404,6 +422,90 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
 
 Run the tests. They pass. COMMIT!
 
-Now we can start introducing subclasses into that sealed hierarchy to draw the distinction between Open and Closed.
+Now we can start add the Closed subclass:
+* Define a new `data class Closed : SignupSheet()` in the same file
+* Option-Enter on the highlighted error, choose "Implement as constructor parameters", and select sessionId, capacity, and signups.
+* Option-Enter on the highlighted error again, choose "Implement members", select all the remaining members
+* Implement isSessionStarted to return `true`
+* Implement sessionStarted() to return this
 
-... Work In Progress ...
+We've broken our HTTP handler, so before we use the Closed class to implement our state machine, let's get it compiling again.
+* Add when clauses for Closed that just call TODO()
+
+Now make sessionStarted() return an instance of Closed
+
+Run the tests: there are failures because of the TODO() calls:
+* Replace them by sending a CONFLICT status with the error message from the checks as the body text.  
+
+Run the tests. They pass. COMMIT!
+
+Look for uses of isSessionStarted.  We have one, in the GET handler to return the started status.  
+* Replace that with a when expression.
+
+Run the tests. They pass. COMMIT!
+
+Look for uses of isSessionStarted. There are none!  Delete the property.
+
+
+We still have the try/catch blocks because the SignupSheet throws IllegalStateException if you call sign up when the session is full.  We can represent that with types in the same way...
+
+Rename Open to Available
+
+Run all the tests.  They should still pass.
+
+Extract an abstract superclass Open, pulling up sessionId, capacity, and signups as abstract, and sessionStarted and cancelSignUp as concrete. Make it a sealed class.
+
+Run all the tests.  They should still pass.
+
+Add a new subclass of Open, Full, that takes sessionId and signups as constructor params, and implements capacity to be signups.size:
+~~~
+data class Full(
+    override val sessionId: SessionId,
+    override val signups: Set<AttendeeId>
+) : Open() {
+    override val capacity: Int
+        get() = signups.size
+}
+~~~
+
+Run all the tests.  Now SignupHttpHandler won't compile because the Full case is not handled.
+
+Make all the `when` expressions exhaustive:
+* in handleSignup for POST, adding a branch for Full that sends a CONFLICT response:
+    ~~~
+    is Full ->
+        sendResponse(exchange, CONFLICT, "session full")
+    ~~~
+* in handleSignup for DELETE, change when condition from Available to Open
+* in handleStarted(), change `Available -> false` to `Open -> false`
+
+Run the tests. They pass. COMMIT!
+
+Change Available::signUp to return Available or Full, depending on whether the number of signups reaches capacity:
+* extract `signups + attendeeId` as a variable, newSignups
+* Change result to return Full when newSignups.size == capacity:
+    ~~~
+    return when (newSignups.size) {
+        capacity -> Full(sessionId, newSignups)
+        else -> copy(signups = newSignups)
+    }
+    ~~~
+
+Run the tests. They pass. COMMIT!
+
+Review the subclasses of SignupSheet.  The classes no longer check that methods are called in the right state.  The only remaining check, in the init block, defines a class invariant that the internal implementation maintains.  We can remove the try/catch in our HTTP handler!
+* Unwrap the try/catch blocks in the SignupHttpHandler
+
+## Wrap up
+
+Review the code of SignupSheet and SignupHttpHandler
+
+What have we done?
+
+* Refactored a mutable, object-oriented domain model to an immutable, algebraic data type.
+  * Pushed mutation outward, to the edge of our system
+* Replaced runtime tests throwing exceptions for invalid method calls, with type safety: it is impossible to call methods in the wrong state because those methods do not exist in those states
+  * Pushed error checking outwards, to the edge of the system, where the system has the most context to handle the error
+* Fixed a subtle bug in our original code... did anyone spot it?
+  * Show original version
+  * Answer: both HttpExchange and SignupSheet can throw IllegalStateException, and the error handling does not distinguish between the two situations.  In our final version, we clearly distinguish between expected states in our domain and programming errors.
