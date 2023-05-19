@@ -103,7 +103,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
             
             HttpMethod.POST -> {
-                book.save(sheet.sessionStarted())
+                if (sheet is Open) {
+                    book.save(sheet.sessionStarted())
+                }
                 sendResponse(exchange, OK, "started")
             }
             
