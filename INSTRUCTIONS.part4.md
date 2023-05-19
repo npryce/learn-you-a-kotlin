@@ -18,7 +18,7 @@ Conceal them for use later.
 
 ## Explain the domain
 
-Sign-up for conference sessions.
+The code we are working on implements sign-up for conference sessions.
 
 ```plantuml
 :Attendee: as a
