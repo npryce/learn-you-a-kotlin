@@ -8,11 +8,19 @@
 
 - We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
 
+## Explain the domain
+
+Sign-up for conference sessions.
+
+Admin user creates sign-up sheets for sessions in an admin app (not covered in this example). Sessions have limited capacity, set when the sign-up sheet is created.
+Attendees sign up for sessions via mobile conference app.  Admins can also sign attendees up for sessions via the admin app.
+The session presenter starts the session via the mobile conference app.  After that, the sign-up sheet cannot be changed.
+
 
 ## Review the Java code
 
 - show SignupSheet.  Highlight...
-  - Bean-ness: zero arg constructor, getters and setters, mutable state
+  - Beaniness: zero arg constructor, getters and setters, mutable state
   - Queries that execute some business logic (e.g. isFull())
   - Methods that execute business logic (e.g. signUp)
   - Throws exceptions when methods used in the wrong state
@@ -50,12 +58,12 @@ First we must add Kotlin to the project.
 * Reload the Gradle file
 * Show changes to the Gradle file
 * Change the kotlin.jvmToolchain declaration to match the Java toolchain:
-  ~~~
-  kotlin {
-    jvmToolchain {
-      java.toolchain.languageVersion
+    ~~~
+    kotlin {
+      jvmToolchain {
+        languageVersion.set(java.toolchain.languageVersion)
+      }
     }
-  }
   ~~~
 * Run all the tests – they pass.  We can now use Kotlin in our project!
 
@@ -73,8 +81,8 @@ Now let's convert the SignupSheet to Kotlin.
 * Run the action. It pops up a dialog asking
   > Some code in the rest of your project may require corrections after performing this conversion. Do you want to find such code and correct it too?
   
-  Answer "No".  The dialog is misleading.  Clicking "No" does not actually leave code broken, and clicking "Yes" makes changes to the Java we don't want.
-  * This is not always the case, and the effect of clicking "Yes" changes with every new version of the Kotlin plugin.  It's always worth trying both options and using the Git diff to see how change has affected your Java code.  However, in large Java code bases, I find it's usually best to click "No" and then use annotations to make the Kotlin compiler generates Java bytecode that ensures the remaining Java code remains in conventional Java style while the new Kotlin code follows conventional Kotlin style.
+  Answer "No".  The dialog is misleading.  Clicking "No" does not actually leave code broken, and clicking "Yes" makes changes to the Kotlin and Java we don't want.
+  * This is not always the case, and the effect of clicking "Yes" changes with every new version of the Kotlin plugin.  It's always worth trying both options and using the Git diff to see how change has affected your Java code.  However, in large Java code bases, I find it's usually best to click "No" and then add annotations to the Kotlin source to make the Kotlin compiler generate Java bytecode compatible with existing Java. This ensures the remaining Java code remains in conventional Java style while the new Kotlin code follows conventional Kotlin style.
 * I won't lie... the converter has produced quite a dog's dinner
   * That's largely because the style of the Java does not match elegant Kotlin style. For the rest of this session, we'll apply Kotlin language features to clean up this code, and then improve it over what is possible in Java
 * But first... let's run the tests.
