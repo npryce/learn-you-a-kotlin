@@ -63,15 +63,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Available ->
-                        try {
-                            book.save(
-                                sheet.signUp(attendeeId)
-                            )
-                            sendResponse(exchange, OK, "subscribed")
-                        } catch (e: IllegalStateException) {
-                            sendResponse(exchange, CONFLICT, e.message)
-                        }
+                    is Available -> {
+                        book.save(sheet.signUp(attendeeId))
+                        sendResponse(exchange, OK, "subscribed")
+                    }
                     is Full ->
                         sendResponse(exchange, CONFLICT, "session full")
                     is Closed -> {
@@ -82,17 +77,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.DELETE -> {
                 when (sheet) {
-                    is Available -> {
-                        try {
-                            book.save(
-                                sheet.cancelSignUp(attendeeId)
-                            )
-                            sendResponse(exchange, OK, "unsubscribed")
-                        } catch (e: IllegalStateException) {
-                            sendResponse(exchange, CONFLICT, e.message)
-                        }
+                    is Open -> {
+                        book.save(sheet.cancelSignUp(attendeeId))
+                        sendResponse(exchange, OK, "unsubscribed")
                     }
-                    is Full -> TODO()
                     is Closed -> {
                         sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
                     }
@@ -108,18 +96,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleStarted(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                sendResponse(
-                    exchange, OK, when (sheet) {
-                        is Open -> false
-                        is Closed -> true
-                    }
-                )
+                sendResponse(exchange, OK, when (sheet) {
+                    is Open -> false
+                    is Closed -> true
+                })
             }
             
             HttpMethod.POST -> {
-                book.save(
-                    sheet.sessionStarted()
-                )
+                book.save(sheet.sessionStarted())
                 sendResponse(exchange, OK, "started")
             }
             
