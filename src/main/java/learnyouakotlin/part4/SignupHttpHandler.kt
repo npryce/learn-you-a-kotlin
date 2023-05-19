@@ -63,7 +63,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Open ->
+                    is Available ->
                         try {
                             book.save(
                                 sheet.signUp(attendeeId)
@@ -72,6 +72,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         } catch (e: IllegalStateException) {
                             sendResponse(exchange, CONFLICT, e.message)
                         }
+                    is Full ->
+                        sendResponse(exchange, CONFLICT, "session full")
                     is Closed -> {
                         sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
                     }
@@ -80,7 +82,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.DELETE -> {
                 when (sheet) {
-                    is Open -> {
+                    is Available -> {
                         try {
                             book.save(
                                 sheet.cancelSignUp(attendeeId)
@@ -90,6 +92,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     }
+                    is Full -> TODO()
                     is Closed -> {
                         sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
                     }

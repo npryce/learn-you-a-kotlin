@@ -38,7 +38,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void collects_signups() {
-        book.save(new Open(exampleSessionId, 15));
+        book.save(new Available(exampleSessionId, 15));
 
         assertEquals(Set.of(), getSignups(exampleSessionId));
 
@@ -57,7 +57,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void each_attendee_can_only_sign_up_once() {
-        book.save(new Open(exampleSessionId, 3));
+        book.save(new Available(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, alice);
@@ -68,7 +68,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void can_only_sign_up_to_capacity() {
-        book.save(new Open(exampleSessionId, 3));
+        book.save(new Available(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -79,7 +79,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cancelling_a_signup_frees_capacity() {
-        book.save(new Open(exampleSessionId, 15));
+        book.save(new Available(exampleSessionId, 15));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -94,7 +94,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cannot_sign_up_after_session_has_started() {
-        book.save(new Open(exampleSessionId, 3));
+        book.save(new Available(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -108,7 +108,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cannot_cancel_a_sign_up_after_session_has_started() {
-        book.save(new Open(exampleSessionId, 3));
+        book.save(new Available(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
