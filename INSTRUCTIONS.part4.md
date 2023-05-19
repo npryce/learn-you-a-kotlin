@@ -1,4 +1,4 @@
-# Part 4 -- from mutable Beans to unrepresentable illegal states
+# Part 4 -- from mutable beans to unrepresentable illegal states
 
 ## Before people arrive
 
@@ -257,7 +257,7 @@ Run the tests. They pass. COMMIT!
 The HTTP handler is good enough for now... let's return to SignupSheet.
 
 
-## Converting the Bean to an immutable data class
+## Converting the bean to an immutable data class
 
 Recall... we will make SignupSheet immutable, and then we will use the type system to make it impossible for client code to call methods when the object is in an inappropriate state.
 
@@ -534,6 +534,18 @@ Run the tests. They pass. COMMIT!
 
 Review the subclasses of SignupSheet.  The classes no longer check that methods are called in the right state.  The only remaining check, in the init block, defines a class invariant that the internal implementation maintains.  We can remove the try/catch in our HTTP handler!
 * Unwrap the try/catch blocks in the SignupHttpHandler
+
+## Converting the methods to extensions
+
+If we have time, convert methods to extensions.
+
+There is actually no need for polymorphism in sessionStarted().  The logic only apples to the Open case. 
+
+Change the result types to the most specific possible. 
+
+Gather the types and functions into two separate groups.
+
+Collapse the function bodies –– the function signatures describe the state machine!
 
 ## Wrap up
 
