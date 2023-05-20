@@ -1,4 +1,5 @@
-# Part 4 -- from mutable beans to unrepresentable illegal states
+# Part 4: from mutable beans to unrepresentable illegal states
+
 
 ## Before people arrive
 
@@ -12,7 +13,7 @@ Conceal them for use later.
 
 - Ask audience about experience level with Kotlin and Java.
 
-- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The discursions *are* the tutorial. 
+- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The discursions *are* the tutorial.
 
 - We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
 
@@ -47,6 +48,10 @@ Admin user creates sign-up sheets for sessions in an admin app (not covered in t
 Attendees sign up for sessions via mobile conference app.  Admins can also sign attendees up for sessions via the admin app.
 The session presenter starts the session via the mobile conference app.  After that, the sign-up sheet cannot be changed.
 
+The code is simplified for the sake of brevity and clarity:
+* It doesn't cover some edge cases.  The techniques we will show apply equally well to those too.
+* It doesn't include authentication, authorisation, monitoring, tracing, etc. to focus on the topic of the exercise. 
+
 
 ## Review the Java code
 
@@ -63,8 +68,7 @@ The session presenter starts the session via the mobile conference app.  After t
   - Sheets are added to the signup book out-of-band by an admin app, which is not shown in this example.
 
 - SignupHttpHandler implements the HTTP API by which a front-end controls the SignupSheet.
-  - Simplified to focus on the topic of the exercise, eliding authentication, authorisation, monitoring, tracing, etc.
-  - Routes on request path
+  - Routes on request path and method
   - Supports attendee sign up and  cancellation, starting the session and listing who is signed up.
   - Translates exceptions from the SignupSheet into HTTP error responses
 
@@ -423,23 +427,20 @@ class Closed extends SignupSheet
 ~~~
 
 
-We'll go state by state, starting with Open vs Started.
+We'll introduce this state by state, starting with Open vs Started, replacing predicates of the properties of the class with subtype relationships.
 
-Unfortunately IntelliJ doesn't have any automated refactorings to split a class into a sealed hierarchy, so we're going to do it the old-fashioned way... by hand ... like C++ programmers...
+Unfortunately IntelliJ doesn't have any automated refactorings to split a class into a sealed hierarchy, so we'll have to do it the old-fashioned way... by hand ... like C++ programmers...
 
+### Open/Closed states
 
 * Extract an abstract base class from SignupSheet
   * NOTE: IntelliJ seems to have lost the ability to rename a class and extract an interface with the original name.  So, we'll have to extract the base class with a temporary name and then rename class and interface to what we want.
-  * call it anything... we'll rename it v soon.
-  * Pull up sessionId, capacity, isSessionStarted, signups & sessionStarted as abstract members, and isFull and isSignedUp as concrete members (they depend on the abstract members).
-
-* This refactoring doesn't work 100% for Kotlin, so fix the errors in the interface by hand. 
+  * call it anything, we're about to rename it.  SignupSheetBase, for example. 
+  * Pull up sessionId, capacity & signups as abstract members and isSignedUp as a concrete member.
+  * This refactoring doesn't work 100% for Kotlin, so fix the errors in the interface by hand. 
 
 * Change the name of the subclass by hand (not a rename refactor) to Open, and then use a rename refactoring to rename the base class to SignupSheet.
-* Try compiling: 
-  * In SessionSignupHttpTests and SignupServer we need to create Open instead of SessionSignup.
-    * If we convert all call sites to Kotlin first, there are tricks we can use to do this safely without manual edits.  IntelliJ doesn't yet have a "Replace constructor with factory method" refactoring for Kotlin classes.  However, there are so few places that create the new Availability objects it is not worth introducing a factory method.  We'll fix it up by hand...
-    * Fix it up by hand
+* Repeatedly run all the tests to locate all the compilation errors... 
   * In SignupHttpHandler, there are calls to methods of the Open class that are not defined on the SignupSheet class.
     * wrap the try/catch blocks in `when(sheet) { is Open -> try { ... } }` to get things compiling again. E.g.
       ~~~
@@ -454,36 +455,54 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
           }
       }
       ~~~
+  * In SessionSignupHttpTests and SignupServer we need to create Open instead of SessionSignup.
+    * If we convert all call sites to Kotlin first, there are tricks we can use to do this safely without manual edits.  IntelliJ doesn't yet have a "Replace constructor with factory method" refactoring for Kotlin classes.  However, there are so few places that create the new Availability objects it is not worth introducing a factory method.  We'll fix it up by hand...
+    * Fix it up by hand.
+      * Easiest way is to select "new SignupSheet", then Command-R to replace all instances with "new Open"
       
-* Run the tests
-* Mark the base class as sealed.
+* Run the tests.  They should all pass.
+* Change the base class from "abstract" to "sealed".
 
 Run the tests. They pass. COMMIT!
 
-Now we can start add the Closed subclass:
+Now we can add the Closed subclass:
+* NOTE: do not use the "Implement sealed class" action... it does not give the option to create the class in the same file. Instead... 
 * Define a new `data class Closed : SignupSheet()` in the same file
-* Option-Enter on the highlighted error, choose "Implement as constructor parameters", and select sessionId, capacity, and signups.
+* The new class is highlighted with an error underline. Option-Enter on the highlighted error, choose "Implement as constructor parameters", ensure sessionId, capacity, and signups are selected in the pop-up (default behaviour), and perform the action.
 * Option-Enter on the highlighted error again, choose "Implement members", select all the remaining members
-* Implement isSessionStarted to return `true`
-* Implement sessionStarted() to return this
 
 We've broken our HTTP handler, so before we use the Closed class to implement our state machine, let's get it compiling again.
-* Add when clauses for Closed that just call TODO()
+* Add when clauses for Closed that just call TODO(), by Option-Enter-ing on the errors and selecting "Add remaining branches"
 
-Now make sessionStarted() return an instance of Closed
+Run the tests to verify that we have not broken anything... we are not actually using the Closed class yet.
+
+Now make Open.sessionStarted() return an instance of Closed:
+~~~
+fun sessionStarted() =
+    Closed(sessionId, capacity, signups)
+~~~
 
 Run the tests: there are failures because of the TODO() calls:
-* Replace them by sending a CONFLICT status with the error message from the checks as the body text.  
+* in handleSignup, replace TODO calls by sending a CONFLICT status with an error message (e.g. "session started") as the body text.
+* in handleStarted:
+  * GET: replace with returning `sheet is Closed`
+  * POST: there is nothing to do if the session is already started, replace the TODO() with an empty branch and a comment like "// nothing to do" and move the call to sendResponse after the `when` block.
 
 Run the tests. They pass. COMMIT!
 
-Look for uses of isSessionStarted.  We have one, in the GET handler to return the started status.  
-* Replace that with a when expression.
+Look for uses of isSessionStarted. The only calls are accessors in the checks.  Therefore the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
+* Delete the check statements
+* Safe-Delete the isSessionStarted constructor parameter
 
 Run the tests. They pass. COMMIT!
 
-Look for uses of isSessionStarted. There are none!  Delete the property.
+Review the class... now we have methods that return the abstract SessionSignup type.  We can make the code express the state transitions explicitly in the type system be declaring the methods to return the concrete type (or letting Kotlin infer the result type).
+* ASIDE: I prefer to explictly declare the result type I want.  It might (I've never benchmarked it) make compilation faster.
+* Declare the result of sessionStarted() as Closed, and of signUp & cancelSignUp as Open
 
+Run the tests. They pass. COMMIT!
+
+### Available/Full states
 
 We still have the try/catch blocks because the SignupSheet throws IllegalStateException if you call sign up when the session is full.  We can represent that with types in the same way...
 
@@ -491,33 +510,39 @@ Rename Open to Available
 
 Run all the tests.  They should still pass.
 
-Extract an abstract superclass Open, pulling up sessionId, capacity, and signups as abstract, and sessionStarted and cancelSignUp as concrete. Make it a sealed class.
+Extract an abstract superclass Open, pulling up sessionStarted and cancelSignUp as concrete. (Ignore the members highlighted in red in the dialog -- they will be inherited from the SignupSheet base class).
+
+Make Open a sealed class.  This will get rid of any compilation errors.
 
 Run all the tests.  They should still pass.
 
-Add a new subclass of Open, Full, that takes sessionId and signups as constructor params, and implements capacity to be signups.size:
+Add a new subclass, Full, derived from Open, like this:
 ~~~
-data class Full(
-    override val sessionId: SessionId,
-    override val signups: Set<AttendeeId>
-) : Open() {
-    override val capacity: Int
-        get() = signups.size
-}
+data class Full : Open()
 ~~~
+
+* It will be underlined with a red error highlight. 
+* Option-Enter on the error, select "Implement as constructor parameters", and select sessionId and signups in the dialog
+* The class will still be underlined with a red error highlight because `capacity` has not been implemented yet
+* Option-Enter on the error, select "Implement members", and select Ok
+* Implement `capacity` to evaluate to `signups.size`
+* The end result should therefore be:
+    ~~~
+    data class Full(
+        override val sessionId: SessionId,
+        override val signups: Set<AttendeeId>
+    ) : Open() {
+        override val capacity: Int
+            get() = signups.size
+    }
+    ~~~
 
 Run all the tests.  Now SignupHttpHandler won't compile because the Full case is not handled.
 
 Make all the `when` expressions exhaustive:
-* in handleSignup for POST, adding a branch for Full that sends a CONFLICT response:
-    ~~~
-    is Full ->
-        sendResponse(exchange, CONFLICT, "session full")
-    ~~~
-* in handleSignup for DELETE, change when condition from Available to Open
-* in handleStarted(), change `Available -> false` to `Open -> false`
+* in handleSignup for POST, Option-Enter on the `when` and choose "Add remaining branches"
+* in handleSignup for DELETE and handleStarted, change when condition from `is Available` to `is Open`
 
-Run the tests. They pass. COMMIT!
 
 Change Available::signUp to return Available or Full, depending on whether the number of signups reaches capacity:
 * extract `signups + attendeeId` as a variable, newSignups
@@ -529,22 +554,37 @@ Change Available::signUp to return Available or Full, depending on whether the n
     }
     ~~~
 
+Run the tests.  They fail.
+
+Make them pass by:
+* Implementing the `is Full` condition as:
+  ~~~
+  is Full -> {
+      sendResponse(exchange, CONFLICT, "session full")
+  }
+  ~~~
+
 Run the tests. They pass. COMMIT!
 
 Review the subclasses of SignupSheet.  The classes no longer check that methods are called in the right state.  The only remaining check, in the init block, defines a class invariant that the internal implementation maintains.  We can remove the try/catch in our HTTP handler!
-* Unwrap the try/catch blocks in the SignupHttpHandler
+* Unwrap the try/catch blocks in the SignupHttpHandler (add braces to when clause with Option-Enter if necessary)
 
-## Converting the methods to extensions
 
-If we have time, convert methods to extensions.
+## If time: Converting the methods to extensions
 
-There is actually no need for polymorphism in sessionStarted().  The logic only apples to the Open case. 
+If we have time, convert methods to extensions (Option-Enter on the methods).
 
 Change the result types to the most specific possible. 
 
 Gather the types and functions into two separate groups.
 
-Collapse the function bodies –– the function signatures describe the state machine!
+Fold away the function bodies. Tada!  The function signatures describe the state machine!
+
+
+## If time: Converting identifiers to value classes
+
+Convert Java to Kotlin, remove the inheritance and edit to be a value class. Then inline the `of` method. It's not required.
+
 
 ## Wrap up
 
