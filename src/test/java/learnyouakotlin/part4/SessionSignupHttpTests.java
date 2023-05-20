@@ -93,6 +93,20 @@ public class SessionSignupHttpTests {
     }
 
     @Test
+    public void cancelling_when_not_already_signed_up_does_not_free_capacity() {
+        book.save(new Available(exampleSessionId, 3));
+
+        signUp(exampleSessionId, alice);
+        signUp(exampleSessionId, bob);
+        signUp(exampleSessionId, carol);
+
+        cancelSignUp(exampleSessionId, dave);
+
+        signUp(failsWithConflict, exampleSessionId, dave);
+        assertEquals(Set.of(alice, bob, carol), getSignups(exampleSessionId));
+    }
+
+    @Test
     public void cannot_sign_up_after_session_has_started() {
         book.save(new Available(exampleSessionId, 3));
 
