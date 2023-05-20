@@ -72,6 +72,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         } catch (e: IllegalStateException) {
                             sendResponse(exchange, CONFLICT, e.message)
                         }
+                    
+                    is Closed -> TODO()
                 }
             }
             
@@ -86,6 +88,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         } catch (e: IllegalStateException) {
                             sendResponse(exchange, CONFLICT, e.message)
                         }
+                    
+                    is Closed -> TODO()
                 }
             }
             
@@ -100,6 +104,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             HttpMethod.GET -> {
                 when (sheet) {
                     is Open -> sendResponse(exchange, OK, sheet.isSessionStarted)
+                    is Closed -> TODO()
                 }
             }
             
@@ -111,6 +116,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         )
                         sendResponse(exchange, OK, "started")
                     }
+                    
+                    is Closed -> TODO()
                 }
             }
             
