@@ -20,14 +20,14 @@ data class Open @JvmOverloads constructor(
         }
     }
     
-    fun sessionStarted() =
+    fun sessionStarted(): Closed =
         Closed(sessionId, capacity, signups)
     
-    fun signUp(attendeeId: AttendeeId): SignupSheet {
+    fun signUp(attendeeId: AttendeeId): Open {
         return copy(signups = signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
+    fun cancelSignUp(attendeeId: AttendeeId): Open {
         return copy(signups = signups - attendeeId)
     }
 }
