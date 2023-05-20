@@ -73,7 +73,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     
-                    is Closed -> TODO()
+                    is Closed -> {
+                        sendResponse(exchange, CONFLICT, "session started")
+                    }
                 }
             }
             
@@ -89,7 +91,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     
-                    is Closed -> TODO()
+                    is Closed -> {
+                        sendResponse(exchange, CONFLICT, "session started")
+                    }
                 }
             }
             
@@ -102,10 +106,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleStarted(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                when (sheet) {
-                    is Open -> sendResponse(exchange, OK, sheet.isSessionStarted)
-                    is Closed -> TODO()
-                }
+                sendResponse(exchange, OK, sheet is Closed)
             }
             
             HttpMethod.POST -> {
@@ -114,11 +115,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         book.save(
                             sheet.sessionStarted()
                         )
-                        sendResponse(exchange, OK, "started")
                     }
                     
-                    is Closed -> TODO()
+                    is Closed -> {
+                        // already started
+                    }
                 }
+                
+                sendResponse(exchange, OK, "started")
             }
             
             else -> {
