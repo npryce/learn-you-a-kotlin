@@ -4,19 +4,9 @@ sealed class SignupSheet {
     abstract val sessionId: SessionId
     abstract val capacity: Int
     abstract val signups: Set<AttendeeId>
-    
-    fun isSignedUp(attendeeId: AttendeeId): Boolean =
-        signups.contains(attendeeId)
 }
 
-sealed class Open : SignupSheet() {
-    fun sessionStarted(): Closed =
-        Closed(sessionId, capacity, signups)
-    
-    fun cancelSignUp(attendeeId: AttendeeId): Available {
-        return Available(sessionId, capacity, signups - attendeeId)
-    }
-}
+sealed class Open : SignupSheet()
 
 data class Available @JvmOverloads constructor(
     override val sessionId: SessionId,
@@ -28,23 +18,13 @@ data class Available @JvmOverloads constructor(
             "cannot have more sign-ups than capacity"
         }
     }
-    
-    fun signUp(attendeeId: AttendeeId): Open {
-        val newSignups = signups + attendeeId
-        return when (newSignups.size) {
-            capacity -> Full(sessionId, newSignups)
-            else -> copy(signups = newSignups)
-        }
-    }
-    
 }
 
 data class Full(
     override val sessionId: SessionId,
     override val signups: Set<AttendeeId>
 ) : Open() {
-    override val capacity: Int
-        get() = signups.size
+    override val capacity: Int get() = signups.size
 }
 
 data class Closed(
@@ -52,3 +32,21 @@ data class Closed(
     override val capacity: Int,
     override val signups: Set<AttendeeId>
 ) : SignupSheet()
+
+fun SignupSheet.isSignedUp(attendeeId: AttendeeId): Boolean =
+    signups.contains(attendeeId)
+
+fun Available.signUp(attendeeId: AttendeeId): Open =
+    withSignups(signups + attendeeId)
+
+fun Open.cancelSignUp(attendeeId: AttendeeId): Open =
+    withSignups(signups - attendeeId)
+
+private fun Open.withSignups(newSignups: Set<AttendeeId>): Open =
+    when (newSignups.size) {
+        capacity -> Full(sessionId, newSignups)
+        else -> Available(sessionId, capacity, newSignups)
+    }
+
+fun Open.sessionStarted(): Closed =
+    Closed(sessionId, capacity, signups)
