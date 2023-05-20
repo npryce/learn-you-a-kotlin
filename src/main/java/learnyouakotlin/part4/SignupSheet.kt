@@ -12,7 +12,6 @@ sealed class SignupSheet {
 data class Open @JvmOverloads constructor(
     override val sessionId: SessionId,
     override val capacity: Int,
-    val isSessionStarted: Boolean = false,
     override val signups: Set<AttendeeId> = emptySet()
 ) : SignupSheet() {
     init {
@@ -25,12 +24,10 @@ data class Open @JvmOverloads constructor(
         Closed(sessionId, capacity, signups)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
         return copy(signups = signups + attendeeId)
     }
     
     fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
         return copy(signups = signups - attendeeId)
     }
 }
