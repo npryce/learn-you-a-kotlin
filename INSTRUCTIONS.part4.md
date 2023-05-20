@@ -211,12 +211,12 @@ Run the tests. They pass. COMMIT!
 
 Review the code of SignupHttpHandler.  The converter has done a pretty good job.  
 * Explain @JvmField -- show uses of the route constants in the SignupHttpTest to explain how the annotation prevents field references being replaced by calls to getter methods.  Especially useful when you care about the way the call-site looks, such as when you have an "embedded" DSL.
-* Explain @Throws ... we don't need then because the exception is declared by the HttpHandler interface, so delete them.
+* Explain @Throws ... we don't need them because the exception is declared by the HttpHandler interface, so delete them.
 
 Run the tests. They pass. COMMIT!
 
 
-The Kotlin code of SignupHttpHandler is still very similar to Java code.  However, we are not going to change this class very much -- it's "shape" is dictated by the HTTP server library we are using.  However, now that it is in Kotlin we can take advantage of more Kotlin features in the SessionSignup class.  So we will tidy the code up a little, and get back to SignupSheet...
+The Kotlin code of SignupHttpHandler is still very similar to Java code.  We are not going to change this class very much -- it's "shape" is dictated by the HTTP server library we are using.  However, now that it is in Kotlin we can take advantage of more Kotlin features in the SessionSignup class.  So we will tidy this code up a little, and then get back to SignupSheet...
 
 Use the beige highlights in the right-hand gutter to review the warnings: the IDE is telling us that we should use Kotlin's collection types and functions from the Kotlin standard library.  Let's apply its suggestions using Option-Enter, starting by replacing `List.of` with `listOf`.  Now the class doesn't use Java's List type, and we remove the unused import with "optimise imports" (Control-Option-O).
 
@@ -241,12 +241,14 @@ Run the tests. They pass. COMMIT!
 
 
 In `matchRoute`, Option-Enter on the `for` keyword and `Replace with firstOrNull`.  Pretty impressive!
+
 The `matchRoute` function is only used in one place.  Now it's a one-liner, it's not really pulling its weight.
 * Inline at the call-site.
 
 Run the tests .  They pass. COMMIT!
 
 Replace the === operators with == in the if statement.  Run the tests.
+
 Now the `if` is highlighted.  Option-Enter and replace `if` with `when`.
  * Note: Java's switch statement can only branch on primitive and string types. Kotlin's when can switch on anything.
 Option-Enter on the `when` and remove braces from all entries.
@@ -259,15 +261,15 @@ The HTTP handler is good enough for now... let's return to SignupSheet.
 
 ## Converting the bean to an immutable data class
 
-Recall... we will make SignupSheet immutable, and then we will use the type system to make it impossible for client code to call methods when the object is in an inappropriate state.
+Recall our plan... we will make SignupSheet immutable, and then we will use the type system to make it impossible for client code to call methods when the object is in an inappropriate state.
 
-Remember the refactoring we did for the signups set, replacing an immutable reference to a mutable collection with a mutable reference to an immutable collection?  We'll apply the same strategy to how SignupHttpHandler uses SignupSheet.  
+Remember the refactoring we did for the signups set, in which we replaced an immutable reference to a mutable collection with a mutable reference to an immutable collection?  We'll apply the same strategy to how SignupHttpHandler uses SignupSheet.  
 
 However, we have a chicken-and-egg situation... SignupSheet needs functional operations before we can use the strategy, and we need to have applied the strategy to make SignupSheet functional.  The change feels too big to do in one go.
 
 We need _another_ strategy to break the refactoring into small, safe steps, and that is:
-1. Change the SignupSheet so that its API looks functional but also mutates the object.
-2. Change clients to use the API so that they treat the SignupSheet as if it were immutable
+1. Change the SignupSheet so that its API looks functional but also mutates the object -- a so-called "fluent" or "chained" API style.
+2. Change clients to use the chained API so that they treat the SignupSheet as if it were immutable
 3. Make the SignupSheet immutable
 
 Step 1: make the mutator methods return `this`
@@ -276,11 +278,10 @@ Step 1: make the mutator methods return `this`
 Run the tests. They pass. COMMIT!
 
 
-Step 2: in SignupHttpHandler, replace sequential statements that mutate and then save with a single statement passes the result of the mutator to the save method, like:
+Step 2: in SignupHttpHandler, replace sequential statements that mutate and then save with a single statement passes the result of the mutator to the `save` method, like:
 
 ~~~
-sheet.sessionStarted()
-book.save(sheet)
+book.save(sheet.sessionStarted())
 ~~~
 
 Run the tests. They pass. COMMIT!
