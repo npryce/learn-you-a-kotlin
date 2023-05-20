@@ -9,27 +9,38 @@ sealed class SignupSheet {
         signups.contains(attendeeId)
 }
 
-data class Open @JvmOverloads constructor(
+sealed class Open : SignupSheet() {
+    fun sessionStarted(): Closed =
+        Closed(sessionId, capacity, signups)
+    
+    fun cancelSignUp(attendeeId: AttendeeId): Available {
+        return Available(sessionId, capacity, signups - attendeeId)
+    }
+}
+
+data class Available @JvmOverloads constructor(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId> = emptySet()
-) : SignupSheet() {
+) : Open() {
     init {
         check(signups.size <= capacity) {
             "cannot have more sign-ups than capacity"
         }
     }
     
-    fun sessionStarted(): Closed =
-        Closed(sessionId, capacity, signups)
-    
-    fun signUp(attendeeId: AttendeeId): Open {
+    fun signUp(attendeeId: AttendeeId): Available {
         return copy(signups = signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): Open {
-        return copy(signups = signups - attendeeId)
-    }
+}
+
+data class Full(
+    override val sessionId: SessionId,
+    override val signups: Set<AttendeeId>
+): Open() {
+    override val capacity: Int
+        get() = signups.size
 }
 
 data class Closed(

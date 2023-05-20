@@ -63,7 +63,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Open ->
+                    is Available ->
                         try {
                             book.save(
                                 sheet.signUp(attendeeId)
@@ -76,6 +76,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     is Closed -> {
                         sendResponse(exchange, CONFLICT, "session started")
                     }
+                    
+                    is Full -> TODO()
                 }
             }
             
