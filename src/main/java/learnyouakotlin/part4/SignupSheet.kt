@@ -29,8 +29,12 @@ data class Available @JvmOverloads constructor(
         }
     }
     
-    fun signUp(attendeeId: AttendeeId): Available {
-        return copy(signups = signups + attendeeId)
+    fun signUp(attendeeId: AttendeeId): Open {
+        val newSignups = signups + attendeeId
+        return when (newSignups.size) {
+            capacity -> Full(sessionId, newSignups)
+            else -> copy(signups = newSignups)
+        }
     }
     
 }
@@ -38,7 +42,7 @@ data class Available @JvmOverloads constructor(
 data class Full(
     override val sessionId: SessionId,
     override val signups: Set<AttendeeId>
-): Open() {
+) : Open() {
     override val capacity: Int
         get() = signups.size
 }

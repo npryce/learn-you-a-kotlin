@@ -76,8 +76,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     is Closed -> {
                         sendResponse(exchange, CONFLICT, "session started")
                     }
-                    
-                    is Full -> TODO()
+
+                    is Full -> {
+                        sendResponse(exchange, CONFLICT, "session full")
+                    }
                 }
             }
             
