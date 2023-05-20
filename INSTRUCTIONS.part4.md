@@ -310,16 +310,13 @@ Now we can transform the mutator methods into transformations.
 First, sessionStarted:
 * Move `isSessionStarted` into a val in the primary constructor 
 * change sessionStarted() to return a copy of the object passing true to the constructor
-* Try compiling... we've broken Java code.  Java doesn't support default parameters.  But we can make the Kotlin compiler generate the overloads for us by adding the @JvmOverloads annotation to the primary constructor:
+* Try running the tests... we've broken Java code.  Java doesn't support default parameters.  But we can make the Kotlin compiler generate overloaded constructors for us by adding the @JvmOverloads annotation to the primary constructor:
 
 ~~~
 class SignupSheet @JvmOverloads constructor(
     val sessionId: SessionId,
     val capacity: Int,
-    val isSessionStarted: Boolean = false
-) {
-  ...
-}
+    ...
 ~~~
 
 Run the tests... they fail!  We also have to update our in-memory simulation of persistence, the InMemorySignupBook.
@@ -340,8 +337,10 @@ And now we'll do the same with the set of `signups`:
 
 Run the tests. They pass. COMMIT!
 
-We can turn most methods into expression form.  I prefer to use block form for functions with side effects and expression for pure functions.
-* We cannot do this for signUp because of those checks.  We'll come back to those shortly... 
+We can turn most methods into expression form.  
+* We cannot do this for signUp because of those checks.  We'll come back to those shortly...
+
+ASIDE: I prefer to use block form for functions with side effects and expression for pure functions.
 
 We can remove duplication by making the code a data class and using the copy method.
 * Declare the class as a data class
@@ -360,7 +359,7 @@ The data class does allow us to make the state of a signup sheet inconsistent, b
       }
       ~~~
 
-* We now do not need the isFull check in signUp, so delete it.
+* This makes the isFull check in signUp redundant, so delete it.
 
 
 ## Making illegal states unrepresentable
