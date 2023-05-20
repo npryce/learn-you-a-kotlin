@@ -390,15 +390,16 @@ state Open {
 
 [*] -down-> open
 closed -> Closed
-Closed -> Closed : sessionStarted()
-~~~
+ ~~~
 
 If there is one, we can draw this on the whiteboard or flipchart...
 
 
-* The signUp operation only makes sense in the Open state, and in particular in the Available substate.
+* The signUp operation only makes sense in the Available substate of Open.
 
-* The sessionStarted operation only makes sense in the Open state but is idempotent, and so is permissible in the Closed state. 
+* The cancelSignUp operation only makes sense in the Open state.
+
+* The sessionStarted operation only makes sense in the Open state. 
 
 We can express this in Kotlin with a _sealed type hierarchy_...
 
@@ -406,12 +407,10 @@ We can express this in Kotlin with a _sealed type hierarchy_...
 hide empty members
 hide circle
 
-class SignupSheet <<sealed>> {
-    sessionStarted(): Started
-}
-
+class SignupSheet <<sealed>>
 class Open <<sealed>> extends SignupSheet {
-    cancelSignUp(a): Availability
+    sessionStarted(): Closed
+    cancelSignUp(a): Available
 }
 
 class Available extends Open {
