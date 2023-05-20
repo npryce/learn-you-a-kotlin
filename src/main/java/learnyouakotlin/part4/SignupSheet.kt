@@ -12,9 +12,6 @@ data class SignupSheet @JvmOverloads constructor(
         }
     }
     
-    val isFull: Boolean
-        get() = signups.size == capacity
-    
     fun sessionStarted(): SignupSheet =
         copy(isSessionStarted = true)
     
