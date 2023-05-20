@@ -50,6 +50,7 @@ The session presenter starts the session via the mobile conference app.  After t
 
 The code is simplified for the sake of brevity and clarity:
 * It doesn't cover some edge cases.  The techniques we will show apply equally well to those too.
+  * E.g. the example doesn't handle the case of cancelling the signup of an attendee who did not previously sign up, which would leave a full session still full.  If anyone notices, mention that we could either handle this case as an explicit error case, using something like Result4k, or by modifying the state machine to model the idempotency of the cancelSignUp operation.  Either way, we'd use the same techniques we are demonstrating, and so we'll skip these cases unless we have time to implement it at the end of the session.
 * It doesn't include authentication, authorisation, monitoring, tracing, etc. to focus on the topic of the exercise. 
 
 
