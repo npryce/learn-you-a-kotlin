@@ -13,7 +13,7 @@ Conceal them for use later.
 
 - Ask audience about experience level with Kotlin and Java.
 
-- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The discursions *are* the tutorial.
+- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The digressions *are* the tutorial.
 
 - We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
 
@@ -368,7 +368,7 @@ The data class does allow us to make the state of a signup sheet inconsistent, b
 
 ## Making illegal states unrepresentable
 
-Now... those checks... it would be better to prevent client code from using the SignupSheet incorrectly than to throw an exception after they have used it incorrectly.  In FP circles this is sometimes refered to as "making illegal states unrepresentable". 
+Now... those checks... it would be better to prevent client code from using the SignupSheet incorrectly than to throw an exception after they have used it incorrectly.  In FP circles this is sometimes referred to as "making illegal states unrepresentable". 
 
 The SignupSheet class implements a state machine:
 
@@ -396,10 +396,10 @@ state Open {
 closed -> Closed
  ~~~
 
-If there is one, we can draw this on the whiteboard or flipchart...
+If there is one, we can draw this on the whiteboard or flip-chart...
 
 
-* The signUp operation only makes sense in the Available substate of Open.
+* The signUp operation only makes sense in the Available sub-state of Open.
 
 * The cancelSignUp operation only makes sense in the Open state.
 
@@ -490,14 +490,14 @@ Run the tests: there are failures because of the TODO() calls:
 
 Run the tests. They pass. COMMIT!
 
-Look for uses of isSessionStarted. The only calls are accessors in the checks.  Therefore the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
+Look for uses of isSessionStarted. The only calls are accessors in the checks.  Therefore, the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
 * Delete the check statements
 * Safe-Delete the isSessionStarted constructor parameter
 
 Run the tests. They pass. COMMIT!
 
 Review the class... now we have methods that return the abstract SessionSignup type.  We can make the code express the state transitions explicitly in the type system be declaring the methods to return the concrete type (or letting Kotlin infer the result type).
-* ASIDE: I prefer to explictly declare the result type I want.  It might (I've never benchmarked it) make compilation faster.
+* ASIDE: I prefer to explicitly declare the result type I want.  It might (I've never benchmarked it) make compilation faster.
 * Declare the result of sessionStarted() as Closed, and of signUp & cancelSignUp as Open
 
 Run the tests. They pass. COMMIT!
@@ -578,7 +578,7 @@ Change the result types to the most specific possible.
 
 Gather the types and functions into two separate groups.
 
-Fold away the function bodies. Tada!  The function signatures describe the state machine!
+Fold away the function bodies. Ta-da!  The function signatures describe the state machine!
 
 
 ## If time: Converting identifiers to value classes
