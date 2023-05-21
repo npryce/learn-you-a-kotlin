@@ -32,15 +32,17 @@ component "Attendee's Phone" as aPhone {
 component "Presenter's Phone" as pPhone {
     component [Conference App] as pApp
 }
+component "Web Browser" as bBrowser
+component "Conference Web Service" as webService
 
 a -right-> aApp : "sign-up\ncancel sign-up"
-p -left-> pApp : "start session\nlist attendees"
-
-component "Conference Web Service" as webService
 aApp -down-> webService : HTTP
+
+p -left-> pApp : "start session\nlist attendees"
 pApp -down-> webService : HTTP
 
-b -right-> webService : "add sessions\nlist attendees"
+b -right-> bBrowser : "add sessions\nlist attendees"
+bBrowser -right-> webService : HTTP
 
 ```
 
