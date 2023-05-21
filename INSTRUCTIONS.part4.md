@@ -593,10 +593,11 @@ Review the code of SignupSheet and SignupHttpHandler
 What have we done?
 
 * Converted Java code to Kotlin _incrementally_, ensuring the project is always working and gradually making use of more Kotlin features as Kotlin spreads through our codebase.
-* Refactored a mutable, object-oriented domain model to an immutable, algebraic data type.
+* Used IntelliJ's automatic refactorings, corrections and code intentions wherever possible -- we seldom needed to edit the code _as text_. 
+* Refactored a mutable, object-oriented domain model to an immutable, algebraic data type and operations on the data type.
   * Pushed mutation outward, to the edge of our system
-* Replaced runtime tests throwing exceptions for invalid method calls, with type safety: it is impossible to call methods in the wrong state because those methods do not exist in those states
+* Replaced runtime tests throwing exceptions for invalid method calls, with type safety: it is impossible to call methods in the wrong state because those operations do not exist in those states
   * Pushed error checking outwards, to the edge of the system, where the system has the most context to handle the error
-* And... Fixed a subtle bug in our original code... did anyone spot it?
+* IF TIME: Fixed a subtle bug in our original code... did anyone spot it?
   * Show original version
   * Answer: both HttpExchange and SignupSheet can throw IllegalStateException, and the error handling does not distinguish between the two situations.  In our final version, we clearly distinguish between expected states in our domain and programming errors.
