@@ -50,7 +50,7 @@ The session presenter starts the session via the mobile conference app.  After t
 
 The code is simplified for the sake of brevity and clarity:
 * It doesn't cover some edge cases.  The techniques we will show apply equally well to those too.
-  * E.g. the example doesn't handle the case of cancelling the signup of an attendee who did not previously sign up, which would leave a full session still full.  If anyone notices, mention that we could either handle this case as an explicit error case, using something like Result4k, or by modifying the state machine to model the idempotency of the cancelSignUp operation.  Either way, we'd use the same techniques we are demonstrating, and so we'll skip these cases unless we have time to implement it at the end of the session.
+  * PRESENTER NOTE: the example doesn't handle the case of cancelling the signup of an attendee who did not previously sign up, which would leave a full session still full.  If anyone notices, mention that we could either handle this case as an explicit error case, using something like Result4k, or by modifying the state machine to model the idempotency of the cancelSignUp operation.  Either way, we'd use the same techniques we are demonstrating, and so we'll skip these cases unless we have time to implement it at the end of the session.
 * It doesn't include authentication, authorisation, monitoring, tracing, etc. to focus on the topic of the exercise. 
 
 
@@ -153,7 +153,7 @@ Run the tests.  They pass.  COMMIT!
 
 Command-click on the `capacity` property to show usages.  The usages include a call to the setter from the Java SignupServer class.  Our change has had no effect on Java code or Kotlin code.  
 
-NOTE: We do not have uses of `capacity` from Kotlin yet, because apart from the setter call in Java, the capacity is only set by the constructor.  We'll address that presently...
+We do not have uses of `capacity` from Kotlin yet, because apart from the setter call in Java, the capacity is only set by the constructor.  We'll address that presently...
 
 Bring attention to the grey underline of the `get` keyword.  Explain what the grey underlines mean: suggestions for where you can improve code style. Hover over it to show the suggestion.  Option-Enter to apply the suggestion.
 
@@ -255,7 +255,7 @@ Run the tests .  They pass. COMMIT!
 Replace the === operators with == in the if statement.  Run the tests.
 
 Now the `if` is highlighted.  Option-Enter and replace `if` with `when`.
- * Note: Java's switch statement can only branch on primitive and string types. Kotlin's when can switch on anything.
+ * EXPLAIN: Java's switch statement can only branch on primitive and string types. Kotlin's when can switch on anything.
 Option-Enter on the `when` and remove braces from all entries.
 
 Run the tests. They pass. COMMIT!
