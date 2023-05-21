@@ -355,14 +355,13 @@ Run the tests. They pass. COMMIT!
 
 The data class does allow us to make the state of a signup sheet inconsistent, by passing in more signups than the capacity.
 * Add a check in the init block:
-
-      ~~~
-      init {
-          check(signups.size <= capacity) {
-              "cannot have more sign-ups than capacity"
-          }
-      }
-      ~~~
+    ~~~
+    init {
+        check(signups.size <= capacity) {
+            "cannot have more sign-ups than capacity"
+        }
+    }
+    ~~~
 
 * This makes the isFull check in signUp redundant, so delete it.
 
