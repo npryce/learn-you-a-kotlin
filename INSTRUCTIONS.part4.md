@@ -417,8 +417,7 @@ state Open {
 closed -> Closed
 ~~~
 
-If there is one, we can draw this on the whiteboard or flip-chart...
-
+REVEAL: the state diagram drawn on the flip-chart...
 
 * The signUp operation only makes sense in the Available sub-state of Open.
 
@@ -427,6 +426,8 @@ If there is one, we can draw this on the whiteboard or flip-chart...
 * The sessionStarted operation only makes sense in the Open state. 
 
 We can express this in Kotlin with a _sealed type hierarchy_...
+
+REVEAL: the type hierarchy drawn on the flip-chart.
 
 ~~~plantuml
 hide empty members
