@@ -174,15 +174,12 @@ Now let's look at `signups`.  Move the `getSignups()` method up next to the `sig
   * It shows the type is `kotlin.Set`, not `java.util.Set`.
   * In Kotlin, collections are non-mutable by default
   * The getter is making a defensive copy to avoid aliasing bugs.
-  * Kotlin has convenience functions for that: convert to `toSet()`
+  * Kotlin has convenience functions for that: Replace `Set.copyOf(signups)` with `signups.toSet()`
   * Mention the naming convention of `toSet` vs `asSet`
-
-Replace `Set.copyOf(signups)` with `signups.toSet()`
 
 Run the tests. They pass. COMMIT!
 
-
-We want the private property to be a mutable Set, but the public property to be an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, replace the immutable reference (`val`) to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isSessionStarted):
+We want the private property to be a mutable Set, but the public property to be an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, instead, we can replace the immutable reference to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isSessionStarted):
 
 * Change the `val signups` to a `var`.  Run the tests to make sure that's not broken anything.
 * Command-click on `signups` to pop up usages.  There are two points in this class that mutate the Set.
@@ -396,7 +393,7 @@ Now... those checks... it would be better to prevent client code from using the 
 
 The SignupSheet class implements a state machine:
 
-NOTE: need better names... ask the audience for suggestions.
+IF TIME: we need better names... ask the audience for suggestions.
 
 ~~~plantuml
 
