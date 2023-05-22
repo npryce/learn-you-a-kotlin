@@ -1,0 +1,12 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p pandoc plantuml pandoc-plantuml-filter bash
+#
+# Run in the root of the project.  E.g:
+#   ./scripts/md-to-pdf INSTRUCTIONS.part4.md
+#
+set -euo pipefail
+
+cd build/
+mkdir -p docs
+pandoc ../"$1" -o "docs/$(basename $1 .md).pdf" \
+  --filter=pandoc-plantuml

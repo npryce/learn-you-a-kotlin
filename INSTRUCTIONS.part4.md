@@ -4,18 +4,18 @@
 ## Before people arrive
 
 On flip chart sheets:
-- Draw the logical diagram of the scenario
-- Draw the state machine and class hierarchy diagrams.
+* Draw the logical diagram of the scenario
+* Draw the state machine and class hierarchy diagrams.
 
 Conceal them for use later.
 
 ## Before we start
 
-- Ask audience about experience level with Kotlin and Java.
+Ask audience about experience level with Kotlin and Java.
 
-- We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The digressions *are* the tutorial.
+We will live-code the transformation of Java to idiomatic Kotlin.  But this demonstration is intended to be a starting-point for conversations about the topic.  So ask questions as we go.  The digressions *are* the tutorial.
 
-- We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
+We are expecting you to already know Kotlin.  However, if there are any language features you don't recognise, shout and we'll explain them.
 
 ## Explain the domain
 
@@ -51,6 +51,7 @@ Attendees sign up for sessions via mobile conference app.  Admins can also sign 
 The session presenter starts the session via the mobile conference app.  After that, the sign-up sheet cannot be changed.
 
 The code is simplified for the sake of brevity and clarity:
+
 * It doesn't cover some edge cases.  The techniques we will show apply equally well to those too.
   * PRESENTER NOTE: the example doesn't handle the case of cancelling the signup of an attendee who did not previously sign up, which would leave a full session still full.  If anyone notices, mention that we could either handle this case as an explicit error case, using something like Result4k, or by modifying the state machine to model the idempotency of the cancelSignUp operation.  Either way, we'd use the same techniques we are demonstrating, and so we'll skip these cases unless we have time to implement it at the end of the session.
 * It doesn't include authentication, authorisation, monitoring, tracing, etc. to focus on the topic of the exercise. 
@@ -58,44 +59,47 @@ The code is simplified for the sake of brevity and clarity:
 
 ## Review the Java code
 
-- show SignupSheet.  Highlight...
-  - Beaniness: zero arg constructor, getters and setters, mutable state
-  - Queries that execute some business logic (e.g. isFull())
-  - Methods that execute business logic (e.g. signUp)
-  - Throws exceptions when methods used in the wrong state
-  - Defensive copying of mutable collection from getSignUps() accessor
-  - Strongly-typed IDs (SessionId, AttendeeId) & Identifier base class -- avoid stringly typed design.
+* show SignupSheet.  Highlight...
+  * Beaniness: zero arg constructor, getters and setters, mutable state
+  * Queries that execute some business logic (e.g. isFull())
+  * Methods that execute business logic (e.g. signUp)
+  * Throws exceptions when methods used in the wrong state
+  * Defensive copying of mutable collection from getSignUps() accessor
+  * Strongly-typed IDs (SessionId, AttendeeId) & Identifier base class -- avoid stringly typed design.
 
-- SignupSheets are collected into a SignupBook
-  - Hexagonal architecture
-  - Sheets are added to the signup book out-of-band by an admin app, which is not shown in this example.
+* SignupSheets are collected into a SignupBook
+  * Hexagonal architecture
+  * Sheets are added to the signup book out-of-band by an admin app, which is not shown in this example.
 
-- SignupHttpHandler implements the HTTP API by which a front-end controls the SignupSheet.
-  - Routes on request path and method
-  - Supports attendee sign up and  cancellation, starting the session and listing who is signed up.
-  - Translates exceptions from the SignupSheet into HTTP error responses
+* SignupHttpHandler implements the HTTP API by which a front-end controls the SignupSheet.
+  * Routes on request path and method
+  * Supports attendee sign up and  cancellation, starting the session and listing who is signed up.
+  * Translates exceptions from the SignupSheet into HTTP error responses
 
-- SessionSignupHttpTests: behaviour is tested at the HTTP API, with fast, in-memory tests.
-  - Briefly walk through `can_only_sign_up_to_capacity` 
-  - Show the InMemorySignupBook that emulates the semantics of the persistence layer
+* SessionSignupHttpTests: behaviour is tested at the HTTP API, with fast, in-memory tests.
+  * Briefly walk through `can_only_sign_up_to_capacity` 
+  * Show the InMemorySignupBook that emulates the semantics of the persistence layer
 
-- SignupServer:
-  - Example of a real HTTP server storing signups in memory
+* SignupServer:
+  * Example of a real HTTP server storing signups in memory
 
 
 Run the tests to show they pass.
 
 Let's convert this to Kotlin.
+
 * Our strategy is to start by converting the domain model and work outwards towards the HTTP layer.
 
 
 ## Adding Kotlin to the project
 
 First we must add Kotlin to the project.
+
 * Use the menu item: Tools > Kotlin > Configure Kotlin in Project
 * Reload the Gradle file
 * Show changes to the Gradle file
 * Change the kotlin.jvmToolchain declaration to match the Java toolchain:
+
     ~~~
     kotlin {
       jvmToolchain {
@@ -163,6 +167,7 @@ Run the tests. They pass. COMMIT!
 
 
 Now let's look at `signups`.  Move the `getSignups()` method up next to the `signups` property.
+
 * We have a private mutable set that is exposed as Set by a public accessor.
 * Command-hover over the Set<AttendeeId> return type declaration.
   * It shows the type is `kotlin.Set`, not `java.util.Set`.
@@ -194,12 +199,14 @@ Run the tests. They pass. COMMIT!
 The class is now much cleaner... it's an idiomatic Kotlin implementation of Java style "bean" code.
 
 Review other aspects of the code...
+
 * constructor keyword
 * check library functions instead of if statements throwing exceptions
 
 ASK: What other differences stand out to the audience?
 
-We can now see the wood for the trees...  
+We can now see the wood for the trees...
+
 * Inappropriate mutation (e.g. sessionId, capacity)
 * Throws exceptions if client code uses the object incorrectly.
 
@@ -216,7 +223,8 @@ Convert SignupHttpHandler to Kotlin ... Click "Yes" in the dialog.
 Run the tests. They pass. COMMIT!
 
 
-Review the code of SignupHttpHandler.  The converter has done a pretty good job.  
+Review the code of SignupHttpHandler.  The converter has done a pretty good job.
+
 * Explain @JvmField -- show uses of the route constants in the SignupHttpTest to explain how the annotation prevents field references being replaced by calls to getter methods.  Especially useful when you care about the way the call-site looks, such as when you have an "embedded" DSL.
 * Explain @Throws ... we don't need them because the exception is declared by the HttpHandler interface, so delete them.
 
@@ -237,7 +245,8 @@ In handleSignups, replace the use of streams with Kotlin's map and joinToString 
 Run the tests. They pass. COMMIT!
 
 
-Point out the grey underline on `map` and show the audience the suggestion.  
+Point out the grey underline on `map` and show the audience the suggestion.
+
 * Apply the suggestion with Option-Enter.
   * The style suggestions are a great way to learn the standard library.  Especially useful when you take on a new Kotlin release with new functions in the stdlib. 
 * Option-Enter on `obj` in the lambda, and remove explicit lambda parameter types.  Note the warning "may break code".  Run the tests to confirm that it hasn't.
@@ -275,11 +284,13 @@ Remember the refactoring we did for the signups set, in which we replaced an imm
 However, we have a chicken-and-egg situation... SignupSheet needs functional operations before we can use the strategy, and we need to have applied the strategy to make SignupSheet functional.  The change feels too big to do in one go.
 
 We need _another_ strategy to break the refactoring into small, safe steps, and that is:
+
 1. Change the SignupSheet so that its API looks functional but also mutates the object -- a so-called "fluent" or "chained" API style.
 2. Change clients to use the chained API so that they treat the SignupSheet as if it were immutable
 3. Make the SignupSheet immutable
 
 Step 1: make the mutator methods return `this`
+
 * Add `return this` at the end of `sessionStarted`, `signUp` and `cancelSignUp`, and Option-Enter to add the return type to the method signature
 
 Run the tests. They pass. COMMIT!
@@ -299,6 +310,7 @@ In SignupServer, replace the mutation of the sheet with a call to the constructo
 We don't have a test for the server -- it is test code -- but COMMIT! anyway.
 
 We can now delete the no-arg constructor.
+
 * ASIDE: Like most Java code, this example uses Java Bean naming conventions but not actual Java Beans.
 * In SignupSheet the no-arg constructor is now unused.  Safe-delete it with Option-Enter.
 
@@ -309,25 +321,30 @@ Convert the constructor to a primary constructor by clicking on the declaration 
 Run the tests. They pass. COMMIT!
 
 Make sessionId a non-nullable val declared in primary constructor.
+
 Make capacity a val declared in primary constructor. 
+
 * delete the entire var property including the checks. Those are now enforced by the type system.
 
 Now we can transform the mutator methods into transformations.
 
 First, sessionStarted:
+
 * Move `isSessionStarted` into a val in the primary constructor 
 * change sessionStarted() to return a copy of the object passing true to the constructor
 * Try running the tests... we've broken Java code.  Java doesn't support default parameters.  But we can make the Kotlin compiler generate overloaded constructors for us by adding the @JvmOverloads annotation to the primary constructor:
 
-~~~
-class SignupSheet @JvmOverloads constructor(
-    val sessionId: SessionId,
-    val capacity: Int,
-    ...
-~~~
+  ~~~
+  class SignupSheet @JvmOverloads constructor(
+      val sessionId: SessionId,
+      val capacity: Int,
+      ...
+  ~~~
 
 Run the tests... they fail!  We also have to update our in-memory simulation of persistence, the InMemorySignupBook.
+
 * pass stored.isSessionStarted() to the constructor and delete the conditional:
+
     ~~~
     if (stored.isSessionStarted()) {
         loaded.sessionStarted();
@@ -337,6 +354,7 @@ Run the tests... they fail!  We also have to update our in-memory simulation of 
 Run the tests. They pass. COMMIT!
 
 And now we'll do the same with the set of `signups`:
+
 * Make it a val
 * Option-Enter to move to constructor
 * Fix the errors by returning a copy of the SignupSheet with the new signup set
@@ -344,19 +362,23 @@ And now we'll do the same with the set of `signups`:
 
 Run the tests. They pass. COMMIT!
 
-We can turn most methods into expression form.  
+We can turn most methods into expression form.
+
 * We cannot do this for signUp because of those checks.  We'll come back to those shortly...
 
 ASIDE: I prefer to use block form for functions with side effects and expression for pure functions.
 
 We can remove duplication by making the code a data class and using the copy method.
+
 * Declare the class as a data class
 * Replace all calls to constructor with calls to copy, and remove unnecessary parameters
 
 Run the tests. They pass. COMMIT!
 
 The data class does allow us to make the state of a signup sheet inconsistent, by passing in more signups than the capacity.
+
 * Add a check in the init block:
+
     ~~~
     init {
         check(signups.size <= capacity) {
@@ -364,7 +386,6 @@ The data class does allow us to make the state of a signup sheet inconsistent, b
         }
     }
     ~~~
-
 * This makes the isFull check in signUp redundant, so delete it.
 
 
@@ -396,7 +417,7 @@ state Open {
 
 [*] -down-> open
 closed -> Closed
- ~~~
+~~~
 
 If there is one, we can draw this on the whiteboard or flip-chart...
 
@@ -445,6 +466,7 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
 * Repeatedly run all the tests to locate all the compilation errors... 
   * In SignupHttpHandler, there are calls to methods of the Open class that are not defined on the SignupSheet class.
     * wrap the try/catch blocks in `when(sheet) { is Open -> try { ... } }` to get things compiling again. E.g.
+
       ~~~
       when (sheet) {
           is Open ->
@@ -457,6 +479,7 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
           }
       }
       ~~~
+      
   * In SessionSignupHttpTests and SignupServer we need to create Open instead of SessionSignup.
     * If we convert all call sites to Kotlin first, there are tricks we can use to do this safely without manual edits.  IntelliJ doesn't yet have a "Replace constructor with factory method" refactoring for Kotlin classes.  However, there are so few places that create the new Availability objects it is not worth introducing a factory method.  We'll fix it up by hand...
     * Fix it up by hand.
@@ -468,23 +491,27 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
 Run the tests. They pass. COMMIT!
 
 Now we can add the Closed subclass:
+
 * NOTE: do not use the "Implement sealed class" action... it does not give the option to create the class in the same file. Instead... 
 * Define a new `data class Closed : SignupSheet()` in the same file
 * The new class is highlighted with an error underline. Option-Enter on the highlighted error, choose "Implement as constructor parameters", ensure sessionId, capacity, and signups are selected in the pop-up (default behaviour), and perform the action.
 * Option-Enter on the highlighted error again, choose "Implement members", select all the remaining members
 
 We've broken our HTTP handler, so before we use the Closed class to implement our state machine, let's get it compiling again.
+
 * Add when clauses for Closed that just call TODO(), by Option-Enter-ing on the errors and selecting "Add remaining branches"
 
 Run the tests to verify that we have not broken anything... we are not actually using the Closed class yet.
 
 Now make Open.sessionStarted() return an instance of Closed:
+
 ~~~
 fun sessionStarted() =
     Closed(sessionId, capacity, signups)
 ~~~
 
 Run the tests: there are failures because of the TODO() calls:
+
 * in handleSignup, replace TODO calls by sending a CONFLICT status with an error message (e.g. "session started") as the body text.
 * in handleStarted:
   * GET: replace with returning `sheet is Closed`
@@ -493,13 +520,15 @@ Run the tests: there are failures because of the TODO() calls:
 Run the tests. They pass. COMMIT!
 
 Look for uses of isSessionStarted. The only calls are accessors in the checks.  Therefore, the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
+
 * Delete the check statements
 * Safe-Delete the isSessionStarted constructor parameter
 
 Run the tests. They pass. COMMIT!
 
 Review the class... now we have methods that return the abstract SessionSignup type.  We can make the code express the state transitions explicitly in the type system be declaring the methods to return the concrete type (or letting Kotlin infer the result type).
-* ASIDE: I prefer to explicitly declare the result type I want.  It might (I've never benchmarked it) make compilation faster.
+
+* ASIDE: I prefer to explicitly declare the result type I want.
 * Declare the result of sessionStarted() as Closed, and of signUp & cancelSignUp as Open
 
 Run the tests. They pass. COMMIT!
@@ -519,6 +548,7 @@ Make Open a sealed class.  This will get rid of any compilation errors.
 Run all the tests.  They should still pass.
 
 Add a new subclass, Full, derived from Open, like this:
+
 ~~~
 data class Full : Open()
 ~~~
@@ -529,6 +559,7 @@ data class Full : Open()
 * Option-Enter on the error, select "Implement members", and select Ok
 * Implement `capacity` to evaluate to `signups.size`
 * The end result should therefore be:
+
     ~~~
     data class Full(
         override val sessionId: SessionId,
@@ -542,13 +573,16 @@ data class Full : Open()
 Run all the tests.  Now SignupHttpHandler won't compile because the Full case is not handled.
 
 Make all the `when` expressions exhaustive:
+
 * in handleSignup for POST, Option-Enter on the `when` and choose "Add remaining branches"
 * in handleSignup for DELETE and handleStarted, change when condition from `is Available` to `is Open`
 
 
 Change Available::signUp to return Available or Full, depending on whether the number of signups reaches capacity:
+
 * extract `signups + attendeeId` as a variable, newSignups
 * Change result to return Full when newSignups.size == capacity:
+
     ~~~
     return when (newSignups.size) {
         capacity -> Full(sessionId, newSignups)
@@ -559,7 +593,9 @@ Change Available::signUp to return Available or Full, depending on whether the n
 Run the tests.  They fail.
 
 Make them pass by:
+
 * Implementing the `is Full` condition as:
+
   ~~~
   is Full -> {
       sendResponse(exchange, CONFLICT, "session full")
@@ -569,6 +605,7 @@ Make them pass by:
 Run the tests. They pass. COMMIT!
 
 Review the subclasses of SignupSheet.  The classes no longer check that methods are called in the right state.  The only remaining check, in the init block, defines a class invariant that the internal implementation maintains.  We can remove the try/catch in our HTTP handler!
+
 * Unwrap the try/catch blocks in the SignupHttpHandler (add braces to when clause with Option-Enter if necessary)
 
 
