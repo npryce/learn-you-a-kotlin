@@ -4,6 +4,7 @@
 ## Before people arrive
 
 On flip chart sheets:
+
 * Draw the logical diagram of the scenario
 * Draw the state machine and class hierarchy diagrams.
 
