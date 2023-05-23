@@ -1,14 +1,6 @@
 package learnyouakotlin.part4
 
-class SignupSheet {
-    var sessionId: SessionId? = null
-    
-    var capacity = 0
-        set(value) {
-            check(field == 0) { "you cannot change the capacity after it has been set" }
-            field = value
-        }
-    
+class SignupSheet(val sessionId: SessionId, val capacity: Int) {
     var signups: Set<AttendeeId> = emptySet()
         private set
     
@@ -17,13 +9,6 @@ class SignupSheet {
     
     val isFull: Boolean
         get() = signups.size == capacity
-    
-    constructor()
-    
-    constructor(sessionId: SessionId, capacity: Int) {
-        this.sessionId = sessionId
-        this.capacity = capacity
-    }
     
     fun isSignedUp(attendeeId: AttendeeId): Boolean {
         return signups.contains(attendeeId)
