@@ -272,7 +272,8 @@ Run the tests .  They pass. COMMIT!
 Replace the === operators with == in the if statement.  Run the tests.
 
 Now the `if` is highlighted.  Option-Enter and replace `if` with `when`.
- * EXPLAIN: Java's switch statement can only branch on primitive and string types. Kotlin's when can switch on anything.
+
+* EXPLAIN: Java's switch statement can only branch on primitive and string types. Kotlin's when can switch on anything.
 Option-Enter on the `when` and remove braces from all entries.
 
 Run the tests. They pass. COMMIT!
