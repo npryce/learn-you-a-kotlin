@@ -235,6 +235,14 @@ Use the beige highlights in the right-hand gutter to review the warnings: the ID
 
 Run the tests. They pass. COMMIT!
 
+In `handle`, replace `if (xxx == null) { ... }` statements with the elvis operator and `run` scope function.  E.g. 
+
+~~~
+doSomething()
+   ?: run {
+       sendResponse(NOT_FOUND, ... )
+   }
+~~~
 
 Now to replace use of Java streams with Kotlin's stdlib functions...
 
