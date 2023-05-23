@@ -29,18 +29,21 @@ class SignupSheet {
         return signups.contains(attendeeId)
     }
     
-    fun signUp(attendeeId: AttendeeId) {
+    fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
         check(!isFull) { "session is full" }
         signups = signups + attendeeId
+        return this
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId) {
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
         check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
         signups = signups - attendeeId
+        return this
     }
     
-    fun sessionStarted() {
+    fun sessionStarted(): SignupSheet {
         isSessionStarted = true
+        return this
     }
 }

@@ -56,8 +56,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 try {
-                    sheet.signUp(attendeeId)
-                    book.save(sheet)
+                    book.save(sheet.signUp(attendeeId))
                     sendResponse(exchange, OK, "subscribed")
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, CONFLICT, e.message)
@@ -66,8 +65,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.DELETE -> {
                 try {
-                    sheet.cancelSignUp(attendeeId)
-                    book.save(sheet)
+                    book.save(sheet.cancelSignUp(attendeeId))
                     sendResponse(exchange, OK, "unsubscribed")
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, CONFLICT, e.message)
@@ -87,8 +85,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
             
             HttpMethod.POST -> {
-                sheet.sessionStarted()
-                book.save(sheet)
+                book.save(sheet.sessionStarted())
                 sendResponse(exchange, OK, "started")
             }
             
