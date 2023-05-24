@@ -1,11 +1,18 @@
 package learnyouakotlin.part4
 
-class SignupSheet @JvmOverloads constructor(
+class SignupSheet private constructor(
     val sessionId: SessionId,
     val capacity: Int,
-    val signups: Set<AttendeeId> = emptySet(),
-    val isSessionStarted: Boolean = false
+    val signups: Set<AttendeeId>,
+    val isSessionStarted: Boolean
 ) {
+    constructor(sessionId: SessionId, capacity: Int) : this(
+        sessionId = sessionId,
+        capacity = capacity,
+        signups = emptySet(),
+        isSessionStarted = false
+    )
+    
     init {
         check(signups.size <= capacity) { "session is full" }
     }
