@@ -4,7 +4,6 @@ sealed class SignupSheet {
     abstract val sessionId: SessionId
     abstract val capacity: Int
     abstract val signups: Set<AttendeeId>
-    abstract val isSessionStarted: Boolean
     
     fun isSignedUp(attendeeId: AttendeeId): Boolean =
         signups.contains(attendeeId)
@@ -13,14 +12,13 @@ sealed class SignupSheet {
 class Open private constructor(
     override val sessionId: SessionId,
     override val capacity: Int,
-    override val signups: Set<AttendeeId>,
-    override val isSessionStarted: Boolean
+    override val signups: Set<AttendeeId>
 ) : SignupSheet() {
+    
     constructor(sessionId: SessionId, capacity: Int) : this(
         sessionId = sessionId,
         capacity = capacity,
-        signups = emptySet(),
-        isSessionStarted = false
+        signups = emptySet()
     )
     
     init {
@@ -28,13 +26,11 @@ class Open private constructor(
     }
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
-        return Open(sessionId, capacity, signups + attendeeId, isSessionStarted)
+        return Open(sessionId, capacity, signups + attendeeId)
     }
     
     fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
-        return Open(sessionId, capacity, signups - attendeeId, isSessionStarted)
+        return Open(sessionId, capacity, signups - attendeeId)
     }
     
     fun sessionStarted(): SignupSheet =
@@ -45,7 +41,4 @@ class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>
-) : SignupSheet() {
-    override val isSessionStarted: Boolean
-        get() = true
-}
+) : SignupSheet()
