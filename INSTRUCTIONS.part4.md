@@ -333,12 +333,11 @@ Make capacity a val declared in primary constructor.
 
 * delete the entire var property including the checks. Those are now enforced by the type system.
 
-Now we can transform the mutator methods into transformations.
+Now to transform the mutator methods into transformations...
 
-First, sessionStarted:
-
-* Move `isSessionStarted` into a val in the primary constructor 
-* change sessionStarted() to return a copy of the object passing true to the constructor
+* Declare `signups` as a val in the primary constructor, initialised to `emptySet()`
+* Declare `isSessionStarted` as a val in the primary constructor, initialised as `false` 
+* Try running the tests...  The mutators do not compile.  Change them so that, instead of mutating a property, they return a new copy of the object that one property changed.
 * Try running the tests... we've broken Java code.  Java doesn't support default parameters.  But we can make the Kotlin compiler generate overloaded constructors for us by adding the @JvmOverloads annotation to the primary constructor:
 
   ~~~
@@ -350,22 +349,8 @@ First, sessionStarted:
 
 Run the tests... they fail!  We also have to update our in-memory simulation of persistence, the InMemorySignupBook.
 
-* pass stored.isSessionStarted() to the constructor and delete the conditional:
-
-    ~~~
-    if (stored.isSessionStarted()) {
-        loaded.sessionStarted();
-    }
-    ~~~
-
-Run the tests. They pass. COMMIT!
-
-And now we'll do the same with the set of `signups`:
-
-* Make it a val
-* Option-Enter to move to constructor
-* Fix the errors by returning a copy of the SignupSheet with the new signup set
-* In the InMemorySignupBook, all that code is now unnecessary because SignupSheet is immutable.  Just return the value looked up in the map.
+* all the code to return a copy of the stored SignupSheet is now unnecessary because SignupSheet is immutable.  
+* Delete it all, and return the value obtained from the map
 
 Run the tests. They pass. COMMIT!
 
