@@ -12,7 +12,7 @@ public class SignupServer {
     public static void main(String[] args) throws IOException {
         final var book = new InMemorySignupBook();
         for (int i = 1; i <= 10; i++) {
-            book.save(new SignupSheet(SessionId.of(Integer.toString(i)), 20));
+            book.save(new Open(SessionId.of(Integer.toString(i)), 20));
         }
 
         final var server = HttpServer.create(new InetSocketAddress(9876), 0);
