@@ -64,6 +64,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     }
+                    is Closed -> {
+                        sendSignupClosedResponse(exchange)
+                    }
                 }
             }
             
@@ -77,6 +80,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     }
+                    
+                    is Closed -> {
+                        sendSignupClosedResponse(exchange)
+                    }
                 }
             }
             
@@ -84,6 +91,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 sendMethodNotAllowed(exchange)
             }
         }
+    }
+    
+    private fun sendSignupClosedResponse(exchange: HttpExchange) {
+        sendResponse(exchange, CONFLICT, "you cannot change sign-ups for a session after it has started")
     }
     
     private fun handleStarted(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
@@ -96,9 +107,13 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 when (sheet) {
                     is Open -> {
                         book.save(sheet.sessionStarted())
-                        sendResponse(exchange, OK, "started")
+                    }
+                    is Closed -> {
+                        // Nothing to do
                     }
                 }
+                
+                sendResponse(exchange, OK, "started")
             }
             
             else -> {

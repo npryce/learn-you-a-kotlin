@@ -38,5 +38,14 @@ class Open private constructor(
     }
     
     fun sessionStarted(): SignupSheet =
-        Open(sessionId, capacity, signups, true)
+        Closed(sessionId, capacity, signups)
+}
+
+class Closed(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>
+) : SignupSheet() {
+    override val isSessionStarted: Boolean
+        get() = true
 }
