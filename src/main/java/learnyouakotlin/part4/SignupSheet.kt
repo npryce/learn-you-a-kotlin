@@ -10,9 +10,8 @@ class SignupSheet
     val isFull: Boolean
         get() = signups.size == capacity
     
-    fun isSignedUp(attendeeId: AttendeeId): Boolean {
-        return signups.contains(attendeeId)
-    }
+    fun isSignedUp(attendeeId: AttendeeId): Boolean =
+        signups.contains(attendeeId)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isSessionStarted) { "you cannot change sign-ups for a session after it has started" }
@@ -25,7 +24,6 @@ class SignupSheet
         return SignupSheet(sessionId, capacity, signups - attendeeId, isSessionStarted)
     }
     
-    fun sessionStarted(): SignupSheet {
-        return SignupSheet(sessionId, capacity, signups, true)
-    }
+    fun sessionStarted(): SignupSheet =
+        SignupSheet(sessionId, capacity, signups, true)
 }
