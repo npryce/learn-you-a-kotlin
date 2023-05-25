@@ -6,11 +6,12 @@ class SignupSheet private constructor(
     val signups: Set<AttendeeId>,
     val isClosed: Boolean
 ) {
+    init {
+        check(signups.size <= capacity) { "session is full" }
+    }
+    
     constructor(sessionId: SessionId, capacity: Int) :
         this(sessionId, capacity, emptySet(), false)
-    
-    val isFull: Boolean
-        get() = signups.size == capacity
     
     fun close(): SignupSheet {
         return SignupSheet(sessionId, capacity, signups, true)
@@ -22,7 +23,6 @@ class SignupSheet private constructor(
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
-        check(!isFull) { "session is full" }
         return SignupSheet(sessionId, capacity, signups + attendeeId, false)
     }
     
