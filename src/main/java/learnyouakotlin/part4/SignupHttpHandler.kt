@@ -14,7 +14,6 @@ import java.io.OutputStreamWriter
 import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
-    @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
         val params = HashMap<String, String>()
         val matchedRoute = matchRoute(exchange, params)
@@ -38,7 +37,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -54,7 +52,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleSignup(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet, attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -87,7 +84,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
     
-    @Throws(IOException::class)
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
