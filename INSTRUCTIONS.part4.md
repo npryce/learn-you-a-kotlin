@@ -39,7 +39,7 @@ component "Conference Web Service" as webService
 a -right-> aApp : "sign-up\ncancel sign-up"
 aApp -down-> webService : HTTP
 
-p -left-> pApp : "start session\nlist attendees"
+p -left-> pApp : "close signup\nlist attendees"
 pApp -down-> webService : HTTP
 
 b -right-> bBrowser : "add sessions\nlist attendees"
@@ -179,7 +179,7 @@ Now let's look at `signups`.  Move the `getSignups()` method up next to the `sig
 
 Run the tests. They pass. COMMIT!
 
-We want the private property to be a mutable Set, but the public property to be an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, instead, we can replace the immutable reference to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isSessionStarted):
+We want the private property to be a mutable Set, but the public property to be an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, instead, we can replace the immutable reference to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isClosed):
 
 * Change the `val signups` to a `var`.  Run the tests to make sure that's not broken anything.
 * Command-click on `signups` to pop up usages.  There are two points in this class that mutate the Set.
@@ -298,7 +298,7 @@ We need _another_ strategy to break the refactoring into small, safe steps, and 
 
 Step 1: make the mutator methods return `this`
 
-* Add `return this` at the end of `sessionStarted`, `signUp` and `cancelSignUp`, and Option-Enter to add the return type to the method signature
+* Add `return this` at the end of `close`, `signUp` and `cancelSignUp`, and Option-Enter to add the return type to the method signature
 
 Run the tests. They pass. COMMIT!
 
@@ -306,7 +306,7 @@ Run the tests. They pass. COMMIT!
 Step 2: in SignupHttpHandler, replace sequential statements that mutate and then save with a single statement passes the result of the mutator to the `save` method, like:
 
 ~~~
-book.save(sheet.sessionStarted())
+book.save(sheet.close())
 ~~~
 
 Run the tests. They pass. COMMIT!
@@ -336,7 +336,7 @@ Make capacity a val declared in primary constructor.
 Now to transform the mutator methods into transformations...
 
 * Declare `signups` as a val in the primary constructor, initialised to `emptySet()`
-* Declare `isSessionStarted` as a val in the primary constructor, initialised as `false` 
+* Declare `isClosed` as a val in the primary constructor, initialised as `false` 
 * Try running the tests...  The mutators do not compile.  Change them so that, instead of mutating a property, they return a new copy of the object that one property changed.
 * Try running the tests... we've broken Java code.  Java doesn't support default parameters.  But we can make the Kotlin compiler generate overloaded constructors for us by adding the @JvmOverloads annotation to the primary constructor:
 
@@ -403,8 +403,8 @@ state Open {
     choice -up-> Available : [#signups < capacity]
     Full -left-> Available : cancelSignUp(a)
     
-    Available -> closed : sessionStarted()
-    Full -> closed : sessionStarted()
+    Available -> closed : close()
+    Full -> closed : close()
 }
 
 [*] -down-> open
@@ -413,11 +413,11 @@ closed -> Closed
 
 REVEAL: the state diagram drawn on the flip-chart...
 
-* The signUp operation only makes sense in the Available sub-state of Open.
+* The _signUp_ operation only makes sense in the Available sub-state of Open.
 
-* The cancelSignUp operation only makes sense in the Open state.
+* The _cancelSignUp_ operation only makes sense in the Open state.
 
-* The sessionStarted operation only makes sense in the Open state. 
+* The _close_ operation only makes sense in the Open state. 
 
 We can express this in Kotlin with a _sealed type hierarchy_...
 
@@ -429,12 +429,12 @@ hide circle
 
 class SignupSheet <<sealed>>
 class Open <<sealed>> extends SignupSheet {
-    sessionStarted(): Closed
+    close(): Closed
     cancelSignUp(a): Available
 }
 
 class Available extends Open {
-    signUp(a): SignupSheet
+    signUp(a): Open
 }
 
 class Full extends Open
@@ -496,33 +496,33 @@ We've broken our HTTP handler, so before we use the Closed class to implement ou
 
 Run the tests to verify that we have not broken anything... we are not actually using the Closed class yet.
 
-Now make Open.sessionStarted() return an instance of Closed:
+Now make Open.close() return an instance of Closed:
 
 ~~~
-fun sessionStarted() =
+fun close() =
     Closed(sessionId, capacity, signups)
 ~~~
 
 Run the tests: there are failures because of the TODO() calls:
 
-* in handleSignup, replace TODO calls by sending a CONFLICT status with an error message (e.g. "session started") as the body text.
+* in handleSignup, replace TODO calls by sending a CONFLICT status with an error message (e.g. "sign-up closed") as the body text.
 * in handleStarted:
   * GET: replace with returning `sheet is Closed`
   * POST: there is nothing to do if the session is already started, replace the TODO() with an empty branch and a comment like "// nothing to do" and move the call to sendResponse after the `when` block.
 
 Run the tests. They pass. COMMIT!
 
-Look for uses of isSessionStarted. The only calls are accessors in the checks.  Therefore, the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
+Look for uses of isClosed. The only calls are accessors in the checks.  Therefore, the value never changes, and is always false.  The checks are dead code, because we have replaced the use of the boolean property with subtyping.
 
 * Delete the check statements
-* Safe-Delete the isSessionStarted constructor parameter
+* Safe-Delete the isClosed constructor parameter
 
 Run the tests. They pass. COMMIT!
 
 Review the class... now we have methods that return the abstract SessionSignup type.  We can make the code express the state transitions explicitly in the type system be declaring the methods to return the concrete type (or letting Kotlin infer the result type).
 
 * ASIDE: I prefer to explicitly declare the result type I want.
-* Declare the result of sessionStarted() as Closed, and of signUp & cancelSignUp as Open
+* Declare the result of close() as Closed, and of signUp & cancelSignUp as Open
 
 Run the tests. They pass. COMMIT!
 
@@ -534,7 +534,7 @@ Rename Open to Available
 
 Run all the tests.  They should still pass.
 
-Extract an abstract superclass Open, pulling up sessionStarted and cancelSignUp as concrete. (Ignore the members highlighted in red in the dialog -- they will be inherited from the SignupSheet base class).
+Extract an abstract superclass Open, pulling up close and cancelSignUp as concrete. (Ignore the members highlighted in red in the dialog -- they will be inherited from the SignupSheet base class).
 
 Make Open a sealed class.  This will get rid of any compilation errors.
 

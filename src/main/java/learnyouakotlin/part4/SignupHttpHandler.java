@@ -21,11 +21,11 @@ public class SignupHttpHandler implements HttpHandler {
         new UriTemplate("/sessions/{sessionId}/signups");
     public static final UriTemplate signupRoute =
         new UriTemplate("/sessions/{sessionId}/signups/{attendeeId}");
-    public static final UriTemplate startedRoute =
-        new UriTemplate("/sessions/{sessionId}/started");
+    public static final UriTemplate closedRoute =
+        new UriTemplate("/sessions/{sessionId}/closed");
 
     private static final List<UriTemplate> routes =
-        List.of(signupsRoute, signupRoute, startedRoute);
+        List.of(signupsRoute, signupRoute, closedRoute);
 
 
     private final Transactor<SignupBook> transactor;
@@ -55,8 +55,8 @@ public class SignupHttpHandler implements HttpHandler {
                 handleSignups(exchange, sheet);
             } else if (matchedRoute == signupRoute) {
                 handleSignup(exchange, book, sheet, AttendeeId.of(params.get("attendeeId")));
-            } else if (matchedRoute == startedRoute) {
-                handleStarted(exchange, book, sheet);
+            } else if (matchedRoute == closedRoute) {
+                handleClosed(exchange, book, sheet);
             }
         });
     }
@@ -104,15 +104,15 @@ public class SignupHttpHandler implements HttpHandler {
         }
     }
 
-    private void handleStarted(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
+    private void handleClosed(HttpExchange exchange, SignupBook book, SignupSheet sheet) throws IOException {
         switch (exchange.getRequestMethod()) {
             case GET -> {
-                sendResponse(exchange, OK, sheet.isSessionStarted());
+                sendResponse(exchange, OK, sheet.isClosed());
             }
             case POST -> {
-                sheet.sessionStarted();
+                sheet.close();
                 book.save(sheet);
-                sendResponse(exchange, OK, "started");
+                sendResponse(exchange, OK, "closed");
             }
             default -> {
                 sendMethodNotAllowed(exchange);

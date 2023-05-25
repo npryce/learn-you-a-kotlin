@@ -7,7 +7,7 @@ public class SignupSheet {
     private SessionId sessionId;
     private int capacity;
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
-    private boolean isSessionStarted = false;
+    private boolean isClosed = false;
 
     public SignupSheet() {
     }
@@ -41,12 +41,12 @@ public class SignupSheet {
         return signups.size() == capacity;
     }
 
-    public boolean isSessionStarted() {
-        return isSessionStarted;
+    public boolean isClosed() {
+        return isClosed;
     }
 
-    public void sessionStarted() {
-        isSessionStarted = true;
+    public void close() {
+        isClosed = true;
     }
 
     public boolean isSignedUp(AttendeeId attendeeId) {
@@ -54,8 +54,8 @@ public class SignupSheet {
     }
 
     public void signUp(AttendeeId attendeeId) {
-        if (isSessionStarted()) {
-            throw new IllegalStateException("you cannot change sign-ups for a session after it has started");
+        if (isClosed()) {
+            throw new IllegalStateException("sign-up has closed");
         }
 
         if (isFull()) {
@@ -66,8 +66,8 @@ public class SignupSheet {
     }
 
     public void cancelSignUp(AttendeeId attendeeId) {
-        if (isSessionStarted()) {
-            throw new IllegalStateException("you cannot change sign-ups for a session after it has started");
+        if (isClosed()) {
+            throw new IllegalStateException("sign-up has closed");
         }
 
         signups.remove(attendeeId);

@@ -108,26 +108,26 @@ public class SessionSignupHttpTests {
     }
 
     @Test
-    public void cannot_sign_up_after_session_has_started() {
+    public void cannot_sign_up_when_sheet_closed() {
         book.save(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
 
-        assertTrue(!isSessionStarted(exampleSessionId));
-        startSession(exampleSessionId);
+        assertTrue(!isSessionClosed(exampleSessionId));
+        closeSession(exampleSessionId);
 
-        assertTrue(isSessionStarted(exampleSessionId));
+        assertTrue(isSessionClosed(exampleSessionId));
         signUp(failsWithConflict, exampleSessionId, carol);
     }
 
     @Test
-    public void cannot_cancel_a_sign_up_after_session_has_started() {
+    public void cannot_cancel_a_sign_up_after_sheet_closed() {
         book.save(new SignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
-        startSession(exampleSessionId);
+        closeSession(exampleSessionId);
 
         cancelSignUp(failsWithConflict, exampleSessionId, alice);
     }
@@ -160,13 +160,13 @@ public class SessionSignupHttpTests {
             .collect(toCollection(LinkedHashSet::new));
     }
 
-    private boolean isSessionStarted(SessionId sessionId) {
-        return Boolean.parseBoolean(apiCall(isSuccessful, GET, startedRoute.createURI(Map.of(
+    private boolean isSessionClosed(SessionId sessionId) {
+        return Boolean.parseBoolean(apiCall(isSuccessful, GET, closedRoute.createURI(Map.of(
             "sessionId", sessionId.getValue()))));
     }
 
-    private void startSession(SessionId sessionId) {
-        apiCall(isSuccessful, POST, startedRoute.createURI(Map.of(
+    private void closeSession(SessionId sessionId) {
+        apiCall(isSuccessful, POST, closedRoute.createURI(Map.of(
             "sessionId", sessionId.getValue())));
     }
 
