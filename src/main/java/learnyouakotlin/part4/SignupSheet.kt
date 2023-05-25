@@ -9,10 +9,10 @@ class SignupSheet {
             field = value
         }
     
-    private val signups = LinkedHashSet<AttendeeId>()
+    private val signups = mutableSetOf<AttendeeId>()
     
     fun getSignups(): Set<AttendeeId> {
-        return java.util.Set.copyOf(signups)
+        return signups.toSet()
     }
     
     var isClosed = false
