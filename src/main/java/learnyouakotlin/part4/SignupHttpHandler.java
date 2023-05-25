@@ -24,7 +24,7 @@ public class SignupHttpHandler implements HttpHandler {
     public static final UriTemplate closedRoute =
         new UriTemplate("/sessions/{sessionId}/closed");
 
-    private static final List<UriTemplate> routes =
+    public static final List<UriTemplate> routes =
         List.of(signupsRoute, signupRoute, closedRoute);
 
 
