@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.Response.Status.OK
 import org.glassfish.jersey.uri.UriTemplate
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.List
 import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
@@ -118,7 +117,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         val closedRoute = UriTemplate("/sessions/{sessionId}/closed")
         
         @JvmField
-        val routes = List.of(signupsRoute, signupRoute, closedRoute)
+        val routes = listOf(signupsRoute, signupRoute, closedRoute)
         
         private fun matchRoute(exchange: HttpExchange, paramsOut: HashMap<String, String>): UriTemplate? {
             for (t in routes) {
