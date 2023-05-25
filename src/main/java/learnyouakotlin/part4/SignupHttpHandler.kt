@@ -9,30 +9,28 @@ import jakarta.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED
 import jakarta.ws.rs.core.Response.Status.NOT_FOUND
 import jakarta.ws.rs.core.Response.Status.OK
 import org.glassfish.jersey.uri.UriTemplate
-import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
         val params = HashMap<String, String>()
-        val matchedRoute = matchRoute(exchange, params)
-        if (matchedRoute == null) {
-            sendResponse(exchange, NOT_FOUND, "resource not found")
-            return
-        }
+        val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
+            ?: run {
+                sendResponse(exchange, NOT_FOUND, "resource not found")
+                return
+            }
+        
         transactor.perform { book: SignupBook ->
             val sheet = book.sheetFor(SessionId.of(params["sessionId"]))
-            if (sheet == null) {
-                sendResponse(exchange, NOT_FOUND, "session not found")
-                return@perform
-            }
-            if (matchedRoute === signupsRoute) {
-                handleSignups(exchange, sheet)
-            } else if (matchedRoute === signupRoute) {
-                handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
-            } else if (matchedRoute === closedRoute) {
-                handleClosed(exchange, book, sheet)
+                ?: run {
+                    sendResponse(exchange, NOT_FOUND, "session not found")
+                    return@perform
+                }
+            
+            when (matchedRoute) {
+                signupsRoute -> handleSignups(exchange, sheet)
+                signupRoute -> handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
+                closedRoute -> handleClosed(exchange, book, sheet)
             }
         }
     }
@@ -40,10 +38,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                sendResponse(exchange, OK,
-                    sheet.signups.stream()
-                        .map { obj: AttendeeId -> obj.value }
-                        .collect(Collectors.joining("\n")))
+                sendResponse(
+                    exchange, OK,
+                    sheet.signups.joinToString("\n", transform = { it.value })
+                )
             }
             
             else -> {
@@ -115,16 +113,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         @JvmField
         val routes = listOf(signupsRoute, signupRoute, closedRoute)
         
-        private fun matchRoute(exchange: HttpExchange, paramsOut: HashMap<String, String>): UriTemplate? {
-            for (t in routes) {
-                if (t.match(exchange.requestURI.path, paramsOut)) {
-                    return t
-                }
-            }
-            return null
-        }
-        
-        @Throws(IOException::class)
         private fun sendResponse(exchange: HttpExchange, status: Status, bodyValue: Any?) {
             exchange.responseHeaders.add("Content-Type", "text/plain")
             exchange.sendResponseHeaders(status.statusCode, 0)
@@ -133,7 +121,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             body.flush()
         }
         
-        @Throws(IOException::class)
         private fun sendMethodNotAllowed(exchange: HttpExchange) {
             sendResponse(
                 exchange, METHOD_NOT_ALLOWED,
