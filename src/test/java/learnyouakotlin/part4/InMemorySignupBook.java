@@ -9,18 +9,7 @@ public class InMemorySignupBook implements SignupBook {
 
     @Override
     public @Nullable SignupSheet sheetFor(SessionId session) {
-        SignupSheet stored = signupsById.get(session);
-        if (stored == null) {
-            return null;
-        } else {
-            // Return a copy of the sheet, to emulate behaviour of database
-            SignupSheet loaded = new SignupSheet(stored.getSessionId(), stored.getCapacity());
-            stored.getSignups().forEach(loaded::signUp);
-            if (stored.isClosed()) {
-                loaded.close();
-            }
-            return loaded;
-        }
+        return signupsById.get(session);
     }
 
     @Override
