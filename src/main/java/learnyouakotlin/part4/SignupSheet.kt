@@ -9,11 +9,8 @@ class SignupSheet {
             field = value
         }
     
-    private val signups = mutableSetOf<AttendeeId>()
-    
-    fun getSignups(): Set<AttendeeId> {
-        return signups.toSet()
-    }
+    var signups = emptySet<AttendeeId>()
+        private set
     
     var isClosed = false
         private set
@@ -39,11 +36,11 @@ class SignupSheet {
     fun signUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups.add(attendeeId)
+        signups += attendeeId
     }
     
     fun cancelSignUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
-        signups.remove(attendeeId)
+        signups -= attendeeId
     }
 }
