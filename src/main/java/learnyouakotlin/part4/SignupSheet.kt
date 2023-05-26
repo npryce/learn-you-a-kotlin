@@ -1,10 +1,10 @@
 package learnyouakotlin.part4
 
-class SignupSheet private constructor(
+data class SignupSheet(
     val sessionId: SessionId,
     val capacity: Int,
     val signups: Set<AttendeeId>,
-    val isClosed: Boolean
+    val isClosed: Boolean = false
 ) {
     init {
         check(signups.size <= capacity) { "session is full" }
