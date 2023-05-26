@@ -14,10 +14,10 @@ public class SignupServer {
     public static void main(String[] args) throws IOException {
         final var book = new InMemorySignupBook();
         for (int i = 1; i <= 10; i++) {
-            SignupSheet session = new SignupSheet();
-            session.setSessionId(SessionId.of(Integer.toString(i)));
-            session.setCapacity(20);
-            book.save(session);
+            SignupSheet sheet = new SignupSheet();
+            sheet.setSessionId(SessionId.of(Integer.toString(i)));
+            sheet.setCapacity(20);
+            book.save(sheet);
         }
 
         int port = 9876;
