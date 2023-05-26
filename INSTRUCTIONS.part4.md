@@ -1,5 +1,8 @@
 # Part 4: from mutable beans to unrepresentable illegal states
 
+## Before the event
+
+Adding Kotlin to the project requires internet access.  If the venue has patchy internet, it's best to do this before going to the venue, in a branch from the latest master, and start with "one we prepared earlier".  
 
 ## Before people arrive
 
@@ -179,18 +182,24 @@ Now let's look at `signups`.  Move the `getSignups()` method up next to the `sig
 
 Run the tests. They pass. COMMIT!
 
-We want the private property to be a mutable Set, but the public property to be an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, instead, we can replace the immutable reference to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isClosed):
+We can use Kotlin syntactic sugar for the set operations:
 
-* Change the `val signups` to a `var`.  Run the tests to make sure that's not broken anything.
-* Command-click on `signups` to pop up usages.  There are two points in this class that mutate the Set.
-* Change the declaration of `signups` to: `private var signups = setOf<AttendeeId>()`.  This breaks those two points in the class.
-* Navigate to the errors with F2 or by clicking on the error marks in the right gutter.
-* Replace the call to the add method with `signups = signups + attendeeId`
-* Replace the call to the remove method with `signups = signups - attendeeId`
-* Run the tests to make sure everything still works
-* Delete the getter and make `var signups` public, with a `private set`.
+* Change the declaration of the set from `LinkedHasSet<AttendeeId>()` to `mutableSetOf<AttendeeId>()`.  It's the same thing.
+* In `signUp` put the cursor on `add` and use Option-Enter to replace with the `+=` operator.
+  * EXPLAIN: Kotlin operators are syntactic sugar for method calls, and the compiler applies the desugaring to Java classes too.
+* In cancelSignUp, we can replace `remove` with the `-=` operator, but have to do it by hand.  It's not on the Option-Enter menu for some reason!
+
+Run all the tests. They pass. COMMIT!
+
+Let's look at the signups `property` again. The code has the private property as a mutable Set, but exposes it publicly as an immutable Set.  We cannot declare the get and set of a property to have different types (at least, at the time of writing).  However, Kotlin provides lots of useful functions for manipulating non-modifiable collections in a functional way.  So, instead, we can replace the immutable reference to a mutable Set with a _mutable_ reference to an immutable Set, and make the setter private (using the same syntax as the code converter generated for isClosed):
+
+* Change the `val signups` to a `var` and initialise it to `emptySet<AttendeeId>()`.
+* Run the tests to make sure that's not broken anything.
+* NOTE: That's all we need to do!  The `+=` and `-=` syntax also desugars to application `+` and `-` to _immutable_ values and assignment to mutable variables.
+* Finally, delete the getter and make `var signups` public, with a `private set`.
 
 Run the tests. They pass. COMMIT!
+
 
 ## Review the Kotlin code
 
@@ -228,7 +237,6 @@ Review the code of SignupHttpHandler.  The converter has done a pretty good job.
 
 Run the tests. They pass. COMMIT!
 
-
 The Kotlin code of SignupHttpHandler is still very similar to Java code.  We are not going to change this class very much -- it's "shape" is dictated by the HTTP server library we are using.  However, now that it is in Kotlin we can take advantage of more Kotlin features in the SessionSignup class.  So we will tidy this code up a little, and then get back to SignupSheet...
 
 Use the beige highlights in the right-hand gutter to review the warnings: the IDE is telling us that we should use Kotlin's collection types and functions from the Kotlin standard library.  Let's apply its suggestions using Option-Enter, starting by replacing `List.of` with `listOf`.  Now the class doesn't use Java's List type, and we remove the unused import with "optimise imports" (Control-Option-O).
@@ -257,7 +265,7 @@ Point out the grey underline on `map` and show the audience the suggestion.
   * The style suggestions are a great way to learn the standard library.  Especially useful when you take on a new Kotlin release with new functions in the stdlib. 
 * Option-Enter on `obj` in the lambda, and remove explicit lambda parameter types.  Note the warning "may break code".  Run the tests to confirm that it hasn't.
 * Option-Enter on `obj` in the lambda and replace named parameter with `it`, and run the tests.
-* The lambda is an ideal candidate to convert to a property reference. Option-Enter on `it.value` -- the option is not available, because the Identifier class is still in Java.  If we have time, we'll come back to the Identifier types and convert them to Kotlin inline classes, but that's not the focus of this session.
+* Use Option-Enter to move the lambda into the parameter list.  Is that more readable?  I think so. Let's keep it.
 
 Run the tests. They pass. COMMIT!
 
@@ -303,11 +311,11 @@ Step 1: make the mutator methods return `this`
 Run the tests. They pass. COMMIT!
 
 
-Step 2: in SignupHttpHandler, replace sequential statements that mutate and then save with a single statement passes the result of the mutator to the `save` method, like:
+Step 2: in SignupHttpHandler, replace sequential statements that mutate and then save with a single statement passes the result of the mutator to the `save` method, like: `book.save(sheet.close())`.  We can do this quickly by:
 
-~~~
-book.save(sheet.close())
-~~~
+* Assign the result of the mutator call to a val called sheet.  E.g. `val sheet = sheet.close()`
+* The new sheet val is now highlighted as a warning because it shadows the same name in the outer scope.
+* Inline the highlighted `sheet` into the call to `book.save(sheet)`, leaving the mutator calls like: `book.save(sheet.close())`.
 
 Run the tests. They pass. COMMIT!
 
@@ -374,7 +382,7 @@ The data class does allow us to make the state of a signup sheet inconsistent, b
     ~~~
     init {
         check(signups.size <= capacity) {
-            "cannot have more sign-ups than capacity"
+            "session full"
         }
     }
     ~~~
@@ -443,7 +451,7 @@ class Closed extends SignupSheet
 ~~~
 
 
-We'll introduce this state by state, starting with Open vs Started, replacing predicates of the properties of the class with subtype relationships.
+We'll introduce this state by state, starting with Open vs Closed, replacing predicates of the properties of the class with subtype relationships.
 
 Unfortunately IntelliJ doesn't have any automated refactorings to split a class into a sealed hierarchy, so we'll have to do it the old-fashioned way... by hand ... like C++ programmers...
 
@@ -506,9 +514,9 @@ fun close() =
 Run the tests: there are failures because of the TODO() calls:
 
 * in handleSignup, replace TODO calls by sending a CONFLICT status with an error message (e.g. "sign-up closed") as the body text.
-* in handleStarted:
+* in handleClose:
   * GET: replace with returning `sheet is Closed`
-  * POST: there is nothing to do if the session is already started, replace the TODO() with an empty branch and a comment like "// nothing to do" and move the call to sendResponse after the `when` block.
+  * POST: there is nothing to do if the session is already closed, replace the TODO() with an empty branch and a comment like "// nothing to do" and move the call to sendResponse after the `when` block.
 
 Run the tests. They pass. COMMIT!
 
@@ -568,7 +576,7 @@ Run all the tests.  Now SignupHttpHandler won't compile because the Full case is
 Make all the `when` expressions exhaustive:
 
 * in handleSignup for POST, Option-Enter on the `when` and choose "Add remaining branches"
-* in handleSignup for DELETE and handleStarted, change when condition from `is Available` to `is Open`
+* in handleSignup for DELETE and handleClose, change when condition from `is Available` to `is Open`
 
 
 Change Available::signUp to return Available or Full, depending on whether the number of signups reaches capacity:
