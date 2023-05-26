@@ -14,10 +14,10 @@ sealed class Open : SignupSheet() {
     abstract override val capacity: Int
     abstract override val signups: Set<AttendeeId>
     
-    fun close(): SignupSheet =
+    fun close(): Closed =
         Closed(sessionId, capacity, signups)
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
+    fun cancelSignUp(attendeeId: AttendeeId): Available {
         return Available(sessionId, capacity, signups = signups - attendeeId)
     }
 }
@@ -34,10 +34,21 @@ data class Available(
     constructor(sessionId: SessionId, capacity: Int) :
         this(sessionId, capacity, emptySet())
     
-    fun signUp(attendeeId: AttendeeId): SignupSheet {
-        return copy(signups = signups + attendeeId)
-    }
+    fun signUp(attendeeId: AttendeeId): Open =
+        withSignups(signups + attendeeId)
+    
+    private fun withSignups(newSignups: Set<AttendeeId>): Open =
+        when (newSignups.size) {
+            capacity -> Full(sessionId, capacity, newSignups)
+            else -> copy(signups = newSignups)
+        }
 }
+
+data class Full(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>
+) : Open()
 
 data class Closed(
     override val sessionId: SessionId,
