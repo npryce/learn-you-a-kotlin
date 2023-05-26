@@ -27,9 +27,6 @@ public class SignupServer {
         server.createContext("/", new SignupHttpHandler(new InMemoryTransactor<>(book)));
         server.start();
 
-        System.out.println("Ready:");
-        SignupHttpHandler.routes.forEach(template -> {
-            System.out.println("- " + "http://localhost:" + port + template.getTemplate());
-        });
+        System.out.println("Ready at http://localhost:"+port);
     }
 }
