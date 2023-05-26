@@ -466,7 +466,7 @@ Unfortunately IntelliJ doesn't have any automated refactorings to split a class 
 * Change the name of the subclass by hand (not a rename refactor) to Open, and then use a rename refactoring to rename the base class to SignupSheet.
 * Repeatedly run all the tests to locate all the compilation errors... 
   * In SignupHttpHandler, there are calls to methods of the Open class that are not defined on the SignupSheet class.
-    * wrap the try/catch blocks in `when(sheet) { is Open -> ... }` to get things compiling again. E.g.
+    * wrap the try/catch blocks in `when(sheet) { is Open -> try { ... } }` to get things compiling again. E.g.
 
       ~~~
       when (sheet) {
