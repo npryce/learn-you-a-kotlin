@@ -13,13 +13,11 @@ class SignupSheet private constructor(
     constructor(sessionId: SessionId, capacity: Int) :
         this(sessionId, capacity, emptySet(), false)
     
-    fun close(): SignupSheet {
-        return SignupSheet(sessionId, capacity, signups, true)
-    }
+    fun close(): SignupSheet =
+        SignupSheet(sessionId, capacity, signups, true)
     
-    fun isSignedUp(attendeeId: AttendeeId): Boolean {
-        return signups.contains(attendeeId)
-    }
+    fun isSignedUp(attendeeId: AttendeeId): Boolean =
+        signups.contains(attendeeId)
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
