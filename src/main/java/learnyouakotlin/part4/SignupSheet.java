@@ -1,5 +1,6 @@
 package learnyouakotlin.part4;
 
+import javax.annotation.Nonnull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -11,8 +12,8 @@ public class SignupSheet {
 
     public SignupSheet() {
     }
-
-    public SignupSheet(SessionId sessionId, int capacity) {
+    
+    public SignupSheet(@Nonnull SessionId sessionId, int capacity) {
         this.sessionId = sessionId;
         this.capacity = capacity;
     }
