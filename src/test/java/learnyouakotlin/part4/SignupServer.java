@@ -14,7 +14,7 @@ public class SignupServer {
     public static void main(String[] args) throws IOException {
         final var book = new InMemorySignupBook();
         for (int i = 1; i <= 10; i++) {
-            book.save(new Open(SessionId.of(Integer.toString(i)), 20));
+            book.save(new Available(SessionId.of(Integer.toString(i)), 20));
         }
 
         int port = 9876;
