@@ -152,13 +152,17 @@ Make var sessionId public and declare a setter that executes the check.  Do the 
 ~~~
 var sessionId: SessionId? = null
     set(value) {
-        check(sessionId == null) { "you cannot change the sessionId after it has been set" }
+        check(sessionId == null) { 
+            "you cannot change the sessionId after it has been set" 
+        }
         field = value
     }
 
 var capacity = 0
     set(value) {
-        check(capacity == 0) { "you cannot change the capacity after it has been set" }
+        check(capacity == 0) { 
+            "you cannot change the capacity after it has been set" 
+        }
         field = value
     }
 ~~~
