@@ -1,6 +1,7 @@
 package learnyouakotlin.part4;
 
-import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.Nullable;
 
 public interface SignupBook {
     @Nullable SignupSheet sheetFor(SessionId session);

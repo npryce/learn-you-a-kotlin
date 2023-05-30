@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import learnyouakotlin.part1.Presenter;
 import learnyouakotlin.part1.Session;
 import learnyouakotlin.part1.Slots;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Spliterator;

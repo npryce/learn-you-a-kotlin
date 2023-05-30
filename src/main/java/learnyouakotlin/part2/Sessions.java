@@ -1,12 +1,11 @@
 package learnyouakotlin.part2;
 
 import learnyouakotlin.part1.Session;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 class Sessions {
-
     public static @Nullable String subtitleOf(@Nullable Session session) {
         if (session == null)
             return null;
@@ -24,5 +23,4 @@ class Sessions {
     public static @Nullable Session findWithTitle(List<Session> sessions, String title) {
         return sessions.stream().filter(session -> session.title.equalsIgnoreCase(title)).findFirst().orElse(null);
     }
-
 }
