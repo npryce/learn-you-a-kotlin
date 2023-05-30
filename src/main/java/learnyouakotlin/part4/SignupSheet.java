@@ -23,6 +23,9 @@ public class SignupSheet {
     }
 
     public void setSessionId(SessionId sessionId) {
+        if (sessionId != null) {
+            throw new IllegalStateException("you cannot change the sessionId after it has been set");
+        }
         this.sessionId = sessionId;
     }
 
