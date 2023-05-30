@@ -143,32 +143,33 @@ Describe properties ... they are compiled to Java getter/setter methods.  They c
 
 The Java to Kotlin converter hasn't quite kept up with the latest language changes, so we will have to tweak the code to make best use of them...
 
-In the secondary constructor, make sessionId non-nullable.
+Move the get/set methods up so that they are next to the private var for the relevant property.
 
-Run the tests.  They pass. COMMIT!
+The get/set methods implement something that the Kotlin language has specific syntax for: property setter logic that assigns to the backing field. 
 
-
-Make var capacity public, and replace the getCapacity and setCapacity with:
+Make var sessionId public and declare a setter that executes the check.  Do the same for capacity.  E.g. they should look like:
 
 ~~~
-var capacity = 0
-    get
+var sessionId: SessionId? = null
     set(value) {
-        check(field == 0) { "you cannot change the capacity after it has been set" }
+        check(sessionId == null) { "you cannot change the sessionId after it has been set" }
+        field = value
+    }
+
+var capacity = 0
+    set(value) {
+        check(capacity == 0) { "you cannot change the capacity after it has been set" }
         field = value
     }
 ~~~
 
+Delete the getter and setter
+
 Run the tests.  They pass.  COMMIT!
 
-Command-click on the `capacity` property to show usages.  The usages include a call to the setter from the Java SignupServer class.  Our change has had no effect on Java code or Kotlin code.  
+Command-click on the `capacity` property to show usages.  The usages include a call to the setter from the Java SignupServer class.  NOTE: Our change has had no effect on Java code or Kotlin code that uses the properties.
 
 We do not have uses of `capacity` from Kotlin yet, because apart from the setter call in Java, the capacity is only set by the constructor.  We'll address that presently...
-
-Bring attention to the grey underline of the `get` keyword.  Explain what the grey underlines mean: suggestions for where you can improve code style. Hover over it to show the suggestion.  Option-Enter to apply the suggestion.
-
-Run the tests. They pass. COMMIT!
-
 
 Now let's look at `signups`.  Move the `getSignups()` method up next to the `signups` property.
 
@@ -185,8 +186,9 @@ Run the tests. They pass. COMMIT!
 We can use Kotlin syntactic sugar for the set operations:
 
 * Change the declaration of the set from `LinkedHasSet<AttendeeId>()` to `mutableSetOf<AttendeeId>()`.  It's the same thing.
-* In `signUp` put the cursor on `add` and use Option-Enter to replace with the `+=` operator.
-  * EXPLAIN: Kotlin operators are syntactic sugar for method calls, and the compiler applies the desugaring to Java classes too.
+* In isSignedUp, use Option-Enter to replace `contains` with the `in` operator.
+  * EXPLAIN: Kotlin operators are syntactic sugar for method calls, and the compiler applies the desugaring when Kotlin calls Java classes too.
+* In `signUp` use Option-Enter to replace `add` with the `+=` operator.
 * In cancelSignUp, we can replace `remove` with the `-=` operator, but have to do it by hand.  It's not on the Option-Enter menu for some reason!
 
 Run all the tests. They pass. COMMIT!
@@ -196,7 +198,7 @@ Let's look at the signups `property` again. The code has the private property as
 * Change the `val signups` to a `var` and initialise it to `emptySet<AttendeeId>()`.
 * Run the tests to make sure that's not broken anything.
 * NOTE: That's all we need to do!  The `+=` and `-=` syntax also desugars to application `+` and `-` to _immutable_ values and assignment to mutable variables.
-* Finally, delete the getter and make `var signups` public, with a `private set`.
+* Finally, make `var signups` public, with a `private set`, and delete the setter.
 
 Run the tests. They pass. COMMIT!
 
