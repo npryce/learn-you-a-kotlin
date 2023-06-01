@@ -14,10 +14,9 @@ public class SignupServer {
     public static void main(String[] args) throws IOException {
         final var book = new InMemorySignupBook();
         for (int i = 1; i <= 10; i++) {
-            SignupSheet sheet = new SignupSheet();
-            sheet.setSessionId(SessionId.of(Integer.toString(i)));
-            sheet.setCapacity(20);
-            book.save(sheet);
+            book.save(new SignupSheet(
+                    SessionId.of(Integer.toString(i)),
+                    20));
         }
 
         int port = 9876;
@@ -27,6 +26,6 @@ public class SignupServer {
         server.createContext("/", new SignupHttpHandler(new InMemoryTransactor<>(book)));
         server.start();
 
-        System.out.println("Ready at http://localhost:"+port);
+        System.out.println("Ready at http://localhost:" + port);
     }
 }
