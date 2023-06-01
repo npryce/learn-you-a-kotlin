@@ -11,14 +11,14 @@ data class SignupSheet(
         capacity: Int
     ) : this(sessionId, capacity, emptySet(), false)
 
-    private val isFull: Boolean
-        get() = signups.size == capacity
+    init {
+        check(signups.size <= capacity)
+    }
 
     fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
 
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
-        check(!isFull) { "session is full" }
         return copy(signups = signups + attendeeId)
     }
 
