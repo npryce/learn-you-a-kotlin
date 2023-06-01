@@ -36,8 +36,13 @@ data class Available(
         check(signups.size <= capacity)
     }
 
-    fun signUp(attendeeId: AttendeeId): Available = copy(signups = signups + attendeeId)
-
+    fun signUp(attendeeId: AttendeeId): Open {
+        val newSignups = signups + attendeeId
+        return when (newSignups.size) {
+            capacity -> Full(sessionId, newSignups)
+            else -> copy(signups = newSignups)
+        }
+    }
 }
 
 data class Full(

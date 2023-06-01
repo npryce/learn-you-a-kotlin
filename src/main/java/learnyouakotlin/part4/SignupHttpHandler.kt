@@ -59,7 +59,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     } catch (e: IllegalStateException) {
                         sendResponse(exchange, Response.Status.CONFLICT, e.message)
                     }
-                is Full -> TODO()
+                is Full -> sendResponse(exchange, Response.Status.CONFLICT, "Session full")
                 is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
 
