@@ -39,11 +39,16 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             .map { obj: AttendeeId -> obj.value }
                             .collect(Collectors.joining("\n"))
             )
+
             else -> sendMethodNotAllowed(exchange)
         }
     }
 
-    private fun handleSignup(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet, attendeeId: AttendeeId) {
+    private fun handleSignup(
+            exchange: HttpExchange,
+            book: SignupBook,
+            sheet: SignupSheet,
+            attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, Response.Status.OK, sheet.isSignedUp(attendeeId))
@@ -51,8 +56,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
 
             HttpMethod.POST -> {
                 try {
-                    sheet.signUp(attendeeId)
-                    book.save(sheet)
+                    book.save(sheet.signUp(attendeeId))
                     sendResponse(exchange, Response.Status.OK, "subscribed")
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, Response.Status.CONFLICT, e.message)
@@ -61,8 +65,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
 
             HttpMethod.DELETE -> {
                 try {
-                    sheet.cancelSignUp(attendeeId)
-                    book.save(sheet)
+                    book.save(sheet.cancelSignUp(attendeeId))
                     sendResponse(exchange, Response.Status.OK, "unsubscribed")
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, Response.Status.CONFLICT, e.message)
@@ -82,8 +85,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
 
             HttpMethod.POST -> {
-                sheet.close()
-                book.save(sheet)
+                book.save(sheet.close())
                 sendResponse(exchange, Response.Status.OK, "closed")
             }
 
