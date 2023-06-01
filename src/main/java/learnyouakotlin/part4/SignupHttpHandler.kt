@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpHandler
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.Response
 import org.glassfish.jersey.uri.UriTemplate
-import java.io.IOException
 import java.io.OutputStreamWriter
 import java.util.stream.Collectors
 
@@ -33,20 +32,17 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
 
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
-                sendResponse(exchange, Response.Status.OK,
-                        sheet.signups.stream()
-                                .map { obj: AttendeeId -> obj.value }
-                                .collect(Collectors.joining("\n")))
-            }
-
-            else -> {
-                sendMethodNotAllowed(exchange)
-            }
+            HttpMethod.GET -> sendResponse(
+                    exchange,
+                    Response.Status.OK,
+                    sheet.signups.stream()
+                            .map { obj: AttendeeId -> obj.value }
+                            .collect(Collectors.joining("\n"))
+            )
+            else -> sendMethodNotAllowed(exchange)
         }
     }
 
-    @Throws(IOException::class)
     private fun handleSignup(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet, attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -79,7 +75,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         }
     }
 
-    @Throws(IOException::class)
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
@@ -110,7 +105,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
 
         private val routes = listOf(signupsRoute, signupRoute, closedRoute)
 
-        @Throws(IOException::class)
         private fun sendResponse(exchange: HttpExchange, status: Response.Status, bodyValue: Any?) {
             exchange.responseHeaders.add("Content-Type", "text/plain")
             exchange.sendResponseHeaders(status.statusCode, 0)
@@ -119,7 +113,6 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             body.flush()
         }
 
-        @Throws(IOException::class)
         private fun sendMethodNotAllowed(exchange: HttpExchange) {
             sendResponse(exchange, Response.Status.METHOD_NOT_ALLOWED,
                     exchange.requestMethod + " method not allowed")
