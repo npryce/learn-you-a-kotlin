@@ -35,3 +35,10 @@ data class Open(
 
     fun close(): SignupSheet = copy(isClosed = true)
 }
+
+data class Closed(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>,
+    override val isClosed: Boolean
+) : SignupSheet()

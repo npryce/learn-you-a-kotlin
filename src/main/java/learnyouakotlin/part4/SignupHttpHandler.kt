@@ -50,56 +50,44 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         sheet: SignupSheet,
         attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
-                sendResponse(exchange, Response.Status.OK, sheet.isSignedUp(attendeeId))
-            }
-
-            HttpMethod.POST -> {
-                when (sheet) {
-                    is Open ->
-                        try {
-                            book.save(sheet.signUp(attendeeId))
-                            sendResponse(exchange, Response.Status.OK, "subscribed")
-                        } catch (e: IllegalStateException) {
-                            sendResponse(exchange, Response.Status.CONFLICT, e.message)
-                        }
-
-                }
-            }
-
-            HttpMethod.DELETE -> {
-                when (sheet) {
-                    is Open -> try {
-                        book.save(sheet.cancelSignUp(attendeeId))
-                        sendResponse(exchange, Response.Status.OK, "unsubscribed")
+            HttpMethod.GET -> sendResponse(exchange, Response.Status.OK, sheet.isSignedUp(attendeeId))
+            HttpMethod.POST -> when (sheet) {
+                is Open ->
+                    try {
+                        book.save(sheet.signUp(attendeeId))
+                        sendResponse(exchange, Response.Status.OK, "subscribed")
                     } catch (e: IllegalStateException) {
                         sendResponse(exchange, Response.Status.CONFLICT, e.message)
                     }
-                }
+                is Closed -> TODO()
             }
 
-            else -> {
-                sendMethodNotAllowed(exchange)
+            HttpMethod.DELETE -> when (sheet) {
+                is Open -> try {
+                    book.save(sheet.cancelSignUp(attendeeId))
+                    sendResponse(exchange, Response.Status.OK, "unsubscribed")
+                } catch (e: IllegalStateException) {
+                    sendResponse(exchange, Response.Status.CONFLICT, e.message)
+                }
+
+                is Closed -> TODO()
             }
+            else -> sendMethodNotAllowed(exchange)
         }
     }
 
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
-                sendResponse(exchange, Response.Status.OK, sheet.isClosed)
-            }
-
+            HttpMethod.GET -> sendResponse(exchange, Response.Status.OK, sheet.isClosed)
             HttpMethod.POST -> when (sheet) {
                 is Open -> {
                     book.save(sheet.close())
                     sendResponse(exchange, Response.Status.OK, "closed")
                 }
-            }
 
-            else -> {
-                sendMethodNotAllowed(exchange)
+                is Closed -> TODO()
             }
+            else -> sendMethodNotAllowed(exchange)
         }
     }
 
