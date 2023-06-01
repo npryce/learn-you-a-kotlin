@@ -7,14 +7,13 @@ import jakarta.ws.rs.core.Response
 import org.glassfish.jersey.uri.UriTemplate
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.List
 import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
     @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
         val params = HashMap<String, String>()
-        val matchedRoute = matchRoute(exchange, params)
+        val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
         if (matchedRoute == null) {
             sendResponse(exchange, Response.Status.NOT_FOUND, "resource not found")
             return
@@ -104,18 +103,16 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     }
 
     companion object {
-        @JvmField val signupsRoute = UriTemplate("/sessions/{sessionId}/signups")
-        @JvmField val signupRoute = UriTemplate("/sessions/{sessionId}/signups/{attendeeId}")
-        @JvmField val closedRoute = UriTemplate("/sessions/{sessionId}/closed")
-        val routes = List.of(signupsRoute, signupRoute, closedRoute)
-        private fun matchRoute(exchange: HttpExchange, paramsOut: HashMap<String, String>): UriTemplate? {
-            for (t in routes) {
-                if (t.match(exchange.requestURI.path, paramsOut)) {
-                    return t
-                }
-            }
-            return null
-        }
+        @JvmField
+        val signupsRoute = UriTemplate("/sessions/{sessionId}/signups")
+
+        @JvmField
+        val signupRoute = UriTemplate("/sessions/{sessionId}/signups/{attendeeId}")
+
+        @JvmField
+        val closedRoute = UriTemplate("/sessions/{sessionId}/closed")
+
+        private val routes = listOf(signupsRoute, signupRoute, closedRoute)
 
         @Throws(IOException::class)
         private fun sendResponse(exchange: HttpExchange, status: Response.Status, bodyValue: Any?) {
