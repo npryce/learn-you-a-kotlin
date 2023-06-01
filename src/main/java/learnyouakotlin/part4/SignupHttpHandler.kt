@@ -10,7 +10,6 @@ import java.io.OutputStreamWriter
 import java.util.stream.Collectors
 
 class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHandler {
-    @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
         val params = HashMap<String, String>()
         val matchedRoute = routes.firstOrNull { it.match(exchange.requestURI.path, params) }
@@ -24,17 +23,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 sendResponse(exchange, Response.Status.NOT_FOUND, "session not found")
                 return@perform
             }
-            if (matchedRoute === signupsRoute) {
-                handleSignups(exchange, sheet)
-            } else if (matchedRoute === signupRoute) {
-                handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
-            } else if (matchedRoute === closedRoute) {
-                handleClosed(exchange, book, sheet)
+            when (matchedRoute) {
+                signupsRoute -> handleSignups(exchange, sheet)
+                signupRoute -> handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
+                closedRoute -> handleClosed(exchange, book, sheet)
             }
         }
     }
 
-    @Throws(IOException::class)
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
