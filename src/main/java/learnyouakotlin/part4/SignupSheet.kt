@@ -56,5 +56,4 @@ data class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>,
-) : SignupSheet() {
-}
+) : SignupSheet()
