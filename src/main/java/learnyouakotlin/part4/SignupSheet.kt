@@ -25,7 +25,7 @@ class SignupSheet {
         this.capacity = capacity
     }
 
-    val isFull: Boolean
+    private val isFull: Boolean
         get() = signups.size == capacity
 
     fun close() {
@@ -44,5 +44,4 @@ class SignupSheet {
         check(!isClosed) { "sign-up has closed" }
         signups = signups - attendeeId
     }
-
 }
