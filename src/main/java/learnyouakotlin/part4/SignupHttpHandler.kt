@@ -59,7 +59,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     } catch (e: IllegalStateException) {
                         sendResponse(exchange, Response.Status.CONFLICT, e.message)
                     }
-                is Closed -> TODO()
+                is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
 
             HttpMethod.DELETE -> when (sheet) {
@@ -69,8 +69,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, Response.Status.CONFLICT, e.message)
                 }
-
-                is Closed -> TODO()
+                is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
             else -> sendMethodNotAllowed(exchange)
         }

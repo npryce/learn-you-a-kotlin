@@ -12,16 +12,16 @@ data class Open(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>,
-    override val isClosed: Boolean
 ) : SignupSheet() {
     constructor(
         sessionId: SessionId,
         capacity: Int
-    ) : this(sessionId, capacity, emptySet(), false)
+    ) : this(sessionId, capacity, emptySet())
 
     init {
         check(signups.size <= capacity)
     }
+    override val isClosed: Boolean = false
 
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
@@ -33,12 +33,13 @@ data class Open(
         return copy(signups = signups - attendeeId)
     }
 
-    fun close(): SignupSheet = copy(isClosed = true)
+    fun close(): SignupSheet = Closed(sessionId, capacity, signups)
 }
 
 data class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>,
-    override val isClosed: Boolean
-) : SignupSheet()
+) : SignupSheet() {
+    override val isClosed: Boolean = true
+}
