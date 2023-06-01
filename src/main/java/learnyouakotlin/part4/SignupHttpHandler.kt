@@ -59,6 +59,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     } catch (e: IllegalStateException) {
                         sendResponse(exchange, Response.Status.CONFLICT, e.message)
                     }
+
                 is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
 
@@ -69,23 +70,28 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 } catch (e: IllegalStateException) {
                     sendResponse(exchange, Response.Status.CONFLICT, e.message)
                 }
+
                 is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
+
             else -> sendMethodNotAllowed(exchange)
         }
     }
 
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> sendResponse(exchange, Response.Status.OK, sheet.isClosed)
-            HttpMethod.POST -> when (sheet) {
-                is Open -> {
-                    book.save(sheet.close())
-                    sendResponse(exchange, Response.Status.OK, "closed")
+            HttpMethod.GET -> sendResponse(exchange, Response.Status.OK, sheet is Closed)
+            HttpMethod.POST -> {
+                when (sheet) {
+                    is Open -> {
+                        book.save(sheet.close())
+                    }
+                    is Closed -> { // it is
+                    }
                 }
-
-                is Closed -> TODO()
+                sendResponse(exchange, Response.Status.OK, "closed")
             }
+
             else -> sendMethodNotAllowed(exchange)
         }
     }

@@ -23,17 +23,11 @@ data class Open(
     }
     override val isClosed: Boolean = false
 
-    fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isClosed) { "sign-up has closed" }
-        return copy(signups = signups + attendeeId)
-    }
+    fun signUp(attendeeId: AttendeeId): Open = copy(signups = signups + attendeeId)
 
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isClosed) { "sign-up has closed" }
-        return copy(signups = signups - attendeeId)
-    }
+    fun cancelSignUp(attendeeId: AttendeeId): Open = copy(signups = signups - attendeeId)
 
-    fun close(): SignupSheet = Closed(sessionId, capacity, signups)
+    fun close(): Closed = Closed(sessionId, capacity, signups)
 }
 
 data class Closed(
