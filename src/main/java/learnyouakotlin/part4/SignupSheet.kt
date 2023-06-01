@@ -13,7 +13,9 @@ class SignupSheet {
             field = value
         }
 
-    private val signups = LinkedHashSet<AttendeeId>()
+    private val signups = mutableSetOf<AttendeeId>()
+    fun getSignups(): Set<AttendeeId> = signups.toSet()
+
     var isClosed = false
         private set
 
@@ -31,22 +33,17 @@ class SignupSheet {
         isClosed = true
     }
 
-    fun isSignedUp(attendeeId: AttendeeId): Boolean {
-        return signups.contains(attendeeId)
-    }
+    fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
 
     fun signUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups.add(attendeeId)
+        signups += attendeeId
     }
 
     fun cancelSignUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
-        signups.remove(attendeeId)
+        signups -= attendeeId
     }
 
-    fun getSignups(): Set<AttendeeId> {
-        return java.util.Set.copyOf(signups)
-    }
 }
