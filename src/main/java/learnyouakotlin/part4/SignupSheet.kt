@@ -13,8 +13,8 @@ class SignupSheet {
             field = value
         }
 
-    private val signups = mutableSetOf<AttendeeId>()
-    fun getSignups(): Set<AttendeeId> = signups.toSet()
+    var signups = emptySet<AttendeeId>()
+        private set
 
     var isClosed = false
         private set
@@ -24,7 +24,6 @@ class SignupSheet {
         this.sessionId = sessionId
         this.capacity = capacity
     }
-
 
     val isFull: Boolean
         get() = signups.size == capacity
@@ -38,12 +37,12 @@ class SignupSheet {
     fun signUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups += attendeeId
+        signups = signups + attendeeId
     }
 
     fun cancelSignUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
-        signups -= attendeeId
+        signups = signups - attendeeId
     }
 
 }
