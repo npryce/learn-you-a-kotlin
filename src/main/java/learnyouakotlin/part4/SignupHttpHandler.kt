@@ -33,11 +33,11 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> sendResponse(
-                    exchange,
-                    Response.Status.OK,
-                    sheet.signups.stream()
-                            .map { obj: AttendeeId -> obj.value }
-                            .collect(Collectors.joining("\n"))
+                exchange,
+                Response.Status.OK,
+                sheet.signups.stream()
+                    .map { obj: AttendeeId -> obj.value }
+                    .collect(Collectors.joining("\n"))
             )
 
             else -> sendMethodNotAllowed(exchange)
@@ -45,30 +45,36 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     }
 
     private fun handleSignup(
-            exchange: HttpExchange,
-            book: SignupBook,
-            sheet: SignupSheet,
-            attendeeId: AttendeeId) {
+        exchange: HttpExchange,
+        book: SignupBook,
+        sheet: SignupSheet,
+        attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
                 sendResponse(exchange, Response.Status.OK, sheet.isSignedUp(attendeeId))
             }
 
             HttpMethod.POST -> {
-                try {
-                    book.save(sheet.signUp(attendeeId))
-                    sendResponse(exchange, Response.Status.OK, "subscribed")
-                } catch (e: IllegalStateException) {
-                    sendResponse(exchange, Response.Status.CONFLICT, e.message)
+                when (sheet) {
+                    is Open ->
+                        try {
+                            book.save(sheet.signUp(attendeeId))
+                            sendResponse(exchange, Response.Status.OK, "subscribed")
+                        } catch (e: IllegalStateException) {
+                            sendResponse(exchange, Response.Status.CONFLICT, e.message)
+                        }
+
                 }
             }
 
             HttpMethod.DELETE -> {
-                try {
-                    book.save(sheet.cancelSignUp(attendeeId))
-                    sendResponse(exchange, Response.Status.OK, "unsubscribed")
-                } catch (e: IllegalStateException) {
-                    sendResponse(exchange, Response.Status.CONFLICT, e.message)
+                when (sheet) {
+                    is Open -> try {
+                        book.save(sheet.cancelSignUp(attendeeId))
+                        sendResponse(exchange, Response.Status.OK, "unsubscribed")
+                    } catch (e: IllegalStateException) {
+                        sendResponse(exchange, Response.Status.CONFLICT, e.message)
+                    }
                 }
             }
 
@@ -84,9 +90,11 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 sendResponse(exchange, Response.Status.OK, sheet.isClosed)
             }
 
-            HttpMethod.POST -> {
-                book.save(sheet.close())
-                sendResponse(exchange, Response.Status.OK, "closed")
+            HttpMethod.POST -> when (sheet) {
+                is Open -> {
+                    book.save(sheet.close())
+                    sendResponse(exchange, Response.Status.OK, "closed")
+                }
             }
 
             else -> {
@@ -117,7 +125,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
 
         private fun sendMethodNotAllowed(exchange: HttpExchange) {
             sendResponse(exchange, Response.Status.METHOD_NOT_ALLOWED,
-                    exchange.requestMethod + " method not allowed")
+                exchange.requestMethod + " method not allowed")
         }
     }
 }

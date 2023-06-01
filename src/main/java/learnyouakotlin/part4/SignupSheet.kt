@@ -1,11 +1,19 @@
 package learnyouakotlin.part4
 
-data class SignupSheet(
-    val sessionId: SessionId,
-    val capacity: Int,
-    val signups: Set<AttendeeId>,
-    val isClosed: Boolean
-) {
+sealed class SignupSheet {
+    abstract val sessionId: SessionId
+    abstract val capacity: Int
+    abstract val signups: Set<AttendeeId>
+    abstract val isClosed: Boolean
+    fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
+}
+
+data class Open(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>,
+    override val isClosed: Boolean
+) : SignupSheet() {
     constructor(
         sessionId: SessionId,
         capacity: Int
@@ -14,8 +22,6 @@ data class SignupSheet(
     init {
         check(signups.size <= capacity)
     }
-
-    fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
 
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
