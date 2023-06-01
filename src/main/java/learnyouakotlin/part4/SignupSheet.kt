@@ -1,14 +1,15 @@
 package learnyouakotlin.part4
 
-class SignupSheet(
-        val sessionId: SessionId,
-        val capacity: Int
+data class SignupSheet(
+    val sessionId: SessionId,
+    val capacity: Int,
+    val signups: Set<AttendeeId>,
+    val isClosed: Boolean
 ) {
-    var signups = emptySet<AttendeeId>()
-        private set
-
-    var isClosed = false
-        private set
+    constructor(
+        sessionId: SessionId,
+        capacity: Int
+    ) : this(sessionId, capacity, emptySet(), false)
 
     private val isFull: Boolean
         get() = signups.size == capacity
@@ -18,18 +19,13 @@ class SignupSheet(
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups = signups + attendeeId
-        return this
+        return copy(signups = signups + attendeeId)
     }
 
     fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
-        signups = signups - attendeeId
-        return this
+        return copy(signups = signups - attendeeId)
     }
 
-    fun close(): SignupSheet {
-        isClosed = true
-        return this
-    }
+    fun close(): SignupSheet = copy(isClosed = true)
 }
