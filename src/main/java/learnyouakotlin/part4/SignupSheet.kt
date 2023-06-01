@@ -1,84 +1,59 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import org.jetbrains.annotations.NotNull;
+class SignupSheet {
+    private var sessionId: SessionId? = null
+    private var capacity = 0
+    private val signups = LinkedHashSet<AttendeeId>()
+    var isClosed = false
+        private set
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-public class SignupSheet {
-    private SessionId sessionId;
-    private int capacity;
-    private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
-    private boolean isClosed = false;
-
-    public SignupSheet() {
-    }
-    
-    public SignupSheet(@NotNull SessionId sessionId, int capacity) {
-        this.sessionId = sessionId;
-        this.capacity = capacity;
+    constructor()
+    constructor(sessionId: SessionId, capacity: Int) {
+        this.sessionId = sessionId
+        this.capacity = capacity
     }
 
-    public SessionId getSessionId() {
-        return sessionId;
+    fun getSessionId(): SessionId? {
+        return sessionId
     }
 
-    public void setSessionId(SessionId sessionId) {
-        if (sessionId != null) {
-            throw new IllegalStateException("you cannot change the sessionId after it has been set");
-        }
-        this.sessionId = sessionId;
+    fun setSessionId(sessionId: SessionId?) {
+        check(sessionId == null) { "you cannot change the sessionId after it has been set" }
+        this.sessionId = sessionId
     }
 
-    public int getCapacity() {
-        return capacity;
+    fun getCapacity(): Int {
+        return capacity
     }
 
-    public void setCapacity(int newCapacity) {
-        if (capacity != 0) {
-            throw new IllegalStateException("you cannot change the capacity after it has been set");
-        }
-
-        this.capacity = newCapacity;
+    fun setCapacity(newCapacity: Int) {
+        check(capacity == 0) { "you cannot change the capacity after it has been set" }
+        capacity = newCapacity
     }
 
-    public boolean isFull() {
-        return signups.size() == capacity;
+    val isFull: Boolean
+        get() = signups.size == capacity
+
+    fun close() {
+        isClosed = true
     }
 
-    public boolean isClosed() {
-        return isClosed;
+    fun isSignedUp(attendeeId: AttendeeId): Boolean {
+        return signups.contains(attendeeId)
     }
 
-    public void close() {
-        isClosed = true;
+    fun signUp(attendeeId: AttendeeId) {
+        check(!isClosed) { "sign-up has closed" }
+        check(!isFull) { "session is full" }
+        signups.add(attendeeId)
     }
 
-    public boolean isSignedUp(AttendeeId attendeeId) {
-        return signups.contains(attendeeId);
+    fun cancelSignUp(attendeeId: AttendeeId) {
+        check(!isClosed) { "sign-up has closed" }
+        signups.remove(attendeeId)
     }
 
-    public void signUp(AttendeeId attendeeId) {
-        if (isClosed()) {
-            throw new IllegalStateException("sign-up has closed");
-        }
-
-        if (isFull()) {
-            throw new IllegalStateException("session is full");
-        }
-
-        signups.add(attendeeId);
-    }
-
-    public void cancelSignUp(AttendeeId attendeeId) {
-        if (isClosed()) {
-            throw new IllegalStateException("sign-up has closed");
-        }
-
-        signups.remove(attendeeId);
-    }
-
-    public Set<AttendeeId> getSignups() {
-        return Set.copyOf(signups);
+    fun getSignups(): Set<AttendeeId> {
+        return java.util.Set.copyOf(signups)
     }
 }
