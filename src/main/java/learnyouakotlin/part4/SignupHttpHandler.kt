@@ -52,14 +52,14 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
         when (exchange.requestMethod) {
             HttpMethod.GET -> sendResponse(exchange, Response.Status.OK, sheet.isSignedUp(attendeeId))
             HttpMethod.POST -> when (sheet) {
-                is Open ->
+                is Available ->
                     try {
                         book.save(sheet.signUp(attendeeId))
                         sendResponse(exchange, Response.Status.OK, "subscribed")
                     } catch (e: IllegalStateException) {
                         sendResponse(exchange, Response.Status.CONFLICT, e.message)
                     }
-
+                is Full -> TODO()
                 is Closed -> sendResponse(exchange, Response.Status.CONFLICT, "Signups closed")
             }
 

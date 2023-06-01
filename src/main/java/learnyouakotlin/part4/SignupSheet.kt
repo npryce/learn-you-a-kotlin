@@ -7,11 +7,26 @@ sealed class SignupSheet {
     fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
 }
 
-data class Open(
+sealed class Open : SignupSheet() {
+    abstract override val sessionId: SessionId
+    abstract override val capacity: Int
+    abstract override val signups: Set<AttendeeId>
+
+    fun cancelSignUp(attendeeId: AttendeeId): Available =
+        Available(
+            sessionId,
+            capacity,
+            signups - attendeeId
+        )
+
+    fun close(): Closed = Closed(sessionId, capacity, signups)
+}
+
+data class Available(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>,
-) : SignupSheet() {
+) : Open() {
     constructor(
         sessionId: SessionId,
         capacity: Int
@@ -21,11 +36,15 @@ data class Open(
         check(signups.size <= capacity)
     }
 
-    fun signUp(attendeeId: AttendeeId): Open = copy(signups = signups + attendeeId)
+    fun signUp(attendeeId: AttendeeId): Available = copy(signups = signups + attendeeId)
 
-    fun cancelSignUp(attendeeId: AttendeeId): Open = copy(signups = signups - attendeeId)
+}
 
-    fun close(): Closed = Closed(sessionId, capacity, signups)
+data class Full(
+    override val sessionId: SessionId,
+    override val signups: Set<AttendeeId>,
+) : Open() {
+    override val capacity: Int = signups.size
 }
 
 data class Closed(
