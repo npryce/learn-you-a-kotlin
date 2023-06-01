@@ -7,11 +7,7 @@ sealed class SignupSheet {
     fun isSignedUp(attendeeId: AttendeeId): Boolean = attendeeId in signups
 }
 
-sealed class Open : SignupSheet() {
-    abstract override val sessionId: SessionId
-    abstract override val capacity: Int
-    abstract override val signups: Set<AttendeeId>
-}
+sealed class Open : SignupSheet()
 
 data class Available(
     override val sessionId: SessionId,
