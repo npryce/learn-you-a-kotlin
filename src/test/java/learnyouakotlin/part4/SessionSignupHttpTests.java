@@ -132,6 +132,28 @@ public class SessionSignupHttpTests {
         cancelSignUp(failsWithConflict, exampleSessionId, alice);
     }
 
+    @Test
+    public void closing_sheet_is_idempotent() {
+        book.save(new SignupSheet(exampleSessionId, 3));
+
+        signUp(exampleSessionId, alice);
+
+        closeSession(exampleSessionId);
+        closeSession(exampleSessionId);
+
+        signUp(failsWithConflict, exampleSessionId, carol);
+        cancelSignUp(failsWithConflict, exampleSessionId, alice);
+    }
+
+    @Test
+    public void can_close_an_empty_sheet() {
+        book.save(new SignupSheet(exampleSessionId, 3));
+
+        closeSession(exampleSessionId);
+        signUp(failsWithConflict, exampleSessionId, carol);
+    }
+
+
     private void signUp(SessionId sessionId, AttendeeId attendeeId) {
         signUp(isSuccessful, sessionId, attendeeId);
     }
