@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm") version "1.8.21"
 }
 
 repositories {
@@ -7,6 +8,7 @@ repositories {
 }
 
 dependencies {
+    implementation(kotlin("stdlib-jdk8"))
     api("org.jetbrains:annotations:24.0.1")
     api("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     implementation("org.glassfish.jersey.core:jersey-server:3.1.1")
