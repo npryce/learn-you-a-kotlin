@@ -1,4 +1,4 @@
-package learnyouakotlin.part4;
+package example.signup;
 
 import java.util.Objects;
 

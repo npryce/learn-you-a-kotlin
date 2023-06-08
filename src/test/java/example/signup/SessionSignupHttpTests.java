@@ -1,4 +1,4 @@
-package learnyouakotlin.part4;
+package example.signup;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -18,7 +18,6 @@ import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static jakarta.ws.rs.core.Response.Status.Family.familyOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toCollection;
-import static learnyouakotlin.part4.SignupHttpHandler.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -159,7 +158,7 @@ public class SessionSignupHttpTests {
     }
 
     private void signUp(Predicate<HttpExchange> expectedOutcome, SessionId sessionId, AttendeeId attendeeId) {
-        apiCall(expectedOutcome, POST, signupRoute.createURI(Map.of(
+        apiCall(expectedOutcome, POST, SignupHttpHandler.signupRoute.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
     }
@@ -169,13 +168,13 @@ public class SessionSignupHttpTests {
     }
 
     private void cancelSignUp(Predicate<HttpExchange> expectedResult, SessionId sessionId, AttendeeId attendeeId) {
-        apiCall(expectedResult, DELETE, signupRoute.createURI(Map.of(
+        apiCall(expectedResult, DELETE, SignupHttpHandler.signupRoute.createURI(Map.of(
             "sessionId", sessionId.getValue(),
             "attendeeId", attendeeId.getValue())));
     }
 
     private Set<AttendeeId> getSignups(SessionId sessionId) {
-        return apiCall(isSuccessful, GET, signupsRoute.createURI(Map.of(
+        return apiCall(isSuccessful, GET, SignupHttpHandler.signupsRoute.createURI(Map.of(
             "sessionId", sessionId.getValue()))
         ).lines()
             .map(AttendeeId::of)
@@ -183,12 +182,12 @@ public class SessionSignupHttpTests {
     }
 
     private boolean isSessionClosed(SessionId sessionId) {
-        return Boolean.parseBoolean(apiCall(isSuccessful, GET, closedRoute.createURI(Map.of(
+        return Boolean.parseBoolean(apiCall(isSuccessful, GET, SignupHttpHandler.closedRoute.createURI(Map.of(
             "sessionId", sessionId.getValue()))));
     }
 
     private void closeSession(SessionId sessionId) {
-        apiCall(isSuccessful, POST, closedRoute.createURI(Map.of(
+        apiCall(isSuccessful, POST, SignupHttpHandler.closedRoute.createURI(Map.of(
             "sessionId", sessionId.getValue())));
     }
 

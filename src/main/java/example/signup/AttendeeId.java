@@ -1,4 +1,4 @@
-package learnyouakotlin.part4;
+package example.signup;
 
 public final class AttendeeId extends Identifier {
     private AttendeeId(String value) {
