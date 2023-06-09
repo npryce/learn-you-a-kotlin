@@ -9,9 +9,13 @@ public class SignupSheet {
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isClosed = false;
 
-    public SignupSheet(SessionId sessionId, int capacity) {
+    private SignupSheet(SessionId sessionId, int capacity) {
         this.sessionId = sessionId;
         this.capacity = capacity;
+    }
+
+    public static SignupSheet emptySignupSheet(SessionId sessionId, int capacity) {
+        return new SignupSheet(sessionId, capacity);
     }
 
     public SessionId getSessionId() {

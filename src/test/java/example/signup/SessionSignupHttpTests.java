@@ -37,7 +37,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void collects_signups() {
-        book.save(new SignupSheet(exampleSessionId, 15));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 15));
 
         assertEquals(Set.of(), getSignups(exampleSessionId));
 
@@ -56,7 +56,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void each_attendee_can_only_sign_up_once() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, alice);
@@ -67,7 +67,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void can_only_sign_up_to_capacity() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -78,7 +78,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cancelling_a_signup_frees_capacity_when_not_full() {
-        book.save(new SignupSheet(exampleSessionId, 15));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 15));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -93,7 +93,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cancelling_a_signup_frees_capacity_when_full() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -108,7 +108,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cannot_sign_up_when_sheet_closed() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -122,7 +122,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void cannot_cancel_a_sign_up_after_sheet_closed() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
         signUp(exampleSessionId, bob);
@@ -133,7 +133,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void closing_sheet_is_idempotent() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         signUp(exampleSessionId, alice);
 
@@ -146,7 +146,7 @@ public class SessionSignupHttpTests {
 
     @Test
     public void can_close_an_empty_sheet() {
-        book.save(new SignupSheet(exampleSessionId, 3));
+        book.save(SignupSheet.emptySignupSheet(exampleSessionId, 3));
 
         closeSession(exampleSessionId);
         signUp(failsWithConflict, exampleSessionId, carol);
