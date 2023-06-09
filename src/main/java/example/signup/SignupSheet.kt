@@ -21,7 +21,6 @@ data class Open(
     override val capacity: Int,
     override val signups: Set<AttendeeId> = emptySet()
 ) : SignupSheet() {
-    
     private val isFull: Boolean
         get() = signups.size == capacity
     
@@ -41,5 +40,4 @@ data class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>
-) : SignupSheet() {
-}
+) : SignupSheet()
