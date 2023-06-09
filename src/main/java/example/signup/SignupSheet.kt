@@ -1,12 +1,11 @@
 package example.signup
 
-class SignupSheet(val sessionId: SessionId, val capacity: Int) {
-    var signups = emptySet<AttendeeId>()
-        private set
-    
-    var isClosed = false
-        private set
-    
+data class SignupSheet(
+    val sessionId: SessionId,
+    val capacity: Int,
+    val signups: Set<AttendeeId> = emptySet(),
+    val isClosed: Boolean = false
+) {
     private val isFull: Boolean
         get() = signups.size == capacity
     
@@ -16,19 +15,16 @@ class SignupSheet(val sessionId: SessionId, val capacity: Int) {
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups = signups + attendeeId
-        return this
+        return copy(signups = signups + attendeeId)
     }
     
     fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
-        signups = signups - attendeeId
-        return this
+        return copy(signups = signups - attendeeId)
     }
     
     fun close(): SignupSheet {
-        isClosed = true
-        return this
+        return copy(isClosed = true)
     }
     
     companion object {
