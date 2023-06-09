@@ -50,8 +50,8 @@ public class SignupSheet {
         return isClosed;
     }
 
-    public void close() {
-        isClosed = true;
+    public Set<AttendeeId> getSignups() {
+        return Set.copyOf(signups);
     }
 
     public boolean isSignedUp(AttendeeId attendeeId) {
@@ -78,7 +78,7 @@ public class SignupSheet {
         signups.remove(attendeeId);
     }
 
-    public Set<AttendeeId> getSignups() {
-        return Set.copyOf(signups);
+    public void close() {
+        isClosed = true;
     }
 }
