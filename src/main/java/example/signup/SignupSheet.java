@@ -1,7 +1,5 @@
 package example.signup;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -11,7 +9,7 @@ public class SignupSheet {
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isClosed = false;
 
-    public SignupSheet(@NotNull SessionId sessionId, int capacity) {
+    public SignupSheet(SessionId sessionId, int capacity) {
         this.sessionId = sessionId;
         this.capacity = capacity;
     }
