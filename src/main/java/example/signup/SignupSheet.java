@@ -14,7 +14,7 @@ public class SignupSheet {
         this.capacity = capacity;
     }
 
-    public static SignupSheet emptySignupSheet(SessionId sessionId, int capacity) {
+    public static SignupSheet newSignupSheet(SessionId sessionId, int capacity) {
         return new SignupSheet(sessionId, capacity);
     }
 

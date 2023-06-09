@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static example.signup.SignupSheet.newSignupSheet;
+
 public class InMemorySignupBook implements SignupBook {
     private final Map<SessionId, SignupSheet> signupsById = new HashMap<>();
 
@@ -15,7 +17,7 @@ public class InMemorySignupBook implements SignupBook {
             return null;
         } else {
             // Return a copy of the sheet, to emulate behaviour of database
-            SignupSheet loaded = SignupSheet.emptySignupSheet(stored.getSessionId(), stored.getCapacity());
+            SignupSheet loaded = newSignupSheet(stored.getSessionId(), stored.getCapacity());
             stored.getSignups().forEach(loaded::signUp);
             if (stored.isClosed()) {
                 loaded.close();
