@@ -1,36 +1,45 @@
 package example.signup
 
-data class SignupSheet(
-    val sessionId: SessionId,
-    val capacity: Int,
-    val signups: Set<AttendeeId> = emptySet(),
-    val isClosed: Boolean = false
-) {
-    private val isFull: Boolean
-        get() = signups.size == capacity
+sealed class SignupSheet {
+    abstract val sessionId: SessionId
+    abstract val capacity: Int
+    abstract val signups: Set<AttendeeId>
     
     fun isSignedUp(attendeeId: AttendeeId): Boolean =
         attendeeId in signups
     
+    companion object {
+        @JvmStatic
+        fun newSignupSheet(sessionId: SessionId, capacity: Int): Open {
+            return Open(sessionId, capacity)
+        }
+    }
+}
+
+data class Open(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId> = emptySet()
+) : SignupSheet() {
+    
+    private val isFull: Boolean
+        get() = signups.size == capacity
+    
     fun signUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
         return copy(signups = signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        check(!isClosed) { "sign-up has closed" }
-        return copy(signups = signups - attendeeId)
-    }
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet =
+        copy(signups = signups - attendeeId)
     
-    fun close(): SignupSheet {
-        return copy(isClosed = true)
-    }
-    
-    companion object {
-        @JvmStatic
-        fun newSignupSheet(sessionId: SessionId, capacity: Int): SignupSheet {
-            return SignupSheet(sessionId, capacity)
-        }
-    }
+    fun close(): SignupSheet =
+        Closed(sessionId, capacity, signups)
+}
+
+data class Closed(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>
+) : SignupSheet() {
 }
