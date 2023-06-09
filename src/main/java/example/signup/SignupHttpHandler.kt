@@ -61,13 +61,17 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Open -> {
+                    is Available -> {
                         try {
                             book.save(sheet.signUp(attendeeId))
                             sendResponse(exchange, OK, "subscribed")
                         } catch (e: IllegalStateException) {
                             sendResponse(exchange, CONFLICT, e.message)
                         }
+                    }
+                    
+                    is Full -> {
+                        sendResponse(exchange, CONFLICT, "session is full")
                     }
                     
                     is Closed -> {
