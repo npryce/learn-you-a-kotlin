@@ -62,12 +62,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             HttpMethod.POST -> {
                 when (sheet) {
                     is Available -> {
-                        try {
-                            book.save(sheet.signUp(attendeeId))
-                            sendResponse(exchange, OK, "subscribed")
-                        } catch (e: IllegalStateException) {
-                            sendResponse(exchange, CONFLICT, e.message)
-                        }
+                        book.save(sheet.signUp(attendeeId))
+                        sendResponse(exchange, OK, "subscribed")
                     }
                     
                     is Full -> {
@@ -83,12 +79,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             HttpMethod.DELETE -> {
                 when (sheet) {
                     is Open -> {
-                        try {
-                            book.save(sheet.cancelSignUp(attendeeId))
-                            sendResponse(exchange, OK, "unsubscribed")
-                        } catch (e: IllegalStateException) {
-                            sendResponse(exchange, CONFLICT, e.message)
-                        }
+                        book.save(sheet.cancelSignUp(attendeeId))
+                        sendResponse(exchange, OK, "unsubscribed")
                     }
                     
                     is Closed -> {

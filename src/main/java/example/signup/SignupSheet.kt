@@ -29,20 +29,21 @@ data class Available(
     override val capacity: Int,
     override val signups: Set<AttendeeId> = emptySet()
 ) : Open() {
-    private val isFull: Boolean = signups.size == capacity
+    fun signUp(attendeeId: AttendeeId): Open =
+        withSignups(signups + attendeeId)
     
-    fun signUp(attendeeId: AttendeeId): Open {
-        check(!isFull) { "session is full" }
-        return copy(signups = signups + attendeeId)
-    }
+    private fun withSignups(newSignups: Set<AttendeeId>) =
+        when (newSignups.size) {
+            capacity -> Full(sessionId, newSignups)
+            else -> copy(signups = newSignups)
+        }
 }
 
 data class Full(
     override val sessionId: SessionId,
     override val signups: Set<AttendeeId>
 ) : Open() {
-    override val capacity: Int
-        get() = signups.size
+    override val capacity: Int = signups.size
 }
 
 data class Closed(
