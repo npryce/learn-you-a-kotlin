@@ -13,19 +13,22 @@ class SignupSheet(val sessionId: SessionId, val capacity: Int) {
     fun isSignedUp(attendeeId: AttendeeId): Boolean =
         attendeeId in signups
     
-    fun signUp(attendeeId: AttendeeId) {
+    fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
         signups = signups + attendeeId
+        return this
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId) {
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
         signups = signups - attendeeId
+        return this
     }
     
-    fun close() {
+    fun close(): SignupSheet {
         isClosed = true
+        return this
     }
     
     companion object {
