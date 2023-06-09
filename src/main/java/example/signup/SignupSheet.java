@@ -6,14 +6,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SignupSheet {
-    private SessionId sessionId;
-    private int capacity;
+    private final SessionId sessionId;
+    private final int capacity;
     private final LinkedHashSet<AttendeeId> signups = new LinkedHashSet<>();
     private boolean isClosed = false;
 
-    public SignupSheet() {
-    }
-    
     public SignupSheet(@NotNull SessionId sessionId, int capacity) {
         this.sessionId = sessionId;
         this.capacity = capacity;
@@ -23,23 +20,8 @@ public class SignupSheet {
         return sessionId;
     }
 
-    public void setSessionId(SessionId sessionId) {
-        if (sessionId != null) {
-            throw new IllegalStateException("you cannot change the sessionId after it has been set");
-        }
-        this.sessionId = sessionId;
-    }
-
     public int getCapacity() {
         return capacity;
-    }
-
-    public void setCapacity(int newCapacity) {
-        if (capacity != 0) {
-            throw new IllegalStateException("you cannot change the capacity after it has been set");
-        }
-
-        this.capacity = newCapacity;
     }
 
     public boolean isFull() {
