@@ -12,11 +12,11 @@ sealed class SignupSheet {
 }
 
 sealed class Open : SignupSheet() {
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
+    fun cancelSignUp(attendeeId: AttendeeId): Available {
         return Available(sessionId, capacity, signups = signups - attendeeId)
     }
     
-    fun close(): SignupSheet {
+    fun close(): Closed {
         return Closed(sessionId, capacity, signups)
     }
 }
@@ -27,7 +27,7 @@ data class Available @JvmOverloads constructor (
     override val signups : Set<AttendeeId> = emptySet(),
 ) : Open() {
     
-    fun signUp(attendeeId: AttendeeId): SignupSheet {
+    fun signUp(attendeeId: AttendeeId): Open {
         val newSignups = signups + attendeeId
         return when (newSignups.size) {
             capacity -> Full(sessionId, newSignups)
@@ -47,5 +47,4 @@ data class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups: Set<AttendeeId>
-) : SignupSheet() {
-}
+) : SignupSheet()
