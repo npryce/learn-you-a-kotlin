@@ -107,7 +107,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                sendResponse(exchange, OK, sheet.isClosed)
+                sendResponse(exchange, OK, sheet is Closed)
             }
             
             HttpMethod.POST -> {
