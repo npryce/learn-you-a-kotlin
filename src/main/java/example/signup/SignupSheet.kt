@@ -11,26 +11,30 @@ sealed class SignupSheet {
     }
 }
 
-data class Open @JvmOverloads constructor (
+sealed class Open : SignupSheet() {
+    val isFull: Boolean
+        get() = signups.size == capacity
+    
+    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
+        return Available(sessionId, capacity, signups = signups - attendeeId)
+    }
+    
+    fun close(): SignupSheet {
+        return Closed(sessionId, capacity, signups)
+    }
+}
+
+data class Available @JvmOverloads constructor (
     override val sessionId: SessionId,
     override val capacity: Int,
     override val signups : Set<AttendeeId> = emptySet(),
-) : SignupSheet() {
-    val isFull: Boolean
-        get() = signups.size == capacity
+) : Open() {
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isFull) { "session is full" }
         return copy(signups = signups + attendeeId)
     }
     
-    fun cancelSignUp(attendeeId: AttendeeId): SignupSheet {
-        return copy(signups = signups - attendeeId)
-    }
-    
-    fun close(): SignupSheet {
-        return Closed(sessionId, capacity, signups)
-    }
 }
 
 data class Closed(

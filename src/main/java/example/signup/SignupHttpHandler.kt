@@ -61,7 +61,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Open -> {
+                    is Available -> {
                         try {
                             book.save(sheet.signUp(attendeeId))
                             sendResponse(exchange, OK, "subscribed")
@@ -78,7 +78,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.DELETE -> {
                 when (sheet) {
-                    is Open -> {
+                    is Available -> {
                         try {
                             book.save(sheet.cancelSignUp(attendeeId))
                             sendResponse(exchange, OK, "unsubscribed")
@@ -112,7 +112,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Open -> {
+                    is Available -> {
                         book.save(sheet.close())
                     }
                     
