@@ -73,12 +73,16 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     is Closed -> {
                         sendSessionClosedError(exchange)
                     }
+                    
+                    is Full -> {
+                        sendResponse(exchange, CONFLICT, "session full")
+                    }
                 }
             }
             
             HttpMethod.DELETE -> {
                 when (sheet) {
-                    is Available -> {
+                    is Open -> {
                         try {
                             book.save(sheet.cancelSignUp(attendeeId))
                             sendResponse(exchange, OK, "unsubscribed")
@@ -112,7 +116,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             HttpMethod.POST -> {
                 when (sheet) {
-                    is Available -> {
+                    is Open -> {
                         book.save(sheet.close())
                     }
                     

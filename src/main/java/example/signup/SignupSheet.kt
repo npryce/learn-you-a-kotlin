@@ -37,6 +37,13 @@ data class Available @JvmOverloads constructor (
     
 }
 
+data class Full(
+    override val sessionId: SessionId,
+    override val signups: Set<AttendeeId>
+) : Open() {
+    override val capacity: Int = signups.size
+}
+
 data class Closed(
     override val sessionId: SessionId,
     override val capacity: Int,
