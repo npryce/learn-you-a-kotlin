@@ -1,11 +1,8 @@
 package example.signup
 
 class SignupSheet(val sessionId: SessionId, val capacity: Int) {
-    private val signups = mutableSetOf<AttendeeId>()
-    
-    fun getSignups(): Set<AttendeeId> {
-        return signups.toSet()
-    }
+    var signups = emptySet<AttendeeId>()
+        private set
     
     var isClosed = false
         private set
