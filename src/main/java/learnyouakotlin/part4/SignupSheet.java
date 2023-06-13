@@ -59,21 +59,14 @@ public class SignupSheet {
     }
 
     public void signUp(AttendeeId attendeeId) {
-        if (isClosed()) {
-            throw new IllegalStateException("sign-up has closed");
-        }
-
-        if (isFull()) {
-            throw new IllegalStateException("session is full");
-        }
+        if (isClosed()) throw new IllegalStateException("sign-up has closed");
+        if (isFull()) throw new IllegalStateException("session is full");
 
         signups.add(attendeeId);
     }
 
     public void cancelSignUp(AttendeeId attendeeId) {
-        if (isClosed()) {
-            throw new IllegalStateException("sign-up has closed");
-        }
+        if (isClosed()) throw new IllegalStateException("sign-up has closed");
 
         signups.remove(attendeeId);
     }
