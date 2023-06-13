@@ -17,12 +17,12 @@ class SignupSheet(val sessionId: SessionId, val capacity: Int) {
     fun signUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups += attendeeId
+        signups = signups + attendeeId
     }
     
     fun cancelSignUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
-        signups -= attendeeId
+        signups = signups - attendeeId
     }
     
     fun close() {
