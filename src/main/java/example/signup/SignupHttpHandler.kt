@@ -40,7 +40,8 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
             HttpMethod.GET -> {
-                sendResponse(exchange, OK,
+                sendResponse(
+                    exchange, OK,
                     sheet.signups.joinToString(separator = "\n", transform = { it.value })
                 )
             }
@@ -59,20 +60,28 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
             
             HttpMethod.POST -> {
-                try {
-                    book.save(sheet.signUp(attendeeId))
-                    sendResponse(exchange, OK, "subscribed")
-                } catch (e: IllegalStateException) {
-                    sendResponse(exchange, CONFLICT, e.message)
+                when (sheet) {
+                    is Open -> {
+                        try {
+                            book.save(sheet.signUp(attendeeId))
+                            sendResponse(exchange, OK, "subscribed")
+                        } catch (e: IllegalStateException) {
+                            sendResponse(exchange, CONFLICT, e.message)
+                        }
+                    }
                 }
             }
             
             HttpMethod.DELETE -> {
-                try {
-                    book.save(sheet.cancelSignUp(attendeeId))
-                    sendResponse(exchange, OK, "unsubscribed")
-                } catch (e: IllegalStateException) {
-                    sendResponse(exchange, CONFLICT, e.message)
+                when (sheet) {
+                    is Open -> {
+                        try {
+                            book.save(sheet.cancelSignUp(attendeeId))
+                            sendResponse(exchange, OK, "unsubscribed")
+                        } catch (e: IllegalStateException) {
+                            sendResponse(exchange, CONFLICT, e.message)
+                        }
+                    }
                 }
             }
             
@@ -90,8 +99,12 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
             
             HttpMethod.POST -> {
-                book.save(sheet.close())
-                sendResponse(exchange, OK, "closed")
+                when (sheet) {
+                    is Open -> {
+                        book.save(sheet.close())
+                        sendResponse(exchange, OK, "closed")
+                    }
+                }
             }
             
             else -> {

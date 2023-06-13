@@ -1,17 +1,25 @@
 package example.signup
 
-data class SignupSheet @JvmOverloads constructor (
-    val sessionId: SessionId,
-    val capacity: Int,
-    val signups : Set<AttendeeId> = emptySet(),
-    val isClosed : Boolean = false
-) {
-    val isFull: Boolean
-        get() = signups.size == capacity
+
+sealed class SignupSheet {
+    abstract val sessionId: SessionId
+    abstract val capacity: Int
+    abstract val signups: Set<AttendeeId>
+    abstract val isClosed: Boolean
     
     fun isSignedUp(attendeeId: AttendeeId): Boolean {
         return attendeeId in signups
     }
+}
+
+data class Open @JvmOverloads constructor (
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups : Set<AttendeeId> = emptySet(),
+    override val isClosed : Boolean = false
+) : SignupSheet() {
+    val isFull: Boolean
+        get() = signups.size == capacity
     
     fun signUp(attendeeId: AttendeeId): SignupSheet {
         check(!isClosed) { "sign-up has closed" }
