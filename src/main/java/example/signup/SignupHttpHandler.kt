@@ -71,7 +71,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     }
                     
                     is Closed -> {
-                        sendResponse(exchange, CONFLICT, "session closed")
+                        sendSessionClosedError(exchange)
                     }
                 }
             }
@@ -88,7 +88,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                     }
                     
                     is Closed -> {
-                        sendResponse(exchange, CONFLICT, "session closed")
+                        sendSessionClosedError(exchange)
                     }
                 }
             }
@@ -97,6 +97,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 sendMethodNotAllowed(exchange)
             }
         }
+    }
+    
+    private fun sendSessionClosedError(exchange: HttpExchange) {
+        sendResponse(exchange, CONFLICT, "session closed")
     }
     
     
