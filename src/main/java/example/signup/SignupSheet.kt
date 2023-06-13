@@ -33,6 +33,14 @@ data class Open @JvmOverloads constructor (
     }
     
     fun close(): SignupSheet {
-        return copy(isClosed = true)
+        return Closed(sessionId, capacity, signups)
     }
+}
+
+data class Closed(
+    override val sessionId: SessionId,
+    override val capacity: Int,
+    override val signups: Set<AttendeeId>
+) : SignupSheet() {
+    override val isClosed: Boolean = true
 }

@@ -69,6 +69,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                             sendResponse(exchange, CONFLICT, e.message)
                         }
                     }
+                    
+                    is Closed -> {
+                        sendResponse(exchange, CONFLICT, "session closed")
+                    }
                 }
             }
             
@@ -81,6 +85,10 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                         } catch (e: IllegalStateException) {
                             sendResponse(exchange, CONFLICT, e.message)
                         }
+                    }
+                    
+                    is Closed -> {
+                        sendResponse(exchange, CONFLICT, "session closed")
                     }
                 }
             }
@@ -102,9 +110,13 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 when (sheet) {
                     is Open -> {
                         book.save(sheet.close())
-                        sendResponse(exchange, OK, "closed")
+                    }
+                    
+                    is Closed -> {
+                        // Nothing to do
                     }
                 }
+                sendResponse(exchange, OK, "closed")
             }
             
             else -> {
