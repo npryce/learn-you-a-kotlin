@@ -86,7 +86,7 @@ public class SignupHttpHandler implements HttpHandler {
                     book.save(sheet);
                     sendResponse(exchange, OK, "subscribed");
                 } catch (IllegalStateException e) {
-                    sendResponse(exchange, CONFLICT, e.getMessage());
+                    sendResponse(exchange, CONFLICT, "cannot sign up");
                 }
             }
             case DELETE -> {
@@ -95,7 +95,7 @@ public class SignupHttpHandler implements HttpHandler {
                     book.save(sheet);
                     sendResponse(exchange, OK, "unsubscribed");
                 } catch (IllegalStateException e) {
-                    sendResponse(exchange, CONFLICT, e.getMessage());
+                    sendResponse(exchange, CONFLICT, "cannot cancel sign-up");
                 }
             }
             default -> {
