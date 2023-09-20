@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm") version "1.9.10"
 }
 
 repositories {
@@ -16,6 +17,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("com.oneeyedmen:okeydoke:1.3.3")
+    implementation(kotlin("stdlib-jdk8"))
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
+    }
 }
 
 tasks.withType<Test> {
