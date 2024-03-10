@@ -11,7 +11,7 @@ class InMemorySignupBook : SignupBook {
     private fun SignupSheet.copy(): SignupSheet {
         val copy = SignupSheet(sessionId, capacity)
         signups.forEach { copy.signUp(it) }
-        if (isClosed) copy.close();
+        if (isClosed) copy.close()
         return copy
     }
     
