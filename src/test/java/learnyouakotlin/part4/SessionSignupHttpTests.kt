@@ -3,23 +3,24 @@ package learnyouakotlin.part4
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import jakarta.ws.rs.HttpMethod
+import jakarta.ws.rs.HttpMethod.POST
 import jakarta.ws.rs.core.Response.Status.CONFLICT
-import jakarta.ws.rs.core.Response.Status.Family
 import jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL
-import org.junit.jupiter.api.Assertions
+import jakarta.ws.rs.core.Response.Status.Family.familyOf
+import learnyouakotlin.part4.SignupHttpHandler.Companion.closedRoute
+import learnyouakotlin.part4.SignupHttpHandler.Companion.signupRoute
+import learnyouakotlin.part4.SignupHttpHandler.Companion.signupsRoute
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.IOException
-import java.io.UncheckedIOException
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 import java.util.function.Predicate
 
+
 class SessionSignupHttpTests {
     private val exampleSessionId = SessionId(UUID.randomUUID().toString())
-    
     private val book = InMemorySignupBook()
-    
     private val api: HttpHandler = SignupHttpHandler(InMemoryTransactor(book))
     
     
@@ -101,10 +102,10 @@ class SessionSignupHttpTests {
         signUp(exampleSessionId, alice)
         signUp(exampleSessionId, bob)
         
-        Assertions.assertTrue(!isSessionClosed(exampleSessionId))
+        assertTrue(!isSessionClosed(exampleSessionId))
         closeSession(exampleSessionId)
         
-        Assertions.assertTrue(isSessionClosed(exampleSessionId))
+        assertTrue(isSessionClosed(exampleSessionId))
         signUp(failsWithConflict, exampleSessionId, carol)
     }
     
@@ -125,7 +126,7 @@ class SessionSignupHttpTests {
     
     private fun signUp(expectedOutcome: Predicate<HttpExchange>, sessionId: SessionId, attendeeId: AttendeeId) {
         apiCall(
-            expectedOutcome, HttpMethod.POST, SignupHttpHandler.signupRoute.createURI(
+            expectedOutcome, POST, signupRoute.createURI(
                 mapOf(
                     "sessionId" to sessionId.value,
                     "attendeeId" to attendeeId.value
@@ -140,7 +141,7 @@ class SessionSignupHttpTests {
     
     private fun cancelSignUp(expectedResult: Predicate<HttpExchange>, sessionId: SessionId, attendeeId: AttendeeId) {
         apiCall(
-            expectedResult, HttpMethod.DELETE, SignupHttpHandler.signupRoute.createURI(
+            expectedResult, HttpMethod.DELETE, signupRoute.createURI(
                 mapOf(
                     "sessionId" to sessionId.value,
                     "attendeeId" to attendeeId.value
@@ -149,9 +150,9 @@ class SessionSignupHttpTests {
         )
     }
     
-    private fun getSignups(sessionId: SessionId): Set<AttendeeId> {
-        return apiCall(
-            isSuccessful, HttpMethod.GET, SignupHttpHandler.signupsRoute.createURI(
+    private fun getSignups(sessionId: SessionId): Set<AttendeeId> =
+        apiCall(
+            isSuccessful, HttpMethod.GET, signupsRoute.createURI(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
@@ -160,21 +161,19 @@ class SessionSignupHttpTests {
             .filter { it.isNotBlank() }
             .map(::AttendeeId)
             .toSet()
-    }
     
-    private fun isSessionClosed(sessionId: SessionId): Boolean {
-        return apiCall(
-            isSuccessful, HttpMethod.GET, SignupHttpHandler.closedRoute.createURI(
+    private fun isSessionClosed(sessionId: SessionId): Boolean =
+        apiCall(
+            isSuccessful, HttpMethod.GET, closedRoute.createURI(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
             )
         ).toBoolean()
-    }
     
     private fun closeSession(sessionId: SessionId) {
         apiCall(
-            isSuccessful, HttpMethod.POST, SignupHttpHandler.closedRoute.createURI(
+            isSuccessful, POST, closedRoute.createURI(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
@@ -184,16 +183,9 @@ class SessionSignupHttpTests {
     
     private fun apiCall(expectedResult: Predicate<HttpExchange>, method: String, uri: String): String {
         val exchange = InMemoryHttpExchange(method, uri)
-        
-        try {
-            api.handle(exchange)
-        } catch (e: IOException) {
-            throw UncheckedIOException(e)
-        }
-        
-        Assertions.assertTrue(expectedResult.test(exchange)) { "expected $expectedResult" }
-        
-        return exchange.responseBody.toString(StandardCharsets.UTF_8)
+        api.handle(exchange)
+        assertTrue(expectedResult.test(exchange)) { "expected $expectedResult" }
+        return exchange.responseBody.toString(UTF_8)
     }
     
     companion object {
@@ -203,23 +195,17 @@ class SessionSignupHttpTests {
         private val dave: AttendeeId = AttendeeId("dave")
         
         private val failsWithConflict: Predicate<HttpExchange> = object : Predicate<HttpExchange> {
-            override fun toString(): String {
-                return "fails with conflict"
-            }
+            override fun toString() = "fails with conflict"
             
-            override fun test(exchange: HttpExchange): Boolean {
-                return exchange.responseCode == CONFLICT.statusCode
-            }
+            override fun test(exchange: HttpExchange): Boolean =
+                exchange.responseCode == CONFLICT.statusCode
         }
         
         private val isSuccessful: Predicate<HttpExchange> = object : Predicate<HttpExchange> {
-            override fun toString(): String {
-                return "is successful"
-            }
+            override fun toString() = "is successful"
             
-            override fun test(exchange: HttpExchange): Boolean {
-                return Family.familyOf(exchange.responseCode) == SUCCESSFUL
-            }
+            override fun test(exchange: HttpExchange): Boolean =
+                familyOf(exchange.responseCode) == SUCCESSFUL
         }
     }
 }
