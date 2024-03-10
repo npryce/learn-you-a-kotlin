@@ -1,30 +1,22 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-
-public class InMemorySignupBook implements SignupBook {
-    private final Map<SessionId, SignupSheet> signupsById = new HashMap<>();
-
-    @Override
-    public @Nullable SignupSheet sheetFor(SessionId session) {
-        SignupSheet stored = signupsById.get(session);
-        if (stored == null) {
-            return null;
-        } else {
-            // Return a copy of the sheet, to emulate behaviour of database
-            SignupSheet loaded = new SignupSheet(stored.getSessionId(), stored.getCapacity());
-            stored.getSignups().forEach(loaded::signUp);
-            if (stored.isClosed()) {
-                loaded.close();
-            }
-            return loaded;
-        }
+class InMemorySignupBook : SignupBook {
+    private val signupsById: MutableMap<SessionId, SignupSheet> = HashMap()
+    
+    override fun sheetFor(session: SessionId): SignupSheet? {
+        // Return a copy of the sheet, to emulate behaviour of database
+        return signupsById[session]?.copy()
     }
-
-    @Override
-    public void save(SignupSheet signup) {
-        signupsById.put(signup.getSessionId(), signup);
+    
+    private fun SignupSheet.copy(): SignupSheet {
+        val copy = SignupSheet(sessionId, capacity)
+        signups.forEach { copy.signUp(it) }
+        if (isClosed) copy.close();
+        return copy
+    }
+    
+    override fun save(signup: SignupSheet) {
+        val sessionId = signup.sessionId ?: error("SignupSheet has no sessionId")
+        signupsById[sessionId] = signup
     }
 }

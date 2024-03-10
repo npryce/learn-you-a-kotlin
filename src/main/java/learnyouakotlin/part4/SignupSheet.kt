@@ -9,8 +9,7 @@ class SignupSheet {
             field = value
         }
     
-    var signups = emptySet<AttendeeId>()
-        private set
+    val signups = mutableSetOf<AttendeeId>()
     
     var isClosed = false
         private set
@@ -29,18 +28,17 @@ class SignupSheet {
         isClosed = true
     }
     
-    fun isSignedUp(attendeeId: AttendeeId): Boolean {
-        return signups.contains(attendeeId)
-    }
+    fun isSignedUp(attendeeId: AttendeeId): Boolean =
+        signups.contains(attendeeId)
     
     fun signUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
         check(!isFull) { "session is full" }
-        signups += attendeeId
+        signups.add(attendeeId)
     }
     
     fun cancelSignUp(attendeeId: AttendeeId) {
         check(!isClosed) { "sign-up has closed" }
-        signups -= attendeeId
+        signups.remove(attendeeId)
     }
 }

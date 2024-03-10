@@ -1,9 +1,6 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import javax.annotation.Nullable;
-
-public interface SignupBook {
-    @Nullable SignupSheet sheetFor(SessionId session);
-
-    void save(SignupSheet signup);
+interface SignupBook {
+    fun sheetFor(session: SessionId): SignupSheet?
+    fun save(signup: SignupSheet)
 }

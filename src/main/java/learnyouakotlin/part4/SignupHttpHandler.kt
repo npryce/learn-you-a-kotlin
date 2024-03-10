@@ -21,7 +21,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             }
         
         transactor.perform { book: SignupBook ->
-            val sheet = book.sheetFor(SessionId.of(params["sessionId"]))
+            val sheet = book.sheetFor(SessionId(params["sessionId"]!!))
                 ?: run {
                     sendResponse(exchange, NOT_FOUND, "session not found")
                     return@perform
@@ -29,7 +29,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
             
             when (matchedRoute) {
                 signupsRoute -> handleSignups(exchange, sheet)
-                signupRoute -> handleSignup(exchange, book, sheet, AttendeeId.of(params["attendeeId"]))
+                signupRoute -> handleSignup(exchange, book, sheet, AttendeeId(params["attendeeId"]!!))
                 closedRoute -> handleClosed(exchange, book, sheet)
             }
         }
@@ -101,16 +101,9 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     }
     
     companion object {
-        @JvmField
         val signupsRoute = UriTemplate("/sessions/{sessionId}/signups")
-        
-        @JvmField
         val signupRoute = UriTemplate("/sessions/{sessionId}/signups/{attendeeId}")
-        
-        @JvmField
         val closedRoute = UriTemplate("/sessions/{sessionId}/closed")
-        
-        @JvmField
         val routes = listOf(signupsRoute, signupRoute, closedRoute)
         
         private fun sendResponse(exchange: HttpExchange, status: Status, bodyValue: Any?) {
