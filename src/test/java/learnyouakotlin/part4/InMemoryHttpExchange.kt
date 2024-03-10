@@ -1,156 +1,127 @@
-package learnyouakotlin.part4;
+package learnyouakotlin.part4
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpPrincipal;
+import com.sun.net.httpserver.Headers
+import com.sun.net.httpserver.HttpContext
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpPrincipal
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.InetSocketAddress
+import java.net.URI
+import java.nio.charset.StandardCharsets
 
-import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
-public class InMemoryHttpExchange extends HttpExchange {
-    private final String requestMethod;
-    private final URI requestUri;
-    private final Headers requestHeaders;
-    private final ByteArrayInputStream requestBody;
-    private int responseCode = 0;
-    private final Headers responseHeaders = new Headers();
-    private long expectedResponseBodySize = 0;
-    private final ByteArrayOutputStream responseBody = new ByteArrayOutputStream() {
-        @Override
-        public void close() throws IOException {
-            super.close();
-            checkResponseBodySize();
-        }
-    };
-
-    private void checkResponseBodySize() {
-        if (expectedResponseBodySize > 0 && responseBody.size() != expectedResponseBodySize) {
-            throw new IllegalStateException("incorrect response body size sent: " +
-                "expected " + expectedResponseBodySize + ", was " + responseBody.size());
+class InMemoryHttpExchange(
+    private val requestMethod: String,
+    private val requestUri: URI,
+    private val requestHeaders: Headers,
+    private val requestBody: ByteArrayInputStream
+) : HttpExchange() {
+    private var responseCode = 0
+    private val responseHeaders = Headers()
+    private var expectedResponseBodySize: Long = 0
+    private val responseBody: ByteArrayOutputStream = object : ByteArrayOutputStream() {
+        override fun close() {
+            super.close()
+            checkResponseBodySize()
         }
     }
-
-    public InMemoryHttpExchange(String requestMethod, URI requestUri, Headers requestHeaders, ByteArrayInputStream requestBody) {
-        this.requestMethod = requestMethod;
-        this.requestUri = requestUri;
-        this.requestHeaders = requestHeaders;
-        this.requestBody = requestBody;
-    }
-
-    public InMemoryHttpExchange(String requestMethod, String requestUri) {
-        this(requestMethod, requestUri, noHeaders(), noBody());
-    }
-
-    public InMemoryHttpExchange(String requestMethod, String requestUri, Headers requestHeaders, ByteArrayInputStream requestBody) {
-        this(requestMethod, URI.create(requestUri), requestHeaders, requestBody);
-    }
-
-    public static Headers noHeaders() {
-        return new Headers();
-    }
-
-    public static ByteArrayInputStream noBody() {
-        return new ByteArrayInputStream(new byte[0]);
-    }
-
-    public static ByteArrayInputStream utf8Body(String textBody) {
-        return new ByteArrayInputStream(textBody.getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public Headers getRequestHeaders() {
-        return requestHeaders;
-    }
-
-    @Override
-    public Headers getResponseHeaders() {
-        return responseHeaders;
-    }
-
-    @Override
-    public URI getRequestURI() {
-        return requestUri;
-    }
-
-    @Override
-    public String getRequestMethod() {
-        return requestMethod;
-    }
-
-    @Override
-    public HttpContext getHttpContext() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void close() {
-        try {
-            requestBody.close();
-            responseBody.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    
+    private fun checkResponseBodySize() {
+        check(!(expectedResponseBodySize > 0 && responseBody.size().toLong() != expectedResponseBodySize)) {
+            "incorrect response body size sent: " +
+                "expected " + expectedResponseBodySize + ", was " + responseBody.size()
         }
     }
-
-    @Override
-    public ByteArrayInputStream getRequestBody() {
-        return requestBody;
+    
+    constructor(
+        requestMethod: String,
+        requestUri: String,
+        requestHeaders: Headers = noHeaders(),
+        requestBody: ByteArrayInputStream = noBody()
+    ) : this(requestMethod, URI.create(requestUri), requestHeaders, requestBody)
+    
+    override fun getRequestHeaders(): Headers {
+        return requestHeaders
     }
-
-    @Override
-    public ByteArrayOutputStream getResponseBody() {
-        if (responseCode == 0) {
-            throw new IllegalStateException("response headers have not been sent");
-        }
-        return responseBody;
+    
+    override fun getResponseHeaders(): Headers {
+        return responseHeaders
     }
-
-    @Override
-    public void sendResponseHeaders(int rCode, long responseLength) throws IOException {
-        responseCode = rCode;
-        expectedResponseBodySize = responseLength;
+    
+    override fun getRequestURI(): URI {
+        return requestUri
     }
-
-    @Override
-    public InetSocketAddress getRemoteAddress() {
-        throw new UnsupportedOperationException();
+    
+    override fun getRequestMethod(): String {
+        return requestMethod
     }
-
-    @Override
-    public int getResponseCode() {
-        return responseCode;
+    
+    override fun getHttpContext(): HttpContext {
+        throw UnsupportedOperationException()
     }
-
-    @Override
-    public InetSocketAddress getLocalAddress() {
-        throw new UnsupportedOperationException();
+    
+    override fun close() {
+        requestBody.close()
+        responseBody.close()
     }
-
-    @Override
-    public String getProtocol() {
-        return requestUri.getScheme();
+    
+    override fun getRequestBody(): ByteArrayInputStream {
+        return requestBody
     }
-
-    @Override
-    public Object getAttribute(String name) {
-        throw new UnsupportedOperationException();
+    
+    override fun getResponseBody(): ByteArrayOutputStream {
+        check(responseCode != 0) { "response headers have not been sent" }
+        return responseBody
     }
-
-    @Override
-    public void setAttribute(String name, Object value) {
-        throw new UnsupportedOperationException();
+    
+    override fun sendResponseHeaders(rCode: Int, responseLength: Long) {
+        responseCode = rCode
+        expectedResponseBodySize = responseLength
     }
-
-    @Override
-    public void setStreams(InputStream i, OutputStream o) {
-        throw new UnsupportedOperationException();
+    
+    override fun getRemoteAddress(): InetSocketAddress {
+        throw UnsupportedOperationException()
     }
-
-    @Override
-    public HttpPrincipal getPrincipal() {
-        throw new UnsupportedOperationException();
+    
+    override fun getResponseCode(): Int {
+        return responseCode
     }
+    
+    override fun getLocalAddress(): InetSocketAddress {
+        throw UnsupportedOperationException()
+    }
+    
+    override fun getProtocol(): String {
+        return requestUri.scheme
+    }
+    
+    override fun getAttribute(name: String): Any {
+        throw UnsupportedOperationException()
+    }
+    
+    override fun setAttribute(name: String, value: Any) {
+        throw UnsupportedOperationException()
+    }
+    
+    override fun setStreams(i: InputStream, o: OutputStream) {
+        throw UnsupportedOperationException()
+    }
+    
+    override fun getPrincipal(): HttpPrincipal {
+        throw UnsupportedOperationException()
+    }
+}
+
+private fun noHeaders(): Headers {
+    return Headers()
+}
+
+private fun noBody(): ByteArrayInputStream {
+    return ByteArrayInputStream(ByteArray(0))
+}
+
+private fun utf8Body(textBody: String): ByteArrayInputStream {
+    return ByteArrayInputStream(textBody.toByteArray(StandardCharsets.UTF_8))
 }

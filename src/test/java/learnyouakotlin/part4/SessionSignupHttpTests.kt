@@ -157,6 +157,7 @@ class SessionSignupHttpTests {
                 )
             )
         ).lines()
+            .filter { it.isNotBlank() }
             .map(::AttendeeId)
             .toSet()
     }
