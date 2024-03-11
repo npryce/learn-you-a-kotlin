@@ -1,6 +1,11 @@
 package learnyouakotlin.part4
 
-class SignupSheet {
+class SignupSheet() {
+    constructor(sessionId: SessionId?, capacity: Int) : this() {
+        this.sessionId = sessionId
+        this.capacity = capacity
+    }
+    
     var sessionId: SessionId? = null
     
     var capacity = 0
@@ -13,13 +18,6 @@ class SignupSheet {
     
     var isClosed = false
         private set
-    
-    constructor()
-    
-    constructor(sessionId: SessionId?, capacity: Int) {
-        this.sessionId = sessionId
-        this.capacity = capacity
-    }
     
     val isFull: Boolean
         get() = signups.size == capacity
