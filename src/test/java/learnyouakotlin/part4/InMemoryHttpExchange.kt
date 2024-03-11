@@ -10,7 +10,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.URI
-import java.nio.charset.StandardCharsets
 
 class InMemoryHttpExchange(
     private val requestMethod: String,
@@ -18,6 +17,13 @@ class InMemoryHttpExchange(
     private val requestHeaders: Headers,
     private val requestBody: ByteArrayInputStream
 ) : HttpExchange() {
+    constructor(
+        requestMethod: String,
+        requestUri: String,
+        requestHeaders: Headers = noHeaders(),
+        requestBody: ByteArrayInputStream = noBody()
+    ) : this(requestMethod, URI.create(requestUri), requestHeaders, requestBody)
+    
     private var responseCode = 0
     private val responseHeaders = Headers()
     private var expectedResponseBodySize: Long = 0
@@ -35,28 +41,15 @@ class InMemoryHttpExchange(
         }
     }
     
-    constructor(
-        requestMethod: String,
-        requestUri: String,
-        requestHeaders: Headers = noHeaders(),
-        requestBody: ByteArrayInputStream = noBody()
-    ) : this(requestMethod, URI.create(requestUri), requestHeaders, requestBody)
+    override fun getRequestHeaders(): Headers = requestHeaders
+    override fun getResponseHeaders(): Headers = responseHeaders
+    override fun getRequestURI(): URI = requestUri
+    override fun getProtocol(): String = requestUri.scheme
+    override fun getRequestMethod(): String = requestMethod
     
-    override fun getRequestHeaders(): Headers {
-        return requestHeaders
-    }
+    override fun getResponseCode(): Int = responseCode
     
-    override fun getResponseHeaders(): Headers {
-        return responseHeaders
-    }
-    
-    override fun getRequestURI(): URI {
-        return requestUri
-    }
-    
-    override fun getRequestMethod(): String {
-        return requestMethod
-    }
+    override fun getRequestBody(): ByteArrayInputStream = requestBody
     
     override fun getHttpContext(): HttpContext {
         throw UnsupportedOperationException()
@@ -65,10 +58,6 @@ class InMemoryHttpExchange(
     override fun close() {
         requestBody.close()
         responseBody.close()
-    }
-    
-    override fun getRequestBody(): ByteArrayInputStream {
-        return requestBody
     }
     
     override fun getResponseBody(): ByteArrayOutputStream {
@@ -85,16 +74,8 @@ class InMemoryHttpExchange(
         throw UnsupportedOperationException()
     }
     
-    override fun getResponseCode(): Int {
-        return responseCode
-    }
-    
     override fun getLocalAddress(): InetSocketAddress {
         throw UnsupportedOperationException()
-    }
-    
-    override fun getProtocol(): String {
-        return requestUri.scheme
     }
     
     override fun getAttribute(name: String): Any {
@@ -114,14 +95,9 @@ class InMemoryHttpExchange(
     }
 }
 
-private fun noHeaders(): Headers {
-    return Headers()
-}
+private fun noHeaders(): Headers =
+    Headers()
 
-private fun noBody(): ByteArrayInputStream {
-    return ByteArrayInputStream(ByteArray(0))
-}
+private fun noBody(): ByteArrayInputStream =
+    ByteArrayInputStream(ByteArray(0))
 
-private fun utf8Body(textBody: String): ByteArrayInputStream {
-    return ByteArrayInputStream(textBody.toByteArray(StandardCharsets.UTF_8))
-}
