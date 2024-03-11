@@ -2,7 +2,9 @@ package learnyouakotlin.part4
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import jakarta.ws.rs.HttpMethod
+import jakarta.ws.rs.HttpMethod.DELETE
+import jakarta.ws.rs.HttpMethod.GET
+import jakarta.ws.rs.HttpMethod.POST
 import jakarta.ws.rs.core.Response.Status
 import jakarta.ws.rs.core.Response.Status.CONFLICT
 import jakarta.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED
@@ -37,7 +39,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     
     private fun handleSignups(exchange: HttpExchange, sheet: SignupSheet) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
+            GET -> {
                 sendResponse(
                     exchange, OK,
                     sheet.signups.joinToString("\n", transform = { it.value })
@@ -52,11 +54,11 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     
     private fun handleSignup(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet, attendeeId: AttendeeId) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
+            GET -> {
                 sendResponse(exchange, OK, sheet.isSignedUp(attendeeId))
             }
             
-            HttpMethod.POST -> {
+            POST -> {
                 try {
                     sheet.signUp(attendeeId)
                     book.save(sheet)
@@ -66,7 +68,7 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
                 }
             }
             
-            HttpMethod.DELETE -> {
+            DELETE -> {
                 try {
                     sheet.cancelSignUp(attendeeId)
                     book.save(sheet)
@@ -84,11 +86,11 @@ class SignupHttpHandler(private val transactor: Transactor<SignupBook>) : HttpHa
     
     private fun handleClosed(exchange: HttpExchange, book: SignupBook, sheet: SignupSheet) {
         when (exchange.requestMethod) {
-            HttpMethod.GET -> {
+            GET -> {
                 sendResponse(exchange, OK, sheet.isClosed)
             }
             
-            HttpMethod.POST -> {
+            POST -> {
                 sheet.close()
                 book.save(sheet)
                 sendResponse(exchange, OK, "closed")
