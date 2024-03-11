@@ -1,7 +1,7 @@
 package learnyouakotlin.part4
 
-import learnyouakotlin.part4.Transactor.Mode.readOnly
-import learnyouakotlin.part4.Transactor.Mode.readWrite
+import learnyouakotlin.part4.Transactor.Mode.ReadOnly
+import learnyouakotlin.part4.Transactor.Mode.ReadWrite
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Method.DELETE
@@ -31,8 +31,8 @@ val closedRoute = UriTemplate.from(closedPath)
 
 
 fun Request.txMode() = when(method) {
-    GET, HEAD, OPTIONS, TRACE -> readOnly
-    else -> readWrite
+    GET, HEAD, OPTIONS, TRACE -> ReadOnly
+    else -> ReadWrite
 }
 
 fun SignupApp(transactor: Transactor<SignupBook>): HttpHandler =
