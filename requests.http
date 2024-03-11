@@ -1,0 +1,29 @@
+###
+# Get all sign-ups for a session
+GET http://localhost:9876/sessions/{{sessionId}}/signups
+Accept: text/plain
+
+###
+# Get whether an attendee is signed up for a session
+GET http://localhost:9876/sessions/{{sessionId}}/signups/{{attendeeId}}
+Accept: text/plain
+
+###
+# Sign an attendee up for a session
+POST http://localhost:9876/sessions/{{sessionId}}/signups/{{attendeeId}}
+Accept: text/plain
+
+###
+# Withdraw the sign-up of an attendee from a session
+DELETE http://localhost:9876/sessions/{{sessionId}}/signups/{{attendeeId}}
+Accept: text/plain
+
+###
+# Get whether sign-ups are closed for a session
+GET http://localhost:9876/sessions/{{sessionId}}/closed
+Accept: text/plain
+
+###
+# Close sign-ups for a session
+POST http://localhost:9876/sessions/{{sessionId}}/closed
+Accept: text/plain

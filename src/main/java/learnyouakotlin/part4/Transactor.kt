@@ -1,5 +1,7 @@
 package learnyouakotlin.part4
 
-interface Transactor<Resource> {
-    fun <T> perform(work: (Resource)-> T): T
+interface Transactor<out Resource> {
+    enum class Mode { readOnly, readWrite }
+    
+    fun <T> perform(mode: Mode, work: (Resource)-> T): T
 }

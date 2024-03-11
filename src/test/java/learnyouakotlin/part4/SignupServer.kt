@@ -2,11 +2,8 @@
 
 package learnyouakotlin.part4
 
-import com.sun.net.httpserver.HttpServer
-import org.glassfish.jersey.uri.UriTemplate
-import java.net.InetSocketAddress
-import java.util.concurrent.Executors
-import java.util.function.Consumer
+import org.http4k.server.SunHttp
+import org.http4k.server.asServer
 
 
 /**
@@ -22,16 +19,13 @@ fun main() {
         book.save(session)
     }
     
-    val port = 9876
-    val server = HttpServer.create(InetSocketAddress(port), 0)
-    
-    // So we don't have to worry that SignupSheet and SignupBook are not thread safe
-    server.executor = Executors.newSingleThreadExecutor()
-    server.createContext("/", SignupHttpHandler(InMemoryTransactor(book)))
+    val transactor = InMemoryTransactor(book)
+    val app = SignupApp(transactor)
+    val server = app.asServer(SunHttp(9876))
     server.start()
     
     println("Ready:")
-    SignupHttpHandler.routes.forEach(Consumer { template: UriTemplate ->
-        println("- " + "http://localhost:" + port + template.template)
-    })
+    listOf(signupsRoute, signupRoute, closedRoute).forEach { template ->
+        println(" http://localhost:${server.port()}/$template")
+    }
 }

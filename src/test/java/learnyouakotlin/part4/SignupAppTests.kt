@@ -1,27 +1,23 @@
 package learnyouakotlin.part4
 
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpHandler
-import jakarta.ws.rs.HttpMethod
-import jakarta.ws.rs.HttpMethod.POST
-import jakarta.ws.rs.core.Response.Status.CONFLICT
-import jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL
-import jakarta.ws.rs.core.Response.Status.Family.familyOf
-import learnyouakotlin.part4.SignupHttpHandler.Companion.closedRoute
-import learnyouakotlin.part4.SignupHttpHandler.Companion.signupRoute
-import learnyouakotlin.part4.SignupHttpHandler.Companion.signupsRoute
+import org.http4k.core.Method
+import org.http4k.core.Method.DELETE
+import org.http4k.core.Method.GET
+import org.http4k.core.Method.POST
+import org.http4k.core.Request
+import org.http4k.core.Response
+import org.http4k.core.Status
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 import java.util.function.Predicate
 
 
-class SessionSignupHttpTests {
+class SignupAppTests {
     private val exampleSessionId = SessionId(UUID.randomUUID().toString())
     private val book = InMemorySignupBook()
-    private val api: HttpHandler = SignupHttpHandler(InMemoryTransactor(book))
+    private val api = SignupApp(InMemoryTransactor(book))
     
     
     @Test
@@ -124,9 +120,9 @@ class SessionSignupHttpTests {
         signUp(isSuccessful, sessionId, attendeeId)
     }
     
-    private fun signUp(expectedOutcome: Predicate<HttpExchange>, sessionId: SessionId, attendeeId: AttendeeId) {
+    private fun signUp(expectedOutcome: (Response)->Boolean, sessionId: SessionId, attendeeId: AttendeeId) {
         apiCall(
-            expectedOutcome, POST, signupRoute.createURI(
+            expectedOutcome, POST, signupRoute.generate(
                 mapOf(
                     "sessionId" to sessionId.value,
                     "attendeeId" to attendeeId.value
@@ -139,9 +135,9 @@ class SessionSignupHttpTests {
         cancelSignUp(isSuccessful, sessionId, attendeeId)
     }
     
-    private fun cancelSignUp(expectedResult: Predicate<HttpExchange>, sessionId: SessionId, attendeeId: AttendeeId) {
+    private fun cancelSignUp(expectedResult: (Response)->Boolean, sessionId: SessionId, attendeeId: AttendeeId) {
         apiCall(
-            expectedResult, HttpMethod.DELETE, signupRoute.createURI(
+            expectedResult, DELETE, signupRoute.generate(
                 mapOf(
                     "sessionId" to sessionId.value,
                     "attendeeId" to attendeeId.value
@@ -152,7 +148,7 @@ class SessionSignupHttpTests {
     
     private fun getSignups(sessionId: SessionId): Set<AttendeeId> =
         apiCall(
-            isSuccessful, HttpMethod.GET, signupsRoute.createURI(
+            isSuccessful, GET, signupsRoute.generate(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
@@ -164,7 +160,7 @@ class SessionSignupHttpTests {
     
     private fun isSessionClosed(sessionId: SessionId): Boolean =
         apiCall(
-            isSuccessful, HttpMethod.GET, closedRoute.createURI(
+            isSuccessful, GET, closedRoute.generate(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
@@ -173,7 +169,7 @@ class SessionSignupHttpTests {
     
     private fun closeSession(sessionId: SessionId) {
         apiCall(
-            isSuccessful, POST, closedRoute.createURI(
+            isSuccessful, POST, closedRoute.generate(
                 mapOf(
                     "sessionId" to sessionId.value
                 )
@@ -181,11 +177,11 @@ class SessionSignupHttpTests {
         )
     }
     
-    private fun apiCall(expectedResult: Predicate<HttpExchange>, method: String, uri: String): String {
-        val exchange = InMemoryHttpExchange(method, uri)
-        api.handle(exchange)
-        assertTrue(expectedResult.test(exchange)) { "expected $expectedResult" }
-        return exchange.responseBody.toString(UTF_8)
+    private fun apiCall(expectedResult: Predicate<Response>, method: Method, uri: String): String {
+        val request = Request(method, uri)
+        val response = api(request)
+        assertTrue(expectedResult.test(response)) { "expected $expectedResult" }
+        return response.bodyString()
     }
     
     companion object {
@@ -194,18 +190,16 @@ class SessionSignupHttpTests {
         private val carol: AttendeeId = AttendeeId("carol")
         private val dave: AttendeeId = AttendeeId("dave")
         
-        private val failsWithConflict: Predicate<HttpExchange> = object : Predicate<HttpExchange> {
+        private val failsWithConflict = object : (Response)->Boolean {
             override fun toString() = "fails with conflict"
-            
-            override fun test(exchange: HttpExchange): Boolean =
-                exchange.responseCode == CONFLICT.statusCode
+            override fun invoke(response: Response): Boolean =
+                response.status == Status.CONFLICT
         }
         
-        private val isSuccessful: Predicate<HttpExchange> = object : Predicate<HttpExchange> {
+        private val isSuccessful = object : (Response)->Boolean {
             override fun toString() = "is successful"
-            
-            override fun test(exchange: HttpExchange): Boolean =
-                familyOf(exchange.responseCode) == SUCCESSFUL
+            override fun invoke(response: Response): Boolean =
+                response.status.successful
         }
     }
 }
