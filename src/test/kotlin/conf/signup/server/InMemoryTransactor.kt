@@ -1,8 +1,8 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
-import learnyouakotlin.part4.Transactor.Mode
-import learnyouakotlin.part4.Transactor.Mode.ReadOnly
-import learnyouakotlin.part4.Transactor.Mode.ReadWrite
+import conf.signup.server.Transactor.Mode
+import conf.signup.server.Transactor.Mode.ReadOnly
+import conf.signup.server.Transactor.Mode.ReadWrite
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write

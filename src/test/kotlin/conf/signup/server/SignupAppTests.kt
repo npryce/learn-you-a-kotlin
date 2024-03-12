@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 import org.http4k.core.Method
 import org.http4k.core.Method.DELETE

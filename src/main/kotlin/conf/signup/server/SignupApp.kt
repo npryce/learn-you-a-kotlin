@@ -1,7 +1,7 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
-import learnyouakotlin.part4.Transactor.Mode.ReadOnly
-import learnyouakotlin.part4.Transactor.Mode.ReadWrite
+import conf.signup.server.Transactor.Mode.ReadOnly
+import conf.signup.server.Transactor.Mode.ReadWrite
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Method.DELETE

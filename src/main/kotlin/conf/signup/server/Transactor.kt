@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 interface Transactor<out Resource> {
     enum class Mode { ReadOnly, ReadWrite }

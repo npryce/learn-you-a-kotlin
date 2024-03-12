@@ -1,6 +1,6 @@
 @file:JvmName("SignupServer")
 
-package learnyouakotlin.part4
+package conf.signup.server
 
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer

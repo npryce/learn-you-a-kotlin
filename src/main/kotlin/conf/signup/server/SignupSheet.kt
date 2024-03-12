@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 class SignupSheet() {
     constructor(sessionId: SessionId?, capacity: Int) : this() {

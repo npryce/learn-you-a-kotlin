@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 @JvmInline
 value class AttendeeId(val value: String)

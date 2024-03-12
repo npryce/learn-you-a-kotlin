@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 class InMemorySignupBook : SignupBook {
     private val signupsById: MutableMap<SessionId, SignupSheet> = HashMap()

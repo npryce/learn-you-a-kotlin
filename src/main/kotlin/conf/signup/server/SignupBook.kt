@@ -1,4 +1,4 @@
-package learnyouakotlin.part4
+package conf.signup.server
 
 interface SignupBook {
     fun sheetFor(session: SessionId): SignupSheet?
