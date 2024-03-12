@@ -1,5 +1,31 @@
 package conf.signup.server
 
+import dev.forkhandles.values.ComparableValue
+import dev.forkhandles.values.NonBlankStringValueFactory
+import dev.forkhandles.values.StringValue
+
+class AttendeeId(value: String) :
+    StringValue(value),
+    ComparableValue<StringValue,String>
+{
+    companion object : NonBlankStringValueFactory<AttendeeId>(::AttendeeId)
+}
+
+
+class SessionId (value: String) :
+    StringValue(value),
+    ComparableValue<StringValue,String>
+{
+    companion object : NonBlankStringValueFactory<SessionId>(::SessionId)
+}
+
+
+interface SignupBook {
+    fun sheetFor(session: SessionId): SignupSheet?
+    fun save(signup: SignupSheet)
+}
+
+
 class SignupSheet() {
     constructor(sessionId: SessionId?, capacity: Int) : this() {
         this.sessionId = sessionId

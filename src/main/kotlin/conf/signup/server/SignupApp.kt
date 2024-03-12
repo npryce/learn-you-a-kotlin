@@ -17,8 +17,9 @@ import org.http4k.core.Status.Companion.METHOD_NOT_ALLOWED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.UriTemplate
+import org.http4k.lens.Path
+import org.http4k.lens.value
 import org.http4k.routing.bind
-import org.http4k.routing.path
 import org.http4k.routing.routes
 
 val signupsPath = "/sessions/{sessionId}/signups"
@@ -29,6 +30,8 @@ val signupsRoute = UriTemplate.from(signupsPath)
 val signupRoute = UriTemplate.from(signupPath)
 val closedRoute = UriTemplate.from(closedPath)
 
+val sessionId = Path.value(SessionId).of("sessionId")
+val attendeeId = Path.value(AttendeeId).of("attendeeId")
 
 fun Request.txMode() = when(method) {
     GET, HEAD, OPTIONS, TRACE -> ReadOnly
@@ -38,7 +41,7 @@ fun Request.txMode() = when(method) {
 fun SignupApp(transactor: Transactor<SignupBook>): HttpHandler =
     routes(
         signupsPath bind { rq ->
-            val sessionId = SessionId(rq.path("sessionId")!!)
+            val sessionId = sessionId(rq)
             transactor.perform(rq.txMode()) { book ->
                 val sheet = book.sheetFor(sessionId)
                     ?: return@perform sessionNotFoundError(sessionId)
@@ -52,8 +55,8 @@ fun SignupApp(transactor: Transactor<SignupBook>): HttpHandler =
             }
         },
         signupPath bind { rq ->
-            val sessionId = SessionId(rq.path("sessionId")!!)
-            val attendeeId = AttendeeId(rq.path("attendeeId")!!)
+            val sessionId = sessionId(rq)
+            val attendeeId = attendeeId(rq)
             
             transactor.perform(rq.txMode()) { book ->
                 val sheet = book.sheetFor(sessionId)
@@ -85,7 +88,7 @@ fun SignupApp(transactor: Transactor<SignupBook>): HttpHandler =
         },
         
         closedPath bind { rq ->
-            val sessionId = SessionId(rq.path("sessionId")!!)
+            val sessionId = sessionId(rq)
             
             transactor.perform(rq.txMode()) { book ->
                 val sheet = book.sheetFor(sessionId)

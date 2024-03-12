@@ -8,8 +8,11 @@ repositories {
 }
 
 dependencies {
-    api("com.google.code.findbugs:jsr305:3.0.2")
-    
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation(platform("dev.forkhandles:forkhandles-bom:2.13.1.0"))
+    implementation("dev.forkhandles:result4k")
+    implementation("dev.forkhandles:values4k")
+    implementation("dev.forkhandles:tuples4k")
     implementation(platform("org.http4k:http4k-bom:5.14.0.0"))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-server-undertow")
